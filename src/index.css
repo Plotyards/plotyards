@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-text font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hero-dropdown-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #fa3e4e #f4f7f8;
+    scrollbar-gutter: stable;
+  }
+  .hero-dropdown-scroll::-webkit-scrollbar {
+    width: 10px;
+  }
+  .hero-dropdown-scroll::-webkit-scrollbar-track {
+    margin: 12px;
+    border-radius: 999px;
+    background: #f4f7f8;
+  }
+  .hero-dropdown-scroll::-webkit-scrollbar-thumb {
+    min-height: 42px;
+    border: 2px solid #f4f7f8;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #fa3e4e, #00697a);
+  }
+  .hero-dropdown-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #e02f42, #005d6d);
+  }
+}
