@@ -1,11 +1,7 @@
 const normalizeApiBaseUrl = (url) => String(url || '').replace(/\/+$/, '');
 
-const DEFAULT_API_BASE_URL = import.meta.env.PROD
-  ? 'https://relive-shiftless-small.ngrok-free.dev/api'
-  : 'http://localhost:5000/api';
-
 const API_BASE_URL = normalizeApiBaseUrl(
-  import.meta.env.PROD ? DEFAULT_API_BASE_URL : import.meta.env.VITE_API_URL || DEFAULT_API_BASE_URL
+  import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:5000/api')
 );
 
 export const getToken = () => localStorage.getItem('token');
@@ -30,10 +26,15 @@ export const getStoredUser = () => {
 };
 
 export const apiRequest = async (path, options = {}) => {
+  if (!API_BASE_URL) {
+    throw new Error('VITE_API_URL is required for production builds.');
+  }
+
   const token = getToken();
+  const shouldBypassNgrokWarning = API_BASE_URL.includes('.ngrok-free.');
   const headers = {
     ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
-    'ngrok-skip-browser-warning': 'true',
+    ...(shouldBypassNgrokWarning ? { 'ngrok-skip-browser-warning': 'true' } : {}),
     ...options.headers
   };
 

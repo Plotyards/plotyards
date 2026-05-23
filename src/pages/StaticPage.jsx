@@ -102,6 +102,41 @@ const pageContent = {
       }
     ]
   },
+  refund: {
+    title: 'Refund Policy - Plotyards',
+    intro: 'This Refund Policy explains how refunds, cancellations, and payment issues are handled for paid broker subscriptions and promotional services on Plotyards.',
+    updated: 'Last updated: May 23, 2026',
+    sections: [
+      {
+        heading: '1. Broker Subscription Payments',
+        body: 'Premium Plan payments, including the Rs. 5,100 plan for 3 months, are generally non-refundable once the plan is activated, broker approval is granted, or promotional work such as featured visibility, reels, leads support, or social promotion has started.'
+      },
+      {
+        heading: '2. Duplicate or Failed Payments',
+        body: 'If you are charged twice, charged after a failed payment, or payment is captured but your Premium Plan is not activated, contact us within 7 days with your registered phone or email and payment details. After verification, eligible refunds will be processed.'
+      },
+      {
+        heading: '3. Cancellation of Active Plans',
+        body: 'You may stop using a paid plan at any time, but active subscription fees are not refunded on a partial or prorated basis for the remaining days of the current plan period.'
+      },
+      {
+        heading: '4. Service Delivery Issues',
+        body: 'If a paid promotional service is not delivered because of an issue from Plotyards, we may offer a correction, replacement service, plan extension, wallet credit, or refund depending on the situation and internal verification.'
+      },
+      {
+        heading: '5. Non-Refundable Cases',
+        body: 'Refunds are not provided for fake listings, misleading property details, policy violations, account suspension caused by user activity, buyer response differences, personal change of mind, or deals made outside the Plotyards platform.'
+      },
+      {
+        heading: '6. Refund Processing Time',
+        body: 'Approved refunds are sent to the original payment method and usually take 7 to 10 business days after approval, depending on the bank, payment gateway, or card issuer.'
+      },
+      {
+        heading: '7. Contact for Refund Requests',
+        body: 'For refund or payment support, email info@plotyards.com with your registered name, phone number, payment ID, plan name, payment date, and a short explanation of the issue.'
+      }
+    ]
+  },
   faq: {
     title: 'Frequently Asked Questions',
     intro: 'Quick answers for buyers, brokers, and anyone comparing land opportunities on Plotyards.',

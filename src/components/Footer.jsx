@@ -50,6 +50,7 @@ const Footer = () => {
             <ul className="flex flex-col gap-3 text-muted">
               <li><Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
               <li><Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
+              <li><Link to="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</Link></li>
               <li><Link to="/help-center" className="hover:text-primary transition-colors">Help Center</Link></li>
             </ul>
           </div>

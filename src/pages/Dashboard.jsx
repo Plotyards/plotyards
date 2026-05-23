@@ -452,6 +452,15 @@ const Dashboard = () => {
                           >
                             {isUpdating ? 'Processing...' : isActivePlan ? 'Continue to Dashboard' : plan.id === 'premium' ? plan.cta : 'Switch to Free'}
                           </button>
+                          {plan.id === 'premium' && (
+                            <p className="mt-3 text-center text-xs font-semibold text-muted">
+                              Payment is subject to our{' '}
+                              <Link to="/refund-policy" className="font-extrabold text-primary hover:text-rose-600">
+                                Refund Policy
+                              </Link>
+                              .
+                            </p>
+                          )}
                         </div>
                       );
                     })}

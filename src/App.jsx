@@ -61,6 +61,8 @@ function App() {
                   <Route path="/contact" element={<StaticPage type="contact" />} />
                   <Route path="/privacy" element={<StaticPage type="privacy" />} />
                   <Route path="/terms" element={<StaticPage type="terms" />} />
+                  <Route path="/refund-policy" element={<StaticPage type="refund" />} />
+                  <Route path="/refund" element={<StaticPage type="refund" />} />
                   <Route path="/faq" element={<HelpCenter />} />
                   <Route path="/help-center" element={<HelpCenter />} />
                   <Route path="/app-coming-soon" element={<AppComingSoon />} />
