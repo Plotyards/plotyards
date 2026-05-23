@@ -1,7 +1,11 @@
 const normalizeApiBaseUrl = (url) => String(url || '').replace(/\/+$/, '');
 
+const DEFAULT_API_BASE_URL = import.meta.env.PROD
+  ? 'https://relive-shiftless-small.ngrok-free.dev/api'
+  : 'http://localhost:5000/api';
+
 const API_BASE_URL = normalizeApiBaseUrl(
-  import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api')
+  import.meta.env.VITE_API_URL || DEFAULT_API_BASE_URL
 );
 
 export const getToken = () => localStorage.getItem('token');
