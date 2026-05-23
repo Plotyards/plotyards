@@ -5,7 +5,7 @@ const DEFAULT_API_BASE_URL = import.meta.env.PROD
   : 'http://localhost:5000/api';
 
 const API_BASE_URL = normalizeApiBaseUrl(
-  import.meta.env.VITE_API_URL || DEFAULT_API_BASE_URL
+  import.meta.env.PROD ? DEFAULT_API_BASE_URL : import.meta.env.VITE_API_URL || DEFAULT_API_BASE_URL
 );
 
 export const getToken = () => localStorage.getItem('token');
@@ -33,6 +33,7 @@ export const apiRequest = async (path, options = {}) => {
   const token = getToken();
   const headers = {
     ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+    'ngrok-skip-browser-warning': 'true',
     ...options.headers
   };
 
