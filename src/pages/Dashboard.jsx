@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle } from 'lucide-react';
+import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 import { adaptProperty, adaptProperties } from '../utils/propertyAdapter';
+import BlogManager from '../components/BlogManager';
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 const RAZORPAY_CHECKOUT_URL = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -309,6 +310,7 @@ const Dashboard = () => {
         ['overview', BarChart3, 'Overview'],
         ['leads', Inbox, 'Leads'],
         ['listings', HomeIcon, 'My Listings'],
+        ['blogs', FileText, 'Blogs'],
         ['subscription', CreditCard, 'Subscription']
       ]
     : [
@@ -541,6 +543,13 @@ const Dashboard = () => {
                   ))}
                   {!properties.length && <p className="rounded-2xl bg-white p-8 text-sm font-bold text-muted">No listings yet.</p>}
                 </div>
+              ) : activeTab === 'blogs' ? (
+                <BlogManager
+                  canCreate={!subscriptionLoading && activePlan === 'premium'}
+                  lockedMessage="Blogs and articles are available only for Premium brokers. Upgrade to Premium to publish SEO articles, location guides, and property investment content."
+                  title="Broker Blogs & Articles"
+                  description="Premium brokers can publish buyer guides and property investment articles on Plotyards."
+                />
               ) : activeTab === 'leads' ? (
                 <div className="space-y-5">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">

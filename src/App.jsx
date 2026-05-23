@@ -20,6 +20,8 @@ const Login = lazy(() => import('./pages/Login'));
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const Register = lazy(() => import('./pages/Register'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const Blogs = lazy(() => import('./pages/Blogs'));
+const BlogDetails = lazy(() => import('./pages/BlogDetails'));
 const Favourites = lazy(() => import('./pages/Favourites'));
 const History = lazy(() => import('./pages/History'));
 const StaticPage = lazy(() => import('./pages/StaticPage'));
@@ -57,6 +59,10 @@ function App() {
                   <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/blogs" element={<Blogs />} />
+                  <Route path="/articles" element={<Blogs />} />
+                  <Route path="/blogs/:slug" element={<BlogDetails />} />
+                  <Route path="/articles/:slug" element={<BlogDetails />} />
                   <Route path="/about" element={<StaticPage type="about" />} />
                   <Route path="/contact" element={<StaticPage type="contact" />} />
                   <Route path="/privacy" element={<StaticPage type="privacy" />} />

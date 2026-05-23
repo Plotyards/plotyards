@@ -1,4 +1,4 @@
-import { Search, MapPin, ChevronDown, CheckCircle2, ShieldCheck, Heart, Camera, Check, Star, Download, Paperclip, Scale } from 'lucide-react';
+import { Search, MapPin, ChevronDown, CheckCircle2, ShieldCheck, Heart, Camera, Check, Star, Download, Paperclip, Scale, BookOpen, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { DEFAULT_TOP_CITIES } from '../data/topCities';
@@ -22,7 +22,9 @@ const Home = () => {
   const [statsLoaded, setStatsLoaded] = useState(false);
   const [realProperties, setRealProperties] = useState([]);
   const [loadingReal, setLoadingReal] = useState(true);
+  const [latestBlogs, setLatestBlogs] = useState([]);
   const stateMenuRef = useRef(null);
+  const blogScrollerRef = useRef(null);
   const navigate = useNavigate();
   const { compareList, toggleCompare } = useCompare();
 
@@ -132,6 +134,16 @@ const Home = () => {
     navigate(buildListingsSearchUrl(terms.filter(Boolean).join(' '), filters));
   };
 
+  const scrollBlogCards = (direction) => {
+    if (!blogScrollerRef.current) return;
+
+    const scrollAmount = Math.min(blogScrollerRef.current.clientWidth * 0.85, 360);
+    blogScrollerRef.current.scrollBy({
+      left: direction === 'next' ? scrollAmount : -scrollAmount,
+      behavior: 'smooth'
+    });
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (stateMenuRef.current && !stateMenuRef.current.contains(event.target)) {
@@ -172,6 +184,14 @@ const Home = () => {
       })
       .catch(() => {})
       .finally(() => setLoadingReal(false));
+
+    apiRequest('/blogs?limit=3')
+      .then((data) => {
+        if (Array.isArray(data.blogs)) {
+          setLatestBlogs(data.blogs);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   return (
@@ -476,6 +496,63 @@ const Home = () => {
           )}
         </div>
       </section>
+
+      {latestBlogs.length > 0 && (
+        <section className="py-14 px-6 lg:px-12 max-w-[1400px] mx-auto">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-primary">
+                <BookOpen size={14} />
+                Latest insights
+              </p>
+              <h2 className="mt-4 text-3xl font-extrabold text-text">Blogs & articles for smarter property decisions</h2>
+              <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-muted">Read buyer checklists, investment guides, and broker-written location insights.</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2 md:hidden">
+                <button
+                  type="button"
+                  onClick={() => scrollBlogCards('prev')}
+                  aria-label="Previous articles"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-text shadow-sm transition-colors hover:border-primary hover:text-primary"
+                >
+                  <ArrowLeft size={18} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollBlogCards('next')}
+                  aria-label="Next articles"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-text shadow-sm transition-colors hover:border-primary hover:text-primary"
+                >
+                  <ArrowRight size={18} />
+                </button>
+              </div>
+              <Link to="/blogs" className="inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-extrabold text-white transition-colors hover:bg-rose-600">
+                View all articles <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+
+          <div
+            ref={blogScrollerRef}
+            className="-mx-6 mt-8 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-3 no-scrollbar md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0"
+          >
+            {latestBlogs.map((blog) => (
+              <Link key={blog.slug} to={`/blogs/${blog.slug}`} className="group min-w-[82vw] max-w-[340px] flex-shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl md:min-w-0 md:max-w-none">
+                <div className="aspect-[16/10] overflow-hidden bg-surface">
+                  <img src={blog.coverImage || '/hero-bg.jpg'} alt={blog.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                </div>
+                <div className="p-5">
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-primary">{blog.category || 'Real Estate'}</span>
+                  <h3 className="mt-4 text-xl font-extrabold leading-tight text-text group-hover:text-primary">{blog.title}</h3>
+                  <p className="mt-3 line-clamp-3 text-sm font-medium leading-7 text-muted">{blog.excerpt}</p>
+                  <p className="mt-5 text-xs font-bold text-muted">{blog.readingTime || 1} min read</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Explore top cities */}
       {topCities.length > 0 && (

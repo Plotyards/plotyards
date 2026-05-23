@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Activity, BarChart3, Building2, CheckCircle2, ChevronLeft, ChevronRight, Image, Inbox, Megaphone, Plus, Search, ShieldCheck, Sparkles, Star, Trash2, Upload, Users, XCircle } from 'lucide-react';
+import { Activity, BarChart3, Building2, CheckCircle2, ChevronLeft, ChevronRight, FileText, Image, Inbox, Megaphone, Plus, Search, ShieldCheck, Sparkles, Star, Trash2, Upload, Users, XCircle } from 'lucide-react';
 import { DEFAULT_TOP_CITIES } from '../data/topCities';
 import { apiRequest } from '../lib/api';
+import BlogManager from '../components/BlogManager';
 
 const ADMIN_TABLE_PAGE_SIZE = 5;
 
@@ -227,6 +228,7 @@ const AdminPanel = () => {
     ['brokers', ShieldCheck, 'Broker Approvals'],
     ['manageBrokers', Users, 'Manage Brokers'],
     ['features', Star, 'Feature Properties'],
+    ['blogs', FileText, 'Blogs'],
     ['announcement', Megaphone, 'Announcement'],
     ['topCities', Building2, 'Top Cities']
   ];
@@ -533,6 +535,14 @@ const AdminPanel = () => {
                   />
                 </div>
               </div>
+            ) : activeTab === 'blogs' ? (
+              <BlogManager
+                canCreate
+                showAuthor
+                showFeatured
+                title="Manage Blogs & Articles"
+                description="Publish admin articles and manage premium broker posts for property SEO."
+              />
             ) : activeTab === 'announcement' ? (
               <div className="grid gap-6">
                 <form onSubmit={saveAnnouncement} className="grid gap-5 rounded-2xl border border-black/10 bg-surface p-5">

@@ -86,6 +86,7 @@ const Navbar = () => {
               {[
                 ['Buy', '/listings'],
                 ['Rent', '/listings?q=rent'],
+                ['Blogs', '/blogs'],
                 ['For Brokers', '/dashboard']
               ].map(([item, to]) => (
                 <Link
@@ -217,6 +218,7 @@ const Navbar = () => {
                   {[
                     ['Buy', '/listings'],
                     ['Rent', '/listings?q=rent'],
+                    ['Blogs', '/blogs'],
                     ['For Brokers', '/dashboard']
                   ].map(([item, to]) => (
                     <Link
