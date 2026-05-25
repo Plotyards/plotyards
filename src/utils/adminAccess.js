@@ -22,5 +22,5 @@ export const hasAdminEntry = () => (
 
 export const openAdminEntry = (navigate) => {
   grantAdminEntry();
-  navigate('/plotadmin?entry=plotadmin', { state: { plotadmin: true } });
+  navigate.push('/plotadmin');
 };

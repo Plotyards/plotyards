@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useMemo, useState } from 'react';
 import { apiRequest, clearSession, getStoredUser, getToken, setSession } from '../lib/api';
 import { revokeAdminEntry } from '../utils/adminAccess';

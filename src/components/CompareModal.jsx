@@ -1,6 +1,8 @@
+"use client";
 import { useCompare } from '../context/CompareContext';
 import { X, CheckCircle2, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
+
 
 const CompareModal = () => {
   const { compareList, isCompareModalOpen, setIsCompareModalOpen, removeFromCompare } = useCompare();
@@ -128,7 +130,7 @@ const CompareModal = () => {
                   {compareList.map((property) => (
                     <td key={property.id} className="p-4">
                       <Link 
-                        to={`/property/${property.id}`}
+                        href={`/property/${property.id}`}
                         onClick={() => setIsCompareModalOpen(false)}
                         className="block w-full text-center bg-text text-white py-3 rounded-xl font-bold hover:bg-primary transition-colors"
                       >

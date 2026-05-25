@@ -1,5 +1,9 @@
+"use client";
+
 import { useState, useEffect, useRef } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+
 import { Menu, User, Search, X } from 'lucide-react';
 import { useAuth } from '../context/auth';
 import { isAdminSearchQuery, openAdminEntry } from '../utils/adminAccess';
@@ -9,14 +13,13 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const menuRef = useRef(null);
-  const navigate = useNavigate();
+  const navigate = useRouter();
   const { user, isBroker, isAdmin, logout } = useAuth();
-  const canPostProperty = isAdmin || (isBroker && user?.brokerStatus === 'approved');
-
-  const location = useLocation();
-  const isHomePage = location.pathname === '/';
+  const pathname = usePathname() || '';
+  const searchParams = useSearchParams();
+  const isHomePage = pathname === '/';
   const hideSearchRoutes = ['/dashboard', '/admin'];
-  const showNavSearch = isScrolled && !hideSearchRoutes.some((route) => location.pathname.startsWith(route));
+  const showNavSearch = isScrolled && !hideSearchRoutes.some((route) => pathname.startsWith(route));
   const showSolidNav = !isHomePage || isScrolled;
 
   const closeMenu = () => setIsMenuOpen(false);
@@ -34,7 +37,7 @@ const Navbar = () => {
       searchParams.set('q', searchQuery.trim());
     }
 
-    navigate(`/listings${searchParams.toString() ? `?${searchParams.toString()}` : ''}`);
+    navigate.push(`/listings${searchParams.toString() ? `?${searchParams.toString()}` : ''}`);
   };
 
   useEffect(() => {
@@ -60,7 +63,7 @@ const Navbar = () => {
     const closeId = window.setTimeout(() => setIsMenuOpen(false), 0);
 
     return () => window.clearTimeout(closeId);
-  }, [location.pathname, location.search]);
+  }, [pathname, searchParams]);
 
   return (
     <header 
@@ -70,7 +73,7 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-6 lg:px-12 flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" onClick={closeMenu} className="flex items-center gap-2 z-50">
+        <Link href="/" onClick={closeMenu} className="flex items-center gap-2 z-50">
           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-secondary">
             <img src="/logo.PNG" alt="logo" height={40} width={40} className='rounded-full' />
           </div>
@@ -83,20 +86,7 @@ const Navbar = () => {
         <div className="hidden lg:flex items-center justify-center flex-1 mx-8 transition-all duration-300">
           {!showNavSearch ? (
             <nav className="flex items-center gap-8">
-              {[
-                ['Buy', '/listings'],
-                ['Rent', '/listings?q=rent'],
-                ['Blogs', '/blogs'],
-                ['For Brokers', '/dashboard']
-              ].map(([item, to]) => (
-                <Link
-                  key={item}
-                  to={to}
-                  className={`text-sm font-medium transition-opacity hover:opacity-80 ${showSolidNav ? 'text-text' : 'text-white'}`}
-                >
-                  {item}
-                </Link>
-              ))}
+
             </nav>
           ) : (
             <div className="flex items-center bg-surface rounded-full pl-4 pr-1 py-1 w-full max-w-lg border border-gray-200 shadow-sm animate-in fade-in zoom-in duration-300">
@@ -128,18 +118,18 @@ const Navbar = () => {
           <button 
             onClick={() => {
               if (!user) {
-                navigate('/login', { state: { from: '/post-property' } });
+                navigate.push('/login?from=/post-property');
                 return;
               }
 
               if (canPostProperty) {
-                navigate('/post-property');
+                navigate.push('/post-property');
               } else if (isBroker) {
                 alert('Broker approval is required before posting properties.');
-                navigate('/dashboard', { state: { tab: 'subscription' } });
+                navigate.push('/dashboard?tab=subscription');
               } else {
                 alert('Only brokers can post properties. Please upgrade your account.');
-                navigate('/dashboard', { state: { tab: 'subscription' } });
+                navigate.push('/dashboard?tab=subscription');
               }
             }}
             className="relative overflow-hidden hidden sm:flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:shadow-lg transition-all"
@@ -180,7 +170,7 @@ const Navbar = () => {
                           onClick={() => {
                             logout();
                             closeMenu();
-                            navigate('/');
+                            navigate.push('/');
                           }}
                           className="w-full text-center bg-primary text-white py-2 rounded-xl font-semibold hover:bg-rose-600 transition-colors"
                         >
@@ -189,10 +179,10 @@ const Navbar = () => {
                       </>
                     ) : (
                       <>
-                        <Link onClick={closeMenu} to="/login" className="w-full text-center bg-primary text-white py-2 rounded-xl font-semibold hover:bg-rose-600 transition-colors">
+                        <Link onClick={closeMenu} href="/login" className="w-full text-center bg-primary text-white py-2 rounded-xl font-semibold hover:bg-rose-600 transition-colors">
                           Login
                         </Link>
-                        <Link onClick={closeMenu} to="/register" className="w-full text-center bg-gray-50 text-text py-2 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+                        <Link onClick={closeMenu} href="/register" className="w-full text-center bg-gray-50 text-text py-2 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
                           Register
                         </Link>
                       </>
@@ -202,35 +192,21 @@ const Navbar = () => {
                 
                 <div className="p-2">
                   {user && (
-                    <Link onClick={closeMenu} to="/dashboard" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <Link onClick={closeMenu} href="/dashboard" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
                       Dashboard
                     </Link>
                   )}
-                  <Link onClick={closeMenu} to="/favourites" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                  <Link onClick={closeMenu} href="/favourites" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
                     Favourites
                   </Link>
-                  <Link onClick={closeMenu} to="/history" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                  <Link onClick={closeMenu} href="/history" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
                     Previously Viewed
                   </Link>
                 </div>
                 
                 <div className="p-2 border-t border-gray-100">
-                  {[
-                    ['Buy', '/listings'],
-                    ['Rent', '/listings?q=rent'],
-                    ['Blogs', '/blogs'],
-                    ['For Brokers', '/dashboard']
-                  ].map(([item, to]) => (
-                    <Link
-                      key={item}
-                      to={to}
-                      onClick={closeMenu}
-                      className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors lg:hidden"
-                    >
-                      {item}
-                    </Link>
-                  ))}
-                  <Link onClick={closeMenu} to="/help-center" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+
+                  <Link onClick={closeMenu} href="/help-center" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
                     Help Center
                   </Link>
                 </div>

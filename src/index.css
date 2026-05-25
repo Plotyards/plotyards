@@ -6,6 +6,31 @@
   body {
     @apply bg-background text-text font-sans antialiased;
   }
+
+  /* Global Custom Scrollbar */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: #fa3e4e #f4f7f8;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f4f7f8;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #fa3e4e, #00697a);
+    border-radius: 999px;
+    border: 2px solid #f4f7f8;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #e02f42, #005d6d);
+  }
 }
 
 @layer utilities {

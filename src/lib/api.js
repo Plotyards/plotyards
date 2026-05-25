@@ -1,22 +1,30 @@
 const normalizeApiBaseUrl = (url) => String(url || '').replace(/\/+$/, '');
 
 const API_BASE_URL = normalizeApiBaseUrl(
-  import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:5000/api')
+  process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000/api')
 );
 
-export const getToken = () => localStorage.getItem('token');
+export const getToken = () => {
+  if (typeof window !== 'undefined') return localStorage.getItem('token');
+  return null;
+};
 
 export const setSession = ({ token, user }) => {
-  if (token) localStorage.setItem('token', token);
-  if (user) localStorage.setItem('user', JSON.stringify(user));
+  if (typeof window !== 'undefined') {
+    if (token) localStorage.setItem('token', token);
+    if (user) localStorage.setItem('user', JSON.stringify(user));
+  }
 };
 
 export const clearSession = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  }
 };
 
 export const getStoredUser = () => {
+  if (typeof window === 'undefined') return null;
   try {
     return JSON.parse(localStorage.getItem('user'));
   } catch {
@@ -27,7 +35,7 @@ export const getStoredUser = () => {
 
 export const apiRequest = async (path, options = {}) => {
   if (!API_BASE_URL) {
-    throw new Error('VITE_API_URL is required for production builds.');
+    throw new Error('NEXT_PUBLIC_API_URL is required for production builds.');
   }
 
   const token = getToken();
@@ -43,6 +51,7 @@ export const apiRequest = async (path, options = {}) => {
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
+    cache: 'no-store',
     ...options,
     headers,
     body: options.body instanceof FormData ? options.body : options.body ? JSON.stringify(options.body) : undefined

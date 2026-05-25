@@ -1,3 +1,4 @@
+"use client";
 import { useCompare } from '../context/CompareContext';
 import { X, Scale } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

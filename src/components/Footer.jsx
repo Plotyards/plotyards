@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+"use client";
+import Link from 'next/link';
+
 import { Mail, MapPin } from 'lucide-react';
 
 const Footer = () => {
@@ -8,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div>
-            <Link to="/" className="flex items-center gap-2 mb-6">
+            <Link href="/" className="flex items-center gap-2 mb-6">
               <span className="text-2xl font-extrabold tracking-tight text-text">
                 Plotyards<span className="text-primary">.</span>
               </span>
@@ -36,12 +38,12 @@ const Footer = () => {
           <div>
             <h4 className="text-text font-bold text-lg mb-6">Quick Links</h4>
             <ul className="flex flex-col gap-3 text-muted">
-              <li><Link to="/" className="hover:text-primary transition-colors">Home</Link></li>
-              <li><Link to="/listings" className="hover:text-primary transition-colors">Investment Plots</Link></li>
-              <li><Link to="/blogs" className="hover:text-primary transition-colors">Blogs & Articles</Link></li>
-              <li><Link to="/about" className="hover:text-primary transition-colors">About Us</Link></li>
-              <li><Link to="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
-              <li><Link to="/login" className="hover:text-primary transition-colors">Broker Portal</Link></li>
+              <li><Link href="/" className="hover:text-primary transition-colors">Home</Link></li>
+              <li><Link href="/listings" className="hover:text-primary transition-colors">Investment Plots</Link></li>
+              <li><Link href="/blogs" className="hover:text-primary transition-colors">Blogs & Articles</Link></li>
+              <li><Link href="/about" className="hover:text-primary transition-colors">About Us</Link></li>
+              <li><Link href="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
+              <li><Link href="/login" className="hover:text-primary transition-colors">Broker Portal</Link></li>
             </ul>
           </div>
 
@@ -49,10 +51,10 @@ const Footer = () => {
           <div>
             <h4 className="text-text font-bold text-lg mb-6">Legal</h4>
             <ul className="flex flex-col gap-3 text-muted">
-              <li><Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-              <li><Link to="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</Link></li>
-              <li><Link to="/help-center" className="hover:text-primary transition-colors">Help Center</Link></li>
+              <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
+              <li><Link href="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</Link></li>
+              <li><Link href="/help-center" className="hover:text-primary transition-colors">Help Center</Link></li>
             </ul>
           </div>
 

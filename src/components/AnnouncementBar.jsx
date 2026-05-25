@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from 'react';
 import { Megaphone, X } from 'lucide-react';
 import { apiRequest } from '../lib/api';

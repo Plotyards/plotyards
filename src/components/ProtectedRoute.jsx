@@ -1,10 +1,13 @@
+"use client";
+
 import { useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
+
 import { useAuth } from '../context/auth';
 import { grantAdminEntry, hasAdminEntry } from '../utils/adminAccess';
 
 const ProtectedRoute = ({ children, roles = [], loginPath = '/login', requireAdminEntry = false }) => {
-  const location = useLocation();
+  const pathname = usePathname();
   const { loading, user } = useAuth();
 
   useEffect(() => {

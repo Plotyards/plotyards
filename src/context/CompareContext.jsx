@@ -1,7 +1,17 @@
+"use client";
+
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react';
 
-const CompareContext = createContext();
+const CompareContext = createContext({
+  compareList: [],
+  addToCompare: () => false,
+  removeFromCompare: () => {},
+  clearCompare: () => {},
+  toggleCompare: () => false,
+  isCompareModalOpen: false,
+  setIsCompareModalOpen: () => {}
+});
 
 export const useCompare = () => {
   return useContext(CompareContext);
@@ -9,6 +19,7 @@ export const useCompare = () => {
 
 export const CompareProvider = ({ children }) => {
   const [compareList, setCompareList] = useState(() => {
+    if (typeof window === 'undefined') return [];
     try {
       const saved = localStorage.getItem('compareList');
       return saved ? JSON.parse(saved) : [];

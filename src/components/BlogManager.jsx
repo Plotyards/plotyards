@@ -1,5 +1,8 @@
+"use client";
+
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
+
 import { CheckCircle2, Edit3, ExternalLink, FileText, Image, Plus, Trash2, Upload, XCircle } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import DropdownSelect from './DropdownSelect';
@@ -246,7 +249,7 @@ const BlogManager = ({
           <h2 className="text-2xl font-extrabold text-text">{title}</h2>
           <p className="mt-2 text-sm font-medium text-muted">{description}</p>
         </div>
-        <Link to="/blogs" className="inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-extrabold text-text shadow-sm transition-colors hover:border-primary hover:text-primary">
+        <Link href="/blogs" className="inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-extrabold text-text shadow-sm transition-colors hover:border-primary hover:text-primary">
           <ExternalLink size={16} />
           Public blogs
         </Link>
@@ -505,7 +508,7 @@ const BlogManager = ({
               </div>
               <div className="flex flex-wrap gap-2 lg:justify-end">
                 {blog.slug && (
-                  <Link to={`/blogs/${blog.slug}`} className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-xs font-extrabold text-text transition-colors hover:border-primary hover:text-primary">
+                  <Link href={`/blogs/${blog.slug}`} className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-xs font-extrabold text-text transition-colors hover:border-primary hover:text-primary">
                     <ExternalLink size={14} />
                     View
                   </Link>
