@@ -21,6 +21,19 @@ const Navbar = () => {
   const hideSearchRoutes = ['/dashboard', '/admin'];
   const showNavSearch = isScrolled && !hideSearchRoutes.some((route) => pathname.startsWith(route));
   const showSolidNav = !isHomePage || isScrolled;
+  const canPostProperty = isAdmin || (isBroker && user?.brokerStatus === 'approved');
+
+  const whatsappNumber = '918287697756';
+  const assistanceLinks = [
+    {
+      href: `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hi i want to talk about Legal assistance')}`,
+      label: 'Legal Assistance'
+    },
+    {
+      href: `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hi i want to talk about Loan assistance')}`,
+      label: 'Loan Assistance'
+    }
+  ];
 
   const closeMenu = () => setIsMenuOpen(false);
 
@@ -86,7 +99,22 @@ const Navbar = () => {
         <div className="hidden lg:flex items-center justify-center flex-1 mx-8 transition-all duration-300">
           {!showNavSearch ? (
             <nav className="flex items-center gap-8">
-
+              {assistanceLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={closeMenu}
+                  className={`group relative text-sm font-extrabold tracking-wide transition-colors duration-300 ${
+                    showSolidNav
+                      ? 'text-secondary drop-shadow-[0_0_5px_rgba(0,105,122,0.25)] hover:text-primary hover:drop-shadow-[0_0_8px_rgba(250,62,78,0.35)]'
+                      : 'text-white/95 drop-shadow-[0_0_7px_rgba(255,255,255,0.35)] hover:text-amber-200 hover:drop-shadow-[0_0_10px_rgba(251,191,36,0.55)]'
+                  }`}
+                >
+                  <span className="relative z-10">{link.label}</span>
+                </a>
+              ))}
             </nav>
           ) : (
             <div className="flex items-center bg-surface rounded-full pl-4 pr-1 py-1 w-full max-w-lg border border-gray-200 shadow-sm animate-in fade-in zoom-in duration-300">
@@ -113,7 +141,6 @@ const Navbar = () => {
         </div>
         {/* Right Section */}
         <div className="flex items-center gap-4 lg:gap-6">
-
           {/* Post Property */}
           <button 
             onClick={() => {
@@ -205,7 +232,6 @@ const Navbar = () => {
                 </div>
                 
                 <div className="p-2 border-t border-gray-100">
-
                   <Link onClick={closeMenu} href="/help-center" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
                     Help Center
                   </Link>
