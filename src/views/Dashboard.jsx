@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle } from 'lucide-react';
 import { apiRequest } from '../lib/api';
@@ -70,9 +70,11 @@ const formatDate = (value) => new Date(value).toLocaleDateString('en-IN', {
 
 const Dashboard = () => {
   const pathname = usePathname();
+  const navigate = useRouter();
   const { user, isBroker, updateMe, refreshMe } = useAuth();
   const [currentTime] = useState(() => Date.now());
   const isUser = user?.role === 'user' || user?.role === 'admin';
+  const roleLabel = user?.role === 'user' ? 'buyer' : user?.role;
   const brokerApproved = user?.role === 'admin' || user?.brokerStatus === 'approved';
   const rejectedAt = user?.brokerProfile?.rejectedAt;
   const canReapplyAt = rejectedAt ? new Date(new Date(rejectedAt).getTime() + TWO_DAYS_MS) : null;
@@ -140,6 +142,12 @@ const Dashboard = () => {
       cancelled = true;
     };
   }, [isBroker, isUser, user?.brokerProfile?.subscriptionPlan]);
+
+  useEffect(() => {
+    if (isBroker && !brokerApproved) {
+      setActiveTab('subscription');
+    }
+  }, [isBroker, brokerApproved]);
 
   const openRazorpayCheckout = async (subscriptionData) => {
     const isLoaded = await loadRazorpayCheckout();
@@ -239,13 +247,10 @@ const Dashboard = () => {
 
     try {
       setBrokerRequesting(true);
-      const updatedUser = await updateMe({ requestBroker: true });
-      setBrokerRequestStatus('Broker request sent. Admin approval is pending.');
-      if (updatedUser.brokerStatus === 'pending') {
-        setActiveTab('overview');
-      }
+      await updateMe({ requestBroker: true });
+      navigate.push('/subscribe');
     } catch (error) {
-      setBrokerRequestStatus(error.message || 'Unable to request broker approval.');
+      setBrokerRequestStatus(error.message || 'Unable to start broker upgrade.');
     } finally {
       setBrokerRequesting(false);
     }
@@ -288,19 +293,9 @@ const Dashboard = () => {
   const activePlan = normalizePlan(currentPlan);
   const subscriptionPlans = [
     {
-      id: 'free',
-      name: 'Free Plan',
-      price: 'Free',
-      period: 'Default active',
-      accent: 'border-border bg-white',
-      cta: 'Activate Free',
-      highlights: ['6 active listings', 'WhatsApp chat button', 'Admin approval after review'],
-      icon: HomeIcon
-    },
-    {
       id: 'premium',
       name: 'Premium Plan',
-      price: 'Rs. 5,100',
+      price: 'Rs. 11,000',
       period: '3 months',
       accent: 'border-primary bg-white ring-2 ring-primary/10',
       cta: 'Pay with Razorpay',
@@ -310,13 +305,17 @@ const Dashboard = () => {
   ];
 
   const navItems = isBroker
-    ? [
-        ['overview', BarChart3, 'Overview'],
-        ['leads', Inbox, 'Leads'],
-        ['listings', HomeIcon, 'My Listings'],
-        ['blogs', FileText, 'Blogs'],
-        ['subscription', CreditCard, 'Subscription']
-      ]
+    ? (brokerApproved
+        ? [
+            ['overview', BarChart3, 'Overview'],
+            ['leads', Inbox, 'Leads'],
+            ['listings', HomeIcon, 'My Listings'],
+            ['blogs', FileText, 'Blogs'],
+            ['subscription', CreditCard, 'Subscription']
+          ]
+        : [
+            ['subscription', CreditCard, 'Subscription']
+          ])
     : [
         ['overview', Users, 'Overview'],
         ['saved', Heart, 'Saved'],
@@ -335,7 +334,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-text leading-tight">{user?.name}</h3>
-                  <p className="text-xs text-primary font-bold uppercase">{user?.role}</p>
+                  <p className="text-xs text-primary font-bold uppercase">{roleLabel}</p>
                 </div>
               </div>
 
@@ -356,35 +355,35 @@ const Dashboard = () => {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                       <h2 className="text-3xl font-extrabold text-text">Broker Subscription</h2>
-                      <p className="mt-2 text-gray-500 font-medium">Free starts automatically. Premium unlocks paid visibility for 3 months.</p>
+                      <p className="mt-2 text-gray-500 font-medium">An active Premium plan is required to post property listings and unlock high-quality buyer leads.</p>
                     </div>
                     <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-xs font-extrabold uppercase text-primary">
                       <ShieldCheck size={15} />
-                      {subscriptionLoading ? 'Checking plan' : `${activePlan} active`}
+                      {subscriptionLoading ? 'Checking plan' : activePlan === 'premium' ? 'Premium Plan Active' : 'Subscription Required'}
                     </span>
                   </div>
 
                   <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
                     <div className="rounded-2xl border border-primary/15 bg-white p-5 shadow-sm">
-                      <p className="text-xs font-extrabold uppercase tracking-wide text-muted">Current plan</p>
+                      <p className="text-xs font-extrabold uppercase tracking-wide text-muted">Current subscription status</p>
                       <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <p className="text-2xl font-extrabold text-text">
-                            {subscriptionLoading ? 'Loading...' : activePlan === 'premium' ? 'Premium Plan' : 'Free Plan'}
+                            {subscriptionLoading ? 'Loading...' : activePlan === 'premium' ? 'Premium Plan' : 'No Active Subscription'}
                           </p>
                           <p className="text-sm font-semibold text-muted">
-                            {currentSubscription?.expiresAt ? `Valid until ${formatDate(currentSubscription.expiresAt)}` : 'Free plan is active by default'}
+                            {currentSubscription?.expiresAt ? `Valid until ${formatDate(currentSubscription.expiresAt)}` : 'Please purchase a premium subscription to post properties'}
                           </p>
                         </div>
-                        <span className="inline-flex w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold uppercase text-primary">
-                          {currentSubscription?.status || 'active'}
+                        <span className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-extrabold uppercase ${activePlan === 'premium' ? 'bg-green-50 text-green-700' : 'bg-rose-50 text-primary'}`}>
+                          {activePlan === 'premium' ? (currentSubscription?.status || 'active') : 'inactive'}
                         </span>
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-3 rounded-2xl border border-border bg-white p-4 shadow-sm">
                       <div>
                         <HomeIcon size={18} className="text-primary" />
-                        <p className="mt-2 text-xl font-extrabold text-text">{activePlan === 'premium' ? 9 : 6}</p>
+                        <p className="mt-2 text-xl font-extrabold text-text">{activePlan === 'premium' ? 9 : 0}</p>
                         <p className="text-xs font-bold text-muted">Listings</p>
                       </div>
                       <div>
@@ -406,18 +405,18 @@ const Dashboard = () => {
                     </p>
                   )}
 
-                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  <div className="flex justify-center w-full">
                     {subscriptionPlans.map((plan) => {
                       const Icon = plan.icon;
                       const isActivePlan = activePlan === plan.id;
                       const isUpdating = subscriptionUpdating === plan.id;
 
                       return (
-                        <div key={plan.id} className={`flex flex-col rounded-2xl border p-6 shadow-sm ${isActivePlan ? plan.accent : 'border-border bg-white'}`}>
+                        <div key={plan.id} className={`flex flex-col w-full max-w-md rounded-2xl border p-6 shadow-sm ${isActivePlan ? plan.accent : 'border-border bg-white'}`}>
                           <div className="flex items-start justify-between gap-4">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${plan.id === 'premium' ? 'bg-primary text-white' : 'bg-secondary/10 text-secondary'}`}>
+                                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white">
                                   <Icon size={20} />
                                 </span>
                                 <h3 className="text-xl font-extrabold text-text">{plan.name}</h3>
@@ -454,9 +453,9 @@ const Dashboard = () => {
                           <button
                             onClick={() => handlePlanSelect(plan, isActivePlan)}
                             disabled={isUpdating}
-                            className={`mt-6 w-full rounded-xl py-3 font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${isActivePlan ? 'bg-gray-100 text-muted hover:bg-gray-200' : plan.id === 'premium' ? 'bg-primary text-white hover:bg-rose-600' : 'bg-secondary text-white hover:bg-secondary/90'}`}
+                            className={`mt-6 w-full rounded-xl py-3 font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${isActivePlan ? 'bg-gray-100 text-muted hover:bg-gray-200' : 'bg-primary text-white hover:bg-rose-600'}`}
                           >
-                            {isUpdating ? 'Processing...' : isActivePlan ? 'Continue to Dashboard' : plan.id === 'premium' ? plan.cta : 'Switch to Free'}
+                            {isUpdating ? 'Processing...' : isActivePlan ? 'Continue to Dashboard' : plan.cta}
                           </button>
                           {plan.id === 'premium' && (
                             <p className="mt-3 text-center text-xs font-semibold text-muted">
@@ -470,25 +469,6 @@ const Dashboard = () => {
                         </div>
                       );
                     })}
-                  </div>
-
-                  <div className="rounded-2xl border border-border bg-white shadow-sm">
-                    <div className="overflow-x-auto">
-                      <div className="min-w-[640px]">
-                        <div className="grid grid-cols-[1.4fr_1fr_1fr] border-b border-border bg-surface px-5 py-4 text-sm font-extrabold text-text">
-                          <span>Features</span>
-                          <span>Free Plan</span>
-                          <span>Premium Plan</span>
-                        </div>
-                        {planFeatureRows.map(([feature, free, premium]) => (
-                          <div key={feature} className="grid grid-cols-[1.4fr_1fr_1fr] items-center border-b border-border px-5 py-4 last:border-b-0">
-                            <p className="text-sm font-extrabold text-text">{feature}</p>
-                            <FeatureValue value={free} />
-                            <FeatureValue value={premium} />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 </div>
               ) : activeTab === 'listings' ? (
@@ -507,9 +487,9 @@ const Dashboard = () => {
                       </button>
                     )}
                   </div>
-                  {!brokerApproved && (
+                   {!brokerApproved && (
                     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800">
-                      Broker approval is required before uploading properties. Choose Premium for automatic approval or wait for admin review on Free.
+                      Broker approval is required before uploading properties. Purchase the Premium subscription plan for instant automatic broker approval.
                     </div>
                   )}
                   {properties.map((property) => (
@@ -701,7 +681,7 @@ const Dashboard = () => {
                     <h3 className="text-xl font-bold text-text mb-4">Next steps</h3>
                     <p className="text-sm font-medium text-muted flex items-center gap-2">
                       <CheckCircle2 size={16} className="text-primary" />
-                      {brokerApproved ? 'Keep listings approved and respond to leads quickly.' : 'Free plan selected. Admin approval is pending; Premium gives automatic broker approval.'}
+                      {brokerApproved ? 'Keep listings approved and respond to leads quickly.' : 'Broker approval is pending. Subscribe to the Premium plan for instant automatic broker approval and listing permissions.'}
                     </p>
                   </div>
                 </div>
@@ -714,25 +694,19 @@ const Dashboard = () => {
                 </div>
                 {user?.role === 'user' && (
                   <div className="rounded-[2rem] border border-border/80 bg-surface p-6 shadow-lg shadow-gray-200/70 ring-1 ring-black/5">
-                    <h3 className="text-xl font-bold text-text">Become a broker</h3>
-                    <p className="mt-2 text-sm text-muted">Request broker access to post listings and receive buyer inquiries.</p>
+                    <h3 className="text-xl font-bold text-text">Become a Broker</h3>
+                    <p className="mt-2 text-sm text-muted">Activate your Premium Broker account instantly to post plot listings and receive direct buyer inquiries. No admin approval required.</p>
                     <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
                       <button
                         type="button"
                         onClick={handleRequestBroker}
-                        disabled={brokerRequesting || user?.brokerStatus === 'pending' || brokerReapplyLocked}
+                        disabled={brokerRequesting}
                         className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-rose-600 disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        {user?.brokerStatus === 'pending' ? 'Broker request pending' : brokerReapplyLocked ? `Reapply after ${formatDate(canReapplyAt)}` : 'Request broker approval'}
+                        {brokerRequesting ? 'Processing...' : 'Become a Broker'}
                       </button>
                       {brokerRequestStatus && <p className="text-sm text-muted">{brokerRequestStatus}</p>}
                     </div>
-                    {user?.brokerStatus === 'rejected' && (
-                      <div className="mt-4 rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm font-semibold text-primary">
-                        Broker approval was rejected{user.brokerProfile?.rejectionReason ? `: ${user.brokerProfile.rejectionReason}` : '.'}
-                        {canReapplyAt && <span className="block mt-1">You can send a re-approval request after {formatDate(canReapplyAt)}.</span>}
-                      </div>
-                    )}
                   </div>
                 )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

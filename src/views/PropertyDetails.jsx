@@ -384,13 +384,13 @@ const PropertyDetails = () => {
   } : null;
 
   return (
-    <div className="min-h-screen bg-surface pt-28 pb-16 font-sans">
+    <div className="min-h-screen bg-surface pb-44 pt-4 font-sans md:pb-16 md:pt-28">
       
       <div className="container mx-auto max-w-[1440px] px-6 lg:px-12">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 md:mb-6">
           <Link
             href="/listings"
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-bold text-muted shadow-sm transition-colors hover:border-primary hover:text-primary"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-3 py-2 text-xs font-bold text-muted shadow-sm transition-colors hover:border-primary hover:text-primary md:px-4 md:text-sm"
           >
             <ArrowLeft size={17} />
             Back to listings
@@ -427,10 +427,10 @@ const PropertyDetails = () => {
           </div>
         </div>
 
-        <section className="mb-8 rounded-[2rem] border border-border bg-white p-4 shadow-sm">
-          <div className="flex flex-col lg:flex-row gap-4 h-[400px] md:h-[450px]">
+        <section className="mb-5 overflow-hidden rounded-[1.5rem] border border-border bg-white p-2 shadow-sm md:mb-8 md:rounded-[2rem] md:p-4">
+          <div className="flex h-[300px] flex-col gap-3 md:h-[450px] lg:flex-row lg:gap-4">
             {/* Main Carousel Image */}
-            <div className="relative flex-1 h-full w-full overflow-hidden rounded-[1.5rem] group bg-black">
+            <div className="group relative h-full w-full flex-1 overflow-hidden rounded-[1.25rem] bg-black md:rounded-[1.5rem]">
               {/* Blurred backdrop */}
               <img src={propertyImages[currentImageIndex]} alt="backdrop" className="absolute inset-0 h-full w-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none" />
               
@@ -453,7 +453,7 @@ const PropertyDetails = () => {
                 </>
               )}
 
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-5 pointer-events-none">
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4 md:p-5">
                 <div className="flex flex-wrap gap-2 pointer-events-auto">
                   {property.featured && (
                     <span className="rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white">
@@ -500,10 +500,10 @@ const PropertyDetails = () => {
           </div>
         </section>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
-          <main className="space-y-8">
-            <section className="rounded-[2rem] border border-border bg-white p-6 shadow-sm lg:p-8">
-              <div className="mb-5 flex flex-wrap items-center gap-2">
+        <div className="grid grid-cols-1 gap-5 md:gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+          <main className="space-y-5 md:space-y-8">
+            <section className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6 lg:p-8">
+              <div className="mb-4 flex flex-wrap items-center gap-2 md:mb-5">
                 {property.isDemo && (
                   <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
                     This is a demo property
@@ -517,40 +517,44 @@ const PropertyDetails = () => {
                 <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">Ready to register</span>
               </div>
 
-              <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div>
-                  <h1 className="max-w-3xl text-3xl font-extrabold leading-tight text-text lg:text-5xl">{property.title}</h1>
-                  <p className="mt-3 flex items-center gap-2 text-sm font-semibold text-muted">
-                    <MapPin size={17} />
-                    {property.location} - {property.corridor}
+                  <h1 className="max-w-3xl text-2xl font-extrabold leading-tight text-text md:text-3xl lg:text-5xl">{property.title}</h1>
+                  <p className="mt-2 flex items-start gap-2 text-sm font-semibold leading-6 text-muted md:mt-3">
+                    <MapPin size={17} className="mt-0.5 flex-shrink-0" />
+                    <span>{property.location} - {property.corridor}</span>
                   </p>
                 </div>
-                <div className="rounded-2xl bg-surface p-5 xl:min-w-[240px] flex flex-col justify-center">
+                <div className="flex flex-col justify-center rounded-2xl bg-surface p-4 xl:min-w-[240px] md:p-5">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wide text-muted">Starting from</p>
-                    <p className="mt-1 text-3xl font-extrabold text-text">{property.price}</p>
+                    <p className="mt-1 text-2xl font-extrabold text-text md:text-3xl">{property.price}</p>
                     <p className="mt-1 text-sm font-semibold text-muted">{property.rate}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-8 grid grid-cols-2 overflow-hidden rounded-2xl border border-border bg-surface md:grid-cols-4">
+              <div className="mt-5 grid grid-cols-2 overflow-hidden rounded-2xl border border-border bg-surface md:mt-8 md:grid-cols-4">
                 {[
                   ['Plot size', property.size],
                   ['Property type', property.type],
                   ['Expected ROI', property.roi],
                   ['Status', 'Available']
                 ].map(([label, value]) => (
-                  <div key={label} className="border-b border-r border-border p-4 last:border-r-0 md:border-b-0">
+                  <div key={label} className="border-b border-r border-border p-3 last:border-r-0 md:border-b-0 md:p-4">
                     <p className="text-xs font-bold uppercase tracking-wide text-muted">{label}</p>
-                    <p className="mt-1 text-lg font-extrabold text-text">{value}</p>
+                    <p className="mt-1 text-base font-extrabold text-text md:text-lg">{value}</p>
                   </div>
                 ))}
               </div>
+              <div className="mt-4 rounded-2xl border border-primary/15 bg-primary/10 p-4">
+                <p className="text-sm font-extrabold text-text">Best next step</p>
+                <p className="mt-1 text-xs font-semibold leading-5 text-muted">Ask the broker for the exact plot number, approach road width, and latest document photos before booking a site visit.</p>
+              </div>
             </section>
 
-            <section className="rounded-[2rem] border border-border bg-white p-6 shadow-sm lg:p-8">
-              <h2 className="text-2xl font-extrabold text-text">About this property</h2>
+            <section className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6 lg:p-8">
+              <h2 className="text-xl font-extrabold text-text md:text-2xl">About this property</h2>
               {property.isDemo && (
                 <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-extrabold text-amber-700">
                   This is a demo property
@@ -561,8 +565,8 @@ const PropertyDetails = () => {
               </p>
             </section>
 
-            <section className="grid gap-6 md:grid-cols-2">
-              <div className="rounded-[2rem] border border-border bg-white p-6 shadow-sm">
+            <section className="grid gap-4 md:grid-cols-2 md:gap-6">
+              <div className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6">
                 <h2 className="mb-5 text-xl font-extrabold text-text">Layout amenities</h2>
                 <div className="grid gap-3">
                   {(property.amenities && property.amenities.length > 0 ? property.amenities : amenities).map((amenity) => (
@@ -576,7 +580,7 @@ const PropertyDetails = () => {
                 </div>
               </div>
 
-              <div className="rounded-[2rem] border border-border bg-white p-6 shadow-sm">
+              <div className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6">
                 <h2 className="mb-5 text-xl font-extrabold text-text">Documents checked</h2>
                 <div className="grid gap-3">
                   {(property.documentsVerified && property.documentsVerified.length > 0 ? property.documentsVerified : documents).map((document) => (
@@ -591,7 +595,7 @@ const PropertyDetails = () => {
               </div>
             </section>
 
-            <section className="rounded-[2rem] border border-border bg-white p-6 shadow-sm lg:p-8">
+            <section className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6 lg:p-8">
               <h2 className="text-2xl font-extrabold text-text">Location advantages</h2>
               <div className="mt-5 grid gap-4 sm:grid-cols-3">
                 {[
@@ -612,8 +616,8 @@ const PropertyDetails = () => {
           </main>
 
           <aside>
-            <div className="sticky top-28 space-y-5">
-              <div className="rounded-[2rem] border border-border bg-white p-6 shadow-card">
+            <div className="space-y-5 md:sticky md:top-28">
+              <div className="rounded-[1.5rem] border border-border bg-white p-4 shadow-card md:rounded-[2rem] md:p-6">
                 <p className="text-xs font-bold uppercase tracking-wide text-muted">Broker contact</p>
                 <div className="mt-5 flex items-center gap-4">
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-xl font-extrabold text-white">
@@ -711,7 +715,7 @@ const PropertyDetails = () => {
                 </div>
               </div>
 
-              <div className="rounded-[2rem] bg-secondary p-6 text-white shadow-sm">
+              <div className="rounded-[1.5rem] bg-secondary p-5 text-white shadow-sm md:rounded-[2rem] md:p-6">
                 <ShieldCheck size={24} />
                 <h3 className="mt-4 text-lg font-extrabold">Buyer safety promise</h3>
                 <p className="mt-2 text-sm font-medium leading-6 text-white/75">
@@ -792,6 +796,40 @@ const PropertyDetails = () => {
             ))}
           </div>
         </section>
+      </div>
+      <div className="fixed inset-x-0 bottom-[88px] z-40 border-t border-border bg-white/95 px-4 py-3 shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur-xl md:hidden">
+        <div className="mx-auto flex max-w-[420px] items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-extrabold text-text">{activeBroker.name}</p>
+            <p className="text-xs font-semibold text-muted">{activeBroker.response}</p>
+          </div>
+          {user ? (
+            <>
+              <a
+                href={`https://wa.me/${activeBroker.whatsapp}`}
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-green-500/20"
+                aria-label="WhatsApp broker"
+              >
+                <MessageCircle size={20} />
+              </a>
+              <a
+                href={`tel:+${activeBroker.callNumber}`}
+                className="flex h-11 min-w-[86px] flex-shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-extrabold text-white shadow-lg shadow-primary/20"
+              >
+                <Phone size={17} />
+                Call
+              </a>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => navigate.push('/login?from=' + encodeURIComponent(`/property/${id}`))}
+              className="flex h-11 flex-shrink-0 items-center justify-center rounded-full bg-primary px-5 text-sm font-extrabold text-white shadow-lg shadow-primary/20"
+            >
+              Login to contact
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

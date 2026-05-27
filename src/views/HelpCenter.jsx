@@ -22,12 +22,12 @@ const FAQ_DATA = [
   {
     category: 'broker',
     question: 'How can I register as a broker on Plotyards?',
-    answer: 'Go to the Dashboard page from your account menu. If you are registered as a normal user, click the "Request broker approval" button. Our admin team will verify your profile and listing history, and approve your broker access shortly.'
+    answer: 'Go to the Dashboard page from your account menu. Click the "Become a Broker" button to upgrade instantly. You will be redirected to choose the Premium Plan, which grants instant, automatic broker activation upon subscribing. No manual admin approval or waiting queue is required!'
   },
   {
     category: 'broker',
     question: 'How do I post a new property listing?',
-    answer: 'Once approved as a broker, you will see a "Post Property" button in the listings tab of your Dashboard, or you can access it directly via the top navigation. Fill in the details, specify verified documents, select amenities, and upload up to 4 images.'
+    answer: 'Once your Premium Broker plan is active, you will see a "Post Property" button in the top navigation or in the listings tab of your Dashboard. Fill in the details, specify verified documents, select amenities, and upload up to 4 images.'
   },
   {
     category: 'broker',
@@ -47,7 +47,7 @@ const FAQ_DATA = [
   {
     category: 'trust',
     question: 'How do I report a misleading or fraudulent listing?',
-    answer: 'If you encounter any misleading pricing, incorrect locations, or suspicious listings, please contact our support team immediately at info@plotyards.com. We review all user reports seriously and will suspend violating accounts.'
+    answer: 'If you encounter any misleading pricing, incorrect locations, or suspicious listings, please contact our support team immediately at info@plotyards.com. We review all buyer reports seriously and will suspend violating accounts.'
   }
 ];
 

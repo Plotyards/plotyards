@@ -1,9 +1,13 @@
 "use client";
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import { Mail, MapPin } from 'lucide-react';
 
 const Footer = () => {
+  const pathname = usePathname() || '';
+  if (pathname === '/subscribe') return null;
+
   return (
     <footer className="bg-surface border-t border-gray-200 pt-16 pb-8">
       <div className="container mx-auto px-6 md:px-12">

@@ -1,0 +1,59 @@
+Created At: 2026-05-27T07:56:50Z
+Completed At: 2026-05-27T07:56:50Z
+File Path: `file:///c:/Users/ACER/OneDrive/Desktop/Plotyard/frontend/src/views/Home.jsx`
+Total Lines: 849
+Total Bytes: 40248
+Showing lines 590 to 640
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+590:               <span className="hidden md:inline">Featured Plots Near You</span>
+591:             </h2>
+592:             <p className="text-base font-medium text-gray-400 md:text-gray-500">
+593:               <span className="md:hidden">Curated especially for you</span>
+594:               <span className="hidden md:inline">{featuredSubtitle}</span>
+595:             </p>
+596:           </div>
+597:           <button
+598:             type="button"
+599:             onClick={handleSeeAllClick}
+600:             className="hidden items-center gap-1 text-sm font-semibold text-secondary hover:underline md:flex"
+601:           >
+602:             See all &rarr;
+603:           </button>
+604:         </div>
+605: 
+606:         {/* Listings Grid */}
+607:         <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-6 no-scrollbar md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3">
+608:           {filteredFeaturedPlots.map((plot) => {
+609:             const imageUrl = plot.image || plot.img;
+610:             const locationText = plot.location || plot.loc;
+611:             const sizeText = plot.size || plot.sqyd;
+612:             const photoCount = plot.photoCount ?? 12;
+613:             const linkId = plot.id || plot._id;
+614: 
+615:             return (
+616:               <Link href={`/property/${linkId}`} key={linkId || plot.title} className="group block min-w-[80vw] max-w-[320px] flex-shrink-0 snap-start cursor-pointer md:min-w-0 md:max-w-none">
+617:                 {/* Image Container */}
+618:                 <div className="relative mb-3 aspect-[1.08/1] overflow-hidden rounded-lg shadow-sm transition-all group-hover:shadow-md md:mb-4 md:aspect-[4/3] md:rounded-2xl">
+619:                   <img src={imageUrl} alt={plot.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+620:                   
+621:                   {/* Top Badges */}
+622:                   <div className="absolute left-4 top-4 hidden gap-2 md:flex">
+623:                     {plot.isDemo && (
+624:                       <span className="bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-sm">
+625:                         Demo property
+626:                       </span>
+627:                     )}
+628:                     <span className="bg-primary text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded">
+629:                       Featured
+630:                     </span>
+631:                     <span className="bg-white text-text text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-sm">
+632:                       Ready to Register
+633:                     </span>
+634:                   </div>
+635:                   
+636:                   <div className="absolute right-2 top-2 flex flex-col gap-2 md:right-4 md:top-4">
+637:                     <button
+638:                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(linkId); }}
+639:                       className={`flex h-8 w-8 items-center justify-center rounded-full text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] transition-colors md:bg-white/90 md:text-gray-600 md:shadow-sm md:backdrop-blur md:hover:text-primary ${user && favoriteIds.has(String(linkId)) ? 'md:bg-primary md:text-white' : ''}`}
+640:                     >
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

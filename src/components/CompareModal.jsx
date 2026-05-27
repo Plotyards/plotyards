@@ -1,13 +1,15 @@
 "use client";
 import { useCompare } from '../context/CompareContext';
+import { usePathname } from 'next/navigation';
 import { X, CheckCircle2, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 
 
 const CompareModal = () => {
+  const pathname = usePathname() || '';
   const { compareList, isCompareModalOpen, setIsCompareModalOpen, removeFromCompare } = useCompare();
 
-  if (!isCompareModalOpen) return null;
+  if (pathname === '/subscribe' || !isCompareModalOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">

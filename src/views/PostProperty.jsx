@@ -270,7 +270,7 @@ const PostProperty = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!brokerApproved) {
-      setError('Broker approval is required before posting properties.');
+      setError('Your broker account needs approval before you can post a property.');
       return;
     }
 
@@ -280,7 +280,7 @@ const PostProperty = () => {
 
     try {
       if (!form.state || !form.city) {
-        throw new Error('Please select both state and city.');
+        throw new Error('Please choose the state and city for this property.');
       }
 
       const newUploadedImages = await uploadImages();
@@ -325,7 +325,7 @@ const PostProperty = () => {
           reraApproved: form.reraApproved
         }
       });
-      setStatus(editId ? 'Property updated successfully.' : 'Property posted successfully.');
+      setStatus(editId ? 'Your listing has been updated.' : 'Your property is now posted.');
       setTimeout(() => navigate.push('/dashboard'), 900);
     } catch (err) {
       setError(err.message);
@@ -338,9 +338,9 @@ const PostProperty = () => {
     <div className="min-h-screen pt-32 pb-12 bg-surface">
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-text">{editId ? 'Edit Property' : 'Post a Property'}</h1>
+          <h1 className="text-3xl font-extrabold text-text">{editId ? 'Edit your listing' : 'Add a property listing'}</h1>
           <p className="mt-2 text-sm font-medium text-muted">
-            {editId ? 'Update your property details below.' : 'Submitted properties become public immediately.'}
+            {editId ? 'Make the details clearer for buyers, then save your changes.' : 'Share clear plot details, pricing, location, and photos so buyers know exactly what they are looking at.'}
           </p>
         </div>
 
@@ -349,9 +349,9 @@ const PostProperty = () => {
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <ShieldCheck size={26} />
             </div>
-            <h2 className="mt-5 text-2xl font-extrabold text-text">Broker approval required</h2>
+            <h2 className="mt-5 text-2xl font-extrabold text-text">Finish broker approval first</h2>
             <p className="mt-2 text-sm font-semibold leading-6 text-muted">
-              You can upload properties only after your broker account is approved. Free plan brokers wait for admin review, while Premium gives automatic broker approval after successful payment.
+              To keep listings trustworthy, only approved brokers can post properties. Choose a Premium plan for instant approval, or come back here once your broker profile is approved.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
@@ -359,13 +359,13 @@ const PostProperty = () => {
                 state={{ tab: 'subscription' }}
                 className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-rose-600"
               >
-                View Subscription Plans
+                View Premium Plan
               </Link>
               <Link
                 href="/dashboard"
                 className="inline-flex items-center justify-center rounded-xl border border-border bg-white px-5 py-3 text-sm font-bold text-text transition-colors hover:border-primary hover:text-primary"
               >
-                Back to Dashboard
+                Go to Dashboard
               </Link>
             </div>
           </div>
@@ -376,12 +376,12 @@ const PostProperty = () => {
           {status && <p className="rounded-xl bg-green-50 p-3 text-sm font-bold text-green-700">{status}</p>}
 
           <div>
-            <label className="block text-sm font-bold text-text mb-1">Property Title</label>
-            <input value={form.title} onChange={(event) => updateField('title', event.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="e.g. Emerald Meadows" required />
+            <label className="block text-sm font-bold text-text mb-1">Listing title</label>
+            <input value={form.title} onChange={(event) => updateField('title', event.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="e.g. 300 sqyd plot near Shadnagar ORR" required />
           </div>
           <div>
-            <label className="block text-sm font-bold text-text mb-1">Description</label>
-            <textarea value={form.description} onChange={(event) => updateField('description', event.target.value)} className="min-h-28 w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="Approval status, layout highlights, nearby landmarks..." />
+            <label className="block text-sm font-bold text-text mb-1">Short description</label>
+            <textarea value={form.description} onChange={(event) => updateField('description', event.target.value)} className="min-h-28 w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="Mention approvals, road access, nearby landmarks, payment terms, and anything a buyer should know before calling." />
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             <div>
@@ -406,17 +406,17 @@ const PostProperty = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-text mb-1">Locality</label>
+              <label className="block text-sm font-bold text-text mb-1">Locality / area</label>
               <input value={form.locality} onChange={(event) => updateField('locality', event.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="Shadnagar" required />
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-4">
             <div>
-              <label className="block text-sm font-bold text-text mb-1">Price (Rs.)</label>
+              <label className="block text-sm font-bold text-text mb-1">Total price (Rs.)</label>
               <input value={form.price} onChange={(event) => updateField('price', event.target.value)} type="number" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="4200000" required />
             </div>
             <div>
-              <label className="block text-sm font-bold text-text mb-1">Size (Sq.Yd)</label>
+              <label className="block text-sm font-bold text-text mb-1">Plot size (Sq.Yd)</label>
               <input value={form.size} onChange={(event) => updateField('size', event.target.value)} type="number" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="300" required />
             </div>
             <div>
@@ -433,12 +433,12 @@ const PostProperty = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-text mb-1">Expected ROI</label>
-              <input value={form.roi} onChange={(event) => updateField('roi', event.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="e.g. 18%" />
+              <label className="block text-sm font-bold text-text mb-1">Expected growth</label>
+              <input value={form.roi} onChange={(event) => updateField('roi', event.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="e.g. 18% yearly" />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-bold text-text mb-1">Upload Images</label>
+            <label className="block text-sm font-bold text-text mb-1">Property photos</label>
             <input
               type="file"
               accept="image/*"
@@ -447,9 +447,9 @@ const PostProperty = () => {
               className="w-full text-sm text-text file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-primary file:font-semibold"
             />
             {uploadConfig.provider === 'cloudinary' && uploadConfig.uploadPreset && uploadConfig.cloudName ? (
-              <p className="mt-2 text-sm text-muted">Images will upload directly to Cloudinary.</p>
+              <p className="mt-2 text-sm text-muted">Photos will be uploaded securely and shown on your listing.</p>
             ) : (
-              <p className="mt-2 text-sm text-rose-600">{uploadConfig.message || 'Cloudinary upload is not configured.'}</p>
+              <p className="mt-2 text-sm text-rose-600">{uploadConfig.message || 'Photo upload is not ready yet. Please check upload settings.'}</p>
             )}
             {imagePreviews.length ? (
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -470,11 +470,11 @@ const PostProperty = () => {
                 ))}
               </div>
             ) : null}
-            <p className="mt-2 text-sm text-muted">You can upload up to 4 images directly from your device.</p>
+            <p className="mt-2 text-sm text-muted">Add up to 4 clear photos. Front road, layout, entrance, and plot view work best.</p>
           </div>
           {/* Layout Amenities Checkboxes */}
           <div className="border-t border-gray-100 pt-5">
-            <label className="block text-sm font-bold text-text mb-3">Layout Amenities</label>
+            <label className="block text-sm font-bold text-text mb-3">What buyers get in this layout</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 bg-gray-50 p-5 rounded-2xl border border-gray-100">
               {DEFAULT_AMENITIES.map((amenity) => {
                 const isChecked = checkedAmenities.includes(amenity);
@@ -511,18 +511,18 @@ const PostProperty = () => {
                   onChange={() => setHasOtherAmenity(!hasOtherAmenity)}
                   className="h-4.5 w-4.5 rounded text-primary focus:ring-primary accent-primary"
                 />
-                Other Option
+                Other amenities
               </label>
             </div>
 
             {hasOtherAmenity && (
               <div className="mt-3">
-                <label className="block text-xs font-bold text-muted mb-1">Type Other Amenities (comma separated)</label>
+                <label className="block text-xs font-bold text-muted mb-1">Add other amenities, separated by commas</label>
                 <input
                   value={otherAmenities}
                   onChange={(event) => setOtherAmenities(event.target.value)}
                   className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-text focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                  placeholder="e.g. Street lights, Kids Park, Open Gym"
+                  placeholder="e.g. Street lights, kids park, open gym"
                 />
               </div>
             )}
@@ -530,7 +530,7 @@ const PostProperty = () => {
 
           {/* Verified Documents Checkboxes */}
           <div className="border-t border-gray-100 pt-5">
-            <label className="block text-sm font-bold text-text mb-3">Verified Documents</label>
+            <label className="block text-sm font-bold text-text mb-3">Documents available for buyers</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-50 p-5 rounded-2xl border border-gray-100">
               {DEFAULT_DOCUMENTS.map((doc) => {
                 const isChecked = (form.documentsVerified || []).includes(doc);
@@ -557,10 +557,10 @@ const PostProperty = () => {
           </div>
           <label className="flex items-center gap-2 text-sm font-bold text-text">
             <input type="checkbox" checked={form.reraApproved} onChange={(event) => updateField('reraApproved', event.target.checked)} className="accent-primary" />
-            RERA approved
+            RERA approved / registration available
           </label>
           <button disabled={loading} className="w-full bg-primary hover:bg-rose-600 disabled:opacity-60 text-white font-bold py-4 rounded-xl mt-4">
-            {loading ? 'Submitting...' : editId ? 'Update Property' : 'Submit Property'}
+            {loading ? 'Saving...' : editId ? 'Save Changes' : 'Post Property'}
           </button>
         </form>
         )}

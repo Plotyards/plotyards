@@ -1,0 +1,59 @@
+Created At: 2026-05-27T08:04:58Z
+Completed At: 2026-05-27T08:04:58Z
+File Path: `file:///c:/Users/ACER/OneDrive/Desktop/Plotyard/frontend/src/views/Home.jsx`
+Total Lines: 776
+Total Bytes: 39014
+Showing lines 400 to 450
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+400:           )
+401:           )
+402:           }
+403:         </div>
+404: 
+405:         <div className="flex justify-between items-end mb-8">
+406:           <div>
+407:             <h2 className="text-3xl font-extrabold text-text mb-2">Featured Plots Near You</h2>
+408:             <p className="text-gray-500 font-medium">{featuredSubtitle}</p>
+409:           </div>
+410:           <button
+411:             type="button"
+412:             onClick={handleSeeAllClick}
+413:             className="text-sm font-semibold text-secondary flex items-center gap-1 hover:underline"
+414:           >
+415:             See all &rarr;
+416:           </button>
+417:         </div>
+418: 
+419:         {/* Listings Grid */}
+420:         <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-6 no-scrollbar md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3">
+421:           {filteredFeaturedPlots.map((plot) => {
+422:             const imageUrl = plot.image || plot.img;
+423:             const locationText = plot.location || plot.loc;
+424:             const sizeText = plot.size || plot.sqyd;
+425:             const photoCount = plot.photoCount ?? 12;
+426:             const linkId = plot.id || plot._id;
+427: 
+428:             return (
+429:               <Link href={`/property/${linkId}`} key={linkId || plot.title} className="group block min-w-[75vw] max-w-[320px] flex-shrink-0 snap-start cursor-pointer md:min-w-0 md:max-w-none">
+430:                 {/* Image Container */}
+431:                 <div className="relative rounded-2xl overflow-hidden aspect-[4/3] mb-4 shadow-sm group-hover:shadow-md transition-all">
+432:                   <img src={imageUrl} alt={plot.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+433:                   
+434:                   {/* Top Badges */}
+435:                   <div className="absolute top-4 left-4 flex gap-2">
+436:                     {plot.isDemo && (
+437:                       <span className="bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-sm">
+438:                         Demo property
+439:                       </span>
+440:                     )}
+441:                     <span className="bg-primary text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded">
+442:                       Featured
+443:                     </span>
+444:                     <span className="bg-white text-text text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-sm">
+445:                       Ready to Register
+446:                     </span>
+447:                   </div>
+448:                   
+449:                   <div className="absolute right-4 top-4 flex flex-col gap-2">
+450:                     <button
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

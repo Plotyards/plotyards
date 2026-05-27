@@ -227,7 +227,6 @@ const AdminPanel = () => {
 
   const navItems = [
     ['stats', BarChart3, 'Analytics'],
-    ['brokers', ShieldCheck, 'Broker Approvals'],
     ['manageBrokers', Users, 'Manage Brokers'],
     ['features', Star, 'Feature Properties'],
     ['blogs', FileText, 'Blogs'],
@@ -238,14 +237,13 @@ const AdminPanel = () => {
   const liveUsersDisplay = Number.isFinite(stats?.liveUsers) ? stats.liveUsers : '-';
 
   const statCards = [
-    [Activity, 'Live Users', liveUsersDisplay, 'text-emerald-700'],
+    [Activity, 'Live Buyers', liveUsersDisplay, 'text-emerald-700'],
     [ShieldCheck, 'Total Brokers', stats?.brokers ?? '-', 'text-secondary'],
-    [Inbox, 'Broker Requests', pendingBrokers.length, 'text-amber-700'],
     [BarChart3, 'Posts This Week', stats?.postsThisWeek ?? '-', 'text-violet-700']
   ];
 
   const analyticsData = [
-    { label: 'Total Users', value: stats?.users || 0, color: 'bg-primary' },
+    { label: 'Total Buyers', value: stats?.users || 0, color: 'bg-primary' },
     { label: 'Brokers', value: stats?.brokers || 0, color: 'bg-secondary' },
     { label: 'Pending Properties', value: stats?.pendingProperties || 0, color: 'bg-amber-500' },
     { label: 'Inquiries', value: stats?.inquiries || 0, color: 'bg-violet-600' },
@@ -295,7 +293,7 @@ const AdminPanel = () => {
             <p className="mt-2 text-sm font-medium text-muted">Manage broker approvals, homepage cities, announcements, and platform activity.</p>
           </div>
           <div className="rounded-2xl border border-black/10 bg-white px-5 py-4 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-wide text-muted">Live users now</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-muted">Live buyers now</p>
             <p className="mt-1 text-2xl font-extrabold text-secondary">{liveUsersDisplay}</p>
           </div>
         </div>
@@ -569,7 +567,7 @@ const AdminPanel = () => {
                         value={announcement.message || ''}
                         onChange={(event) => setAnnouncement({ ...announcement, message: event.target.value })}
                         className="min-h-24 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm font-semibold text-text outline-none focus:border-primary"
-                        placeholder="Write the announcement users should see..."
+                        placeholder="Write the announcement buyers should see..."
                         required
                       />
                     </div>

@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import TrafficHeartbeat from '../components/TrafficHeartbeat';
 import CompareWidget from '../components/CompareWidget';
 import CompareModal from '../components/CompareModal';
+import MobileBottomNav from '../components/MobileBottomNav';
 
 export const metadata = {
   title: {
@@ -27,15 +28,26 @@ export default function RootLayout({ children }) {
           <Suspense fallback={<div className="h-20" />}>
             <Navbar />
           </Suspense>
-          <AnnouncementBar />
+          <Suspense fallback={null}>
+            <AnnouncementBar />
+          </Suspense>
           <main className="flex-grow">
             <Suspense fallback={<div className="h-screen flex items-center justify-center">Loading...</div>}>
               {children}
             </Suspense>
           </main>
-          <Footer />
-          <CompareWidget />
-          <CompareModal />
+          <Suspense fallback={null}>
+            <Footer />
+          </Suspense>
+          <Suspense fallback={null}>
+            <CompareWidget />
+          </Suspense>
+          <Suspense fallback={null}>
+            <CompareModal />
+          </Suspense>
+          <Suspense fallback={null}>
+            <MobileBottomNav />
+          </Suspense>
         </Providers>
       </body>
     </html>

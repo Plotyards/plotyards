@@ -6,12 +6,14 @@ import { revokeAdminEntry } from '../utils/adminAccess';
 import { AuthContext } from './auth';
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(getStoredUser());
-  const [loading, setLoading] = useState(Boolean(getToken()));
+  const [user, setUser] = useState(() => (getToken() ? getStoredUser() : null));
+  const [loading, setLoading] = useState(() => Boolean(getToken()));
 
   useEffect(() => {
     const loadUser = async () => {
       if (!getToken()) {
+        clearSession();
+        setUser(null);
         setLoading(false);
         return;
       }

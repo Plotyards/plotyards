@@ -22,6 +22,7 @@ const Navbar = () => {
   const showNavSearch = isScrolled && !hideSearchRoutes.some((route) => pathname.startsWith(route));
   const showSolidNav = !isHomePage || isScrolled;
   const canPostProperty = isAdmin || (isBroker && user?.brokerStatus === 'approved');
+  const roleLabel = user?.role === 'user' ? 'buyer' : user?.role;
 
   const whatsappNumber = '918287697756';
   const assistanceLinks = [
@@ -78,11 +79,13 @@ const Navbar = () => {
     return () => window.clearTimeout(closeId);
   }, [pathname, searchParams]);
 
+  if (pathname === '/subscribe') return null;
+
   return (
     <header 
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         showSolidNav ? 'bg-white shadow-md py-4' : 'bg-transparent py-6'
-      }`}
+      } max-md:hidden`}
     >
       <div className="container mx-auto px-6 lg:px-12 flex justify-between items-center">
         {/* Logo */}
@@ -159,14 +162,13 @@ const Navbar = () => {
                 navigate.push('/dashboard?tab=subscription');
               }
             }}
-            className="relative overflow-hidden hidden sm:flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:shadow-lg transition-all"
+            className="relative overflow-hidden hidden sm:flex items-center bg-primary text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:shadow-lg transition-all"
           >
             <div className="absolute top-0 -left-[100%] w-12 h-full bg-white/30 skew-x-[45deg] animate-shine"></div>
             <span className="relative z-10">Post Property</span>
-            <span className="relative z-10 bg-white/20 text-[10px] px-1.5 py-0.5 rounded text-white tracking-wider">FREE</span>
           </button>
 
-          {/* User Menu */}
+          {/* Buyer Menu */}
           <div className="relative" ref={menuRef}>
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -192,7 +194,7 @@ const Navbar = () => {
                     {user ? (
                       <>
                         <p className="text-sm font-bold text-text">{user.name}</p>
-                        <p className="text-xs font-semibold text-muted capitalize">{user.role}</p>
+                        <p className="text-xs font-semibold text-muted capitalize">{roleLabel}</p>
                         <button
                           onClick={() => {
                             logout();

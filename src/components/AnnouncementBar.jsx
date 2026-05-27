@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Megaphone, X } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 
 const AnnouncementBar = () => {
+  const pathname = usePathname() || '';
   const [announcement, setAnnouncement] = useState(null);
   const dismissedKey = announcement?._id ? `announcement-dismissed-${announcement._id}` : '';
 
@@ -31,6 +33,8 @@ const AnnouncementBar = () => {
       window.removeEventListener('announcement-updated', loadAnnouncement);
     };
   }, []);
+
+  if (pathname === '/subscribe') return null;
 
   if (!announcement?.message) {
     return null;

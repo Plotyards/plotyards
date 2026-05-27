@@ -14,7 +14,7 @@ const pageContent = {
       },
       {
         heading: 'Our Approach',
-        body: 'Land buying is a serious decision. We focus on practical listing details, direct contact, verification signals, and a calmer search experience that helps users ask better questions before they visit a site.'
+        body: 'Land buying is a serious decision. We focus on practical listing details, direct contact, verification signals, and a calmer search experience that helps buyers ask better questions before they visit a site.'
       }
     ]
   },
@@ -29,15 +29,15 @@ const pageContent = {
       },
       {
         heading: '2. How We Use Your Information',
-        body: 'We use information to provide and improve our real estate services, connect buyers, sellers, and brokers, verify listings, maintain platform security, send updates or support responses, and improve user experience and marketing.'
+        body: 'We use information to provide and improve our real estate services, connect buyers, sellers, and brokers, verify listings, maintain platform security, send updates or support responses, and improve buyer experience and marketing.'
       },
       {
-        heading: '3. Property Listings and User Content',
-        body: 'Any property listing, image, description, or uploaded content remains the responsibility of the user, broker, seller, or property owner who provides it. Users must make sure shared information is accurate, lawful, and valid.'
+        heading: '3. Property Listings and Buyer Content',
+        body: 'Any property listing, image, description, or uploaded content remains the responsibility of the buyer, broker, seller, or property owner who provides it. Buyers must make sure shared information is accurate, lawful, and valid.'
       },
       {
         heading: '4. Data Protection',
-        body: 'We use reasonable security measures to protect personal information from unauthorized access, misuse, or disclosure. No online platform can promise perfect security, so we also encourage users to share only information that is necessary.'
+        body: 'We use reasonable security measures to protect personal information from unauthorized access, misuse, or disclosure. No online platform can promise perfect security, so we also encourage buyers to share only information that is necessary.'
       },
       {
         heading: '5. Sharing of Information',
@@ -45,14 +45,14 @@ const pageContent = {
       },
       {
         heading: '6. Cookies and Analytics',
-        body: 'Our website may use cookies and analytics tools to understand user behavior, improve performance, remember preferences, and provide a better browsing experience.'
+        body: 'Our website may use cookies and analytics tools to understand buyer behavior, improve performance, remember preferences, and provide a better browsing experience.'
       },
       {
         heading: '7. Third-Party Links',
         body: 'Plotyards may contain links to third-party websites or services. Their privacy practices and content are controlled by those third parties, not by Plotyards.'
       },
       {
-        heading: '8. User Rights',
+        heading: '8. Buyer Rights',
         body: 'You may ask us to access your personal data, update or correct information, remove listings or account details, or respond to privacy concerns. We will handle reasonable requests in line with applicable law and platform safety needs.'
       },
       {
@@ -80,11 +80,11 @@ const pageContent = {
       },
       {
         heading: 'Verification Is a Helpful Signal, Not a Legal Guarantee',
-        body: 'We try to improve listing quality, but users should independently check title, approvals, RERA status, ownership, zoning, access roads, dues, and local rules before making a payment or signing an agreement.'
+        body: 'We try to improve listing quality, but buyers should independently check title, approvals, RERA status, ownership, zoning, access roads, dues, and local rules before making a payment or signing an agreement.'
       },
       {
         heading: 'Broker and Buyer Communication',
-        body: 'When you contact a broker or submit an enquiry, you allow Plotyards to share relevant contact and enquiry details so the conversation can move forward. Users should communicate respectfully and avoid spam, harassment, or pressure tactics.'
+        body: 'When you contact a broker or submit an enquiry, you allow Plotyards to share relevant contact and enquiry details so the conversation can move forward. Buyers should communicate respectfully and avoid spam, harassment, or pressure tactics.'
       },
       {
         heading: 'Accounts and Security',
@@ -127,7 +127,7 @@ const pageContent = {
       },
       {
         heading: '5. Non-Refundable Cases',
-        body: 'Refunds are not provided for fake listings, misleading property details, policy violations, account suspension caused by user activity, buyer response differences, personal change of mind, or deals made outside the Plotyards platform.'
+        body: 'Refunds are not provided for fake listings, misleading property details, policy violations, account suspension caused by buyer activity, buyer response differences, personal change of mind, or deals made outside the Plotyards platform.'
       },
       {
         heading: '6. Refund Processing Time',
@@ -165,7 +165,7 @@ const pageContent = {
       },
       {
         heading: 'Can I save listings?',
-        body: 'Yes. Logged-in users can save favourites and revisit previously viewed properties from their account area.'
+        body: 'Yes. Logged-in buyers can save favourites and revisit previously viewed properties from their account area.'
       },
       {
         heading: 'Who should I email for help?',

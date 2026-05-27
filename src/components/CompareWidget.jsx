@@ -1,12 +1,14 @@
 "use client";
 import { useCompare } from '../context/CompareContext';
+import { usePathname } from 'next/navigation';
 import { X, Scale } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CompareWidget = () => {
+  const pathname = usePathname() || '';
   const { compareList, removeFromCompare, clearCompare, setIsCompareModalOpen } = useCompare();
 
-  if (compareList.length === 0) return null;
+  if (pathname === '/subscribe' || compareList.length === 0) return null;
 
   return (
     <AnimatePresence>
@@ -14,9 +16,9 @@ const CompareWidget = () => {
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
-        className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-border shadow-[0_-10px_40px_rgba(0,0,0,0.1)]"
+        className="fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom))] left-3 right-3 z-40 rounded-2xl border border-border bg-white shadow-[0_-10px_40px_rgba(0,0,0,0.1)] md:bottom-0 md:left-0 md:right-0 md:rounded-none md:border-x-0 md:border-b-0 md:border-t"
       >
-        <div className="container mx-auto max-w-[1440px] px-6 lg:px-12 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="container mx-auto max-w-[1440px] px-4 py-3 md:px-6 lg:px-12 md:py-4 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
           
           <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
             <span className="text-sm font-extrabold text-text hidden md:block">

@@ -1,0 +1,69 @@
+Created At: 2026-05-27T07:56:06Z
+Completed At: 2026-05-27T07:56:06Z
+File Path: `file:///c:/Users/ACER/OneDrive/Desktop/Plotyard/frontend/src/views/Home.jsx`
+Total Lines: 968
+Total Bytes: 47340
+Showing lines 790 to 968
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+790:         <div className="mb-8">
+791:           <h2 className="text-3xl font-extrabold text-text mb-2">Trending Projects</h2>
+792:           <p className="text-gray-500 font-medium">Most-viewed plot layouts this week</p>
+793:         </div>
+794: 
+795:         {/* Listings Grid */}
+796:         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+797:           {displayTrending.map((plot) => {
+798:             const imageUrl = plot.image || plot.img;
+799:             const locationText = plot.location || plot.loc;
+800:             const sizeText = plot.size || plot.sqyd;
+801:             const photoCount = plot.photoCount ?? 12;
+802:             const linkId = plot.id || plot._id;
+803: 
+804:             return (
+805:               <Link href={`/property/${linkId}`} key={linkId || plot.title} className="group cursor-pointer block">
+806:                 {/* Image Container */}
+807:                 <div className="relative rounded-2xl overflow-hidden aspect-[4/3] mb-4 shadow-sm group-hover:shadow-md transition-all">
+808:                   <img src={imageUrl} alt={plot.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+809:                   
+810:                   {/* Top Badges */}
+811:                   <div className="absolute top-4 left-4 flex gap-2">
+812:                     {plot.isDemo && (
+813:                       <span className="bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-sm">
+814:                      
+<truncated 7154 bytes>
+t-bold uppercase tracking-wider mb-2">Get the App</p>
+935:               <h3 className="text-2xl font-extrabold mb-3">India's first plots-only app.</h3>
+936:               <p className="text-gray-500 text-sm mb-8">
+937:                 Saved plots, instant alerts, live broker chat. Install in seconds.
+938:               </p>
+939:               
+940:               <div className="flex flex-col gap-3 mb-6">
+941:                 <Link href="/app-coming-soon" className="bg-[#0a0a0a] hover:bg-black text-white rounded-xl py-3.5 flex items-center justify-center gap-2 font-semibold transition-colors">
+942:                   <Download size={18} /> Download for iOS
+943:                 </Link>
+944:                 <Link href="/app-coming-soon" className="bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl py-3 flex items-center justify-center gap-2 font-semibold transition-colors">
+945:                   <Download size={18} /> Get it on Android
+946:                 </Link>
+947:               </div>
+948:               
+949:               <div className="pt-6 border-t border-gray-100 flex items-center gap-2">
+950:                 <div className="flex text-amber-400">
+951:                   <Star size={16} fill="currentColor" />
+952:                   <Star size={16} fill="currentColor" />
+953:                   <Star size={16} fill="currentColor" />
+954:                   <Star size={16} fill="currentColor" />
+955:                   <Star size={16} fill="currentColor" />
+956:                 </div>
+957:                 <span className="text-xs text-gray-500 font-medium">4.8 - 12,400 reviews on Play Store</span>
+958:               </div>
+959:             </div>
+960:           </div>
+961:         </div>
+962:       </section>
+963:     </div>
+964:   );
+965: };
+966: 
+967: export default Home;
+968: 
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

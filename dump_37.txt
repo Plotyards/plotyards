@@ -1,0 +1,29 @@
+Created At: 2026-05-27T08:01:33Z
+Completed At: 2026-05-27T08:01:33Z
+File Path: `file:///c:/Users/ACER/OneDrive/Desktop/Plotyard/frontend/src/views/Home.jsx`
+Total Lines: 849
+Total Bytes: 40248
+Showing lines 600 to 620
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+600:             className="hidden items-center gap-1 text-sm font-semibold text-secondary hover:underline md:flex"
+601:           >
+602:             See all &rarr;
+603:           </button>
+604:         </div>
+605: 
+606:         {/* Listings Grid */}
+607:         <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-6 no-scrollbar md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3">
+608:           {filteredFeaturedPlots.map((plot) => {
+609:             const imageUrl = plot.image || plot.img;
+610:             const locationText = plot.location || plot.loc;
+611:             const sizeText = plot.size || plot.sqyd;
+612:             const photoCount = plot.photoCount ?? 12;
+613:             const linkId = plot.id || plot._id;
+614: 
+615:             return (
+616:               <Link href={`/property/${linkId}`} key={linkId || plot.title} className="group block min-w-[80vw] max-w-[320px] flex-shrink-0 snap-start cursor-pointer md:min-w-0 md:max-w-none">
+617:                 {/* Image Container */}
+618:                 <div className="relative mb-3 aspect-[1.08/1] overflow-hidden rounded-lg shadow-sm transition-all group-hover:shadow-md md:mb-4 md:aspect-[4/3] md:rounded-2xl">
+619:                   <img src={imageUrl} alt={plot.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+620:                   
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

@@ -41,6 +41,7 @@ const Listings = () => {
   const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [stats, setStats] = useState({ totalProperties: 0, totalBrokers: 0 });
   const [statsLoaded, setStatsLoaded] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const { user } = useAuth();
   const { compareList, toggleCompare } = useCompare();
   const navigate = useRouter();
@@ -104,8 +105,9 @@ const Listings = () => {
   }, [query, sortBy, urlFilters, visibleListingsSource]);
 
   const suggestedProperties = useMemo(() => {
-    const featured = visibleListingsSource.filter((p) => p.featured);
-    return (featured.length ? featured : visibleListingsSource).slice(0, 3);
+    const source = visibleListingsSource.length ? visibleListingsSource : propertyListings;
+    const featured = source.filter((p) => p.featured);
+    return (featured.length ? featured : source).slice(0, 5);
   }, [visibleListingsSource]);
 
   const cityFilterOptions = useMemo(() => {
@@ -286,10 +288,91 @@ const Listings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-surface pb-12 pt-28">
+    <div className="min-h-screen bg-surface pb-12 pt-0 md:pt-28">
       
       <div className="container mx-auto max-w-[1440px] px-6 lg:px-12">
-        <section className="mb-8">
+        <div className="sticky top-0 z-40 -mx-6 mb-5 border-b border-border/70 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-xl md:hidden">
+          <div className="flex items-center gap-2">
+            <label className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-surface px-3">
+              <Search size={17} className="flex-shrink-0 text-primary" />
+              <input
+                type="text"
+                value={query}
+                onChange={(event) => handleQueryChange(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') applySearchToUrl();
+                }}
+                placeholder="Search plots in Gurugram"
+                className="min-w-0 flex-1 bg-transparent text-sm font-bold text-text outline-none placeholder:text-muted"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => setFiltersOpen((current) => !current)}
+              className="flex h-11 items-center gap-1.5 rounded-xl bg-primary px-3 text-xs font-extrabold text-white shadow-sm"
+              aria-expanded={filtersOpen}
+            >
+              <Filter size={15} />
+              Filters
+            </button>
+          </div>
+
+          {filtersOpen && (
+            <div className="mt-3 grid gap-2 rounded-2xl border border-border bg-white p-3 shadow-lg">
+              <div className="grid grid-cols-2 gap-2">
+                <DropdownSelect
+                  value={urlFilters.city || ''}
+                  onChange={(value) => handleFilterChange('city', value)}
+                  options={cityFilterOptions}
+                  icon={MapPin}
+                />
+                <DropdownSelect
+                  value={urlFilters.type || ''}
+                  onChange={(value) => handleFilterChange('type', value)}
+                  options={typeFilterOptions}
+                  icon={Filter}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  value={urlFilters.minPrice || ''}
+                  onChange={(event) => handleFilterChange('minPrice', event.target.value)}
+                  className="min-h-11 rounded-xl border border-border bg-surface px-3 text-xs font-bold text-text outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="Min price"
+                />
+                <input
+                  type="number"
+                  value={urlFilters.maxPrice || ''}
+                  onChange={(event) => handleFilterChange('maxPrice', event.target.value)}
+                  className="min-h-11 rounded-xl border border-border bg-surface px-3 text-xs font-bold text-text outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="Max price"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <label className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 text-xs font-extrabold ${urlFilters.approvedOnly ? 'border-green-200 bg-green-50 text-green-700' : 'border-border bg-surface text-muted'}`}>
+                  <input
+                    type="checkbox"
+                    checked={urlFilters.approvedOnly === 'true'}
+                    onChange={(event) => handleFilterChange('approvedOnly', event.target.checked ? 'true' : '')}
+                    className="h-4 w-4 accent-green-600"
+                  />
+                  Approved
+                </label>
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-3 text-xs font-extrabold text-text"
+                >
+                  <RotateCcw size={14} />
+                  Reset
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <section className="mb-6 md:mb-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary">
@@ -316,7 +399,7 @@ const Listings = () => {
           </div>
         </section>
 
-        <div className="relative z-30 mb-8 rounded-[1.75rem] border border-white/70 bg-white/60 p-3 shadow-2xl shadow-gray-200/70 backdrop-blur-2xl">
+        <div className="relative z-30 mb-8 hidden rounded-[1.75rem] border border-white/70 bg-white/60 p-3 shadow-2xl shadow-gray-200/70 backdrop-blur-2xl md:block">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
             <label className="flex min-h-12 flex-1 items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 shadow-inner backdrop-blur-xl">
               <Search size={18} className="text-muted" />
@@ -406,6 +489,34 @@ const Listings = () => {
           )}
         </div>
 
+        {suggestedProperties.length > 0 && (
+          <section className="mb-6 md:hidden">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-lg font-extrabold text-text">Suggestions</h2>
+              <span className="text-xs font-bold text-primary">Swipe</span>
+            </div>
+            <div className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-2 no-scrollbar">
+              {suggestedProperties.map((suggestion) => (
+                <Link
+                  key={suggestion.id}
+                  href={`/property/${suggestion.id}`}
+                  className="w-[220px] min-w-[220px] snap-start overflow-hidden rounded-2xl border border-border bg-white shadow-sm"
+                >
+                  <div className="relative h-28 overflow-hidden">
+                    <img src={suggestion.image || suggestion.img} alt={suggestion.title} className="h-full w-full object-cover" />
+                    <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/65 to-transparent"></div>
+                    <p className="absolute bottom-2 left-3 right-3 truncate text-xs font-extrabold text-white">{suggestion.title}</p>
+                  </div>
+                  <div className="p-3">
+                    <p className="truncate text-sm font-extrabold text-text">{suggestion.price}</p>
+                    <p className="mt-1 truncate text-xs font-semibold text-muted">{suggestion.location || suggestion.loc}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
         <main className="relative z-0">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -421,7 +532,7 @@ const Listings = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-8 xl:grid-cols-3">
               {sortedListings.map((listing, index) => (
                 <motion.article
                   key={listing.id}
@@ -429,46 +540,48 @@ const Listings = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.06 }}
                   onClick={(e) => handleCardClick(e, listing.id)}
-                  className="group relative overflow-hidden rounded-[2rem] bg-white border border-border shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 cursor-pointer flex flex-col"
+                  whileTap={{ rotate: index % 2 === 0 ? 1.5 : -1.5, scale: 0.985 }}
+                  className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-xl md:rounded-[2rem]"
                 >
                   {/* Image Container */}
-                  <div className="relative aspect-[4/3] w-full overflow-hidden">
+                  <div className="relative aspect-square w-full overflow-hidden md:aspect-[4/3]">
                     <img src={listing.image} alt={listing.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                     
                     {/* Gradient Overlay for Text Readability */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
 
                     {/* Top Badges */}
-                    <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                    <div className="absolute left-2 top-2 flex flex-wrap gap-1.5 md:left-4 md:top-4 md:gap-2">
                       {listing.isDemo && (
-                        <span className="bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded shadow-sm">
+                        <span className="hidden rounded bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 shadow-sm md:inline-flex">
                           This is a demo property
                         </span>
                       )}
                       {listing.featured && (
-                        <span className="bg-primary text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded shadow-sm">
-                          Featured
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-white shadow-sm md:h-auto md:w-auto md:rounded md:px-2.5 md:py-1 md:text-[10px] md:font-bold md:uppercase md:tracking-wider">
+                          <Sparkles size={13} className="md:hidden" />
+                          <span className="hidden md:inline">Featured</span>
                         </span>
                       )}
                       {listing.approved ? (
-                        <span className="bg-white text-text text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-sm flex items-center gap-1">
-                          <CheckCircle2 size={12} className="text-green-500" /> RERA Approved
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-green-600 shadow-sm md:h-auto md:w-auto md:gap-1 md:rounded md:px-2 md:py-1 md:text-[10px] md:font-bold md:uppercase md:tracking-wider md:text-text">
+                          <CheckCircle2 size={12} className="text-green-500" /> <span className="hidden md:inline">RERA Approved</span>
                         </span>
                       ) : null}
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="absolute right-4 top-4 flex flex-col gap-2">
+                    <div className="absolute right-2 top-2 hidden flex-col gap-1.5 md:right-4 md:top-4 md:flex md:gap-2">
                       <button
                         onClick={(e) => { e.stopPropagation(); toggleFavourite(String(listing.id)); }}
-                        className={`w-9 h-9 rounded-full flex items-center justify-center backdrop-blur shadow-sm transition-colors ${user && favoriteIds.has(String(listing.id)) ? 'bg-primary text-white border-none' : 'bg-white/90 text-gray-600 hover:text-primary hover:bg-white'}`}
+                        className={`flex h-8 w-8 items-center justify-center rounded-full shadow-sm backdrop-blur transition-colors md:h-9 md:w-9 ${user && favoriteIds.has(String(listing.id)) ? 'bg-primary text-white border-none' : 'bg-white/90 text-gray-600 hover:text-primary hover:bg-white'}`}
                         title="Favourite"
                       >
                         <Heart size={16} fill={user && favoriteIds.has(String(listing.id)) ? 'currentColor' : 'none'} />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); toggleCompare(listing); }}
-                        className={`w-9 h-9 rounded-full flex items-center justify-center backdrop-blur shadow-sm transition-colors ${compareList.some(p => String(p.id) === String(listing.id)) ? 'bg-primary text-white border-none' : 'bg-white/90 text-gray-600 hover:text-primary hover:bg-white'}`}
+                        className={`hidden rounded-full shadow-sm backdrop-blur transition-colors md:flex md:h-9 md:w-9 md:items-center md:justify-center ${compareList.some(p => String(p.id) === String(listing.id)) ? 'bg-primary text-white border-none' : 'bg-white/90 text-gray-600 hover:text-primary hover:bg-white'}`}
                         title="Add to Compare"
                       >
                         <Scale size={16} />
@@ -476,44 +589,48 @@ const Listings = () => {
                     </div>
 
                     {/* Bottom Badge - Photo Count */}
-                    <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-white flex items-center gap-1.5 text-xs font-semibold shadow-sm">
+                    <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-[10px] font-semibold text-white shadow-sm backdrop-blur-md md:bottom-4 md:right-4 md:gap-1.5 md:px-2.5 md:text-xs">
                       <Camera size={12} /> {listing.photoCount ?? 12}
                     </div>
 
                     {/* Property Type Floating Badge */}
-                    <div className="absolute bottom-4 left-4">
-                      <span className="bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-text shadow-sm">
+                    <div className="absolute bottom-2 left-2 md:bottom-4 md:left-4">
+                      <span className="rounded-full bg-white/95 px-2 py-1 text-[10px] font-bold text-text shadow-sm backdrop-blur-md md:px-3 md:text-xs">
                         {listing.type}
                       </span>
                     </div>
                   </div>
 
                   {/* Details Section */}
-                  <div className="flex flex-col flex-1 p-6">
+                  <div className="flex flex-1 flex-col p-3 md:p-6">
                     {listing.isDemo && (
-                      <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-extrabold uppercase tracking-wide text-amber-700">
+                      <p className="mb-3 hidden rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-extrabold uppercase tracking-wide text-amber-700 md:block">
                         This is a demo property
                       </p>
                     )}
-                    <h3 className="line-clamp-2 text-xl font-extrabold leading-snug text-text mb-2 group-hover:text-primary transition-colors">{listing.title}</h3>
+                    <h3 className="mb-1 line-clamp-2 text-[15px] font-extrabold leading-tight text-text transition-colors group-hover:text-primary md:mb-2 md:text-xl">{listing.title}</h3>
                     
-                    <p className="flex items-center gap-1.5 text-sm font-semibold text-muted mb-5">
-                      <MapPin size={16} className="text-gray-400" />
-                      {listing.location}
+                    <p className="mb-2 flex min-w-0 items-center gap-1 text-xs font-semibold text-muted md:mb-5 md:gap-1.5 md:text-sm">
+                      <MapPin size={14} className="flex-shrink-0 text-gray-400 md:size-4" />
+                      <span className="min-w-0 truncate">{listing.location}</span>
                     </p>
 
-                    <div className="grid grid-cols-3 gap-3 mb-6">
-                      <div className="bg-surface rounded-xl">
-                        <div className="px-3 py-3">
-                          <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Price</p>
-                          <p className="mt-1 text-sm font-extrabold text-text">{listing.price}</p>
+                    <div className="mb-3 grid grid-cols-1 gap-1.5 md:mb-6 md:grid-cols-3 md:gap-3">
+                      <div className="rounded-xl bg-surface md:border md:border-border/50">
+                        <div className="px-2 py-2 md:px-3 md:py-3">
+                          <p className="hidden text-[11px] font-bold uppercase tracking-wide text-muted md:block">Price</p>
+                          <p className="truncate text-[15px] font-black text-text md:mt-1 md:text-sm">{listing.price}</p>
                         </div>
                       </div>
-                      <div className="bg-surface rounded-xl p-3 text-center border border-border/50">
+                      <p className="flex items-center gap-1 text-[11px] font-semibold text-muted md:hidden">
+                        <span className="h-1 w-1 rounded-full bg-primary"></span>
+                        {listing.size}
+                      </p>
+                      <div className="hidden rounded-xl border border-border/50 bg-surface p-3 text-center md:block">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-muted mb-1">Size</p>
                         <p className="text-sm font-extrabold text-text">{listing.size}</p>
                       </div>
-                      <div className="bg-surface rounded-xl p-3 text-center border border-border/50">
+                      <div className="hidden rounded-xl border border-border/50 bg-surface p-3 text-center md:block">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-muted mb-1">ROI</p>
                         <p className="text-sm font-extrabold text-green-600 flex items-center justify-center gap-1">
                           <TrendingUp size={12} /> {listing.roi}
@@ -521,15 +638,15 @@ const Listings = () => {
                       </div>
                     </div>
 
-                    <div className="mt-auto pt-4 border-t border-border flex items-center justify-between">
+                    <div className="mt-auto flex items-center justify-between border-t border-border pt-3 md:pt-4">
                       <div>
-                        <p className="text-xs font-bold text-text">{listing.rate}</p>
-                        <p className="text-[10px] font-semibold text-secondary uppercase tracking-wider mt-0.5 flex items-center gap-1">
+                        <p className="hidden text-xs font-bold text-text md:block">{listing.rate}</p>
+                        <p className="mt-0.5 flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider text-secondary md:text-[10px]">
                           <Sparkles size={10} /> Broker verified
                         </p>
                       </div>
-                      <span className="inline-flex items-center justify-center bg-text text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all group-hover:bg-primary shadow-sm hover:shadow-primary/30">
-                        View Plot
+                      <span className="inline-flex items-center justify-center rounded-lg bg-text px-3 py-2 text-xs font-bold text-white shadow-sm transition-all hover:shadow-primary/30 group-hover:bg-primary md:rounded-xl md:px-5 md:py-2.5 md:text-sm">
+                        View
                       </span>
                     </div>
                   </div>
