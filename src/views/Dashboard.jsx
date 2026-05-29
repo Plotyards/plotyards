@@ -22,7 +22,7 @@ const planFeatureRows = [
   ['Leads Guarantee', false, '100 Leads'],
   ['Featured Visibility', false, true],
   ['Social Media Promotion', false, true],
-  ['Broker Approval', 'Admin review', 'Auto approval']
+  ['Associate Partner Approval', 'Admin review', 'Auto approval']
 ];
 
 const loadRazorpayCheckout = () => new Promise((resolve) => {
@@ -74,7 +74,7 @@ const Dashboard = () => {
   const { user, isBroker, updateMe, refreshMe } = useAuth();
   const [currentTime] = useState(() => Date.now());
   const isUser = user?.role === 'user' || user?.role === 'admin';
-  const roleLabel = user?.role === 'user' ? 'buyer' : user?.role;
+  const roleLabel = user?.role === 'user' ? 'buyer' : user?.role === 'broker' ? 'associate partner' : user?.role;
   const brokerApproved = user?.role === 'admin' || user?.brokerStatus === 'approved';
   const rejectedAt = user?.brokerProfile?.rejectedAt;
   const canReapplyAt = rejectedAt ? new Date(new Date(rejectedAt).getTime() + TWO_DAYS_MS) : null;
@@ -250,7 +250,7 @@ const Dashboard = () => {
       await updateMe({ requestBroker: true });
       navigate.push('/subscribe');
     } catch (error) {
-      setBrokerRequestStatus(error.message || 'Unable to start broker upgrade.');
+      setBrokerRequestStatus(error.message || 'Unable to start associate partner upgrade.');
     } finally {
       setBrokerRequesting(false);
     }
@@ -299,7 +299,7 @@ const Dashboard = () => {
       period: '3 months',
       accent: 'border-primary bg-white ring-2 ring-primary/10',
       cta: 'Pay with Razorpay',
-      highlights: ['9 active listings', '9 reels promotion', '100 leads guarantee', 'Auto broker approval'],
+      highlights: ['9 active listings', '9 reels promotion', '100 leads guarantee', 'Auto associate partner approval'],
       icon: CreditCard
     }
   ];
@@ -354,7 +354,7 @@ const Dashboard = () => {
                 <div className="space-y-8">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                      <h2 className="text-3xl font-extrabold text-text">Broker Subscription</h2>
+                      <h2 className="text-3xl font-extrabold text-text">Associate Partner Subscription</h2>
                       <p className="mt-2 text-gray-500 font-medium">An active Premium plan is required to post property listings and unlock high-quality buyer leads.</p>
                     </div>
                     <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-xs font-extrabold uppercase text-primary">
@@ -446,7 +446,7 @@ const Dashboard = () => {
                                 <TrendingUp size={16} />
                                 Premium promotion package
                               </p>
-                              <p className="mt-1 text-xs font-semibold text-muted">Featured visibility, reels, social promotion, 100 leads guarantee, and automatic broker approval.</p>
+                              <p className="mt-1 text-xs font-semibold text-muted">Featured visibility, reels, social promotion, 100 leads guarantee, and automatic associate partner approval.</p>
                             </div>
                           )}
 
@@ -489,7 +489,7 @@ const Dashboard = () => {
                   </div>
                    {!brokerApproved && (
                     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800">
-                      Broker approval is required before uploading properties. Purchase the Premium subscription plan for instant automatic broker approval.
+                      Associate Partner approval is required before uploading properties. Purchase the Premium subscription plan for instant automatic associate partner approval.
                     </div>
                   )}
                   {properties.map((property) => (
@@ -530,9 +530,9 @@ const Dashboard = () => {
               ) : activeTab === 'blogs' ? (
                 <BlogManager
                   canCreate={!subscriptionLoading && activePlan === 'premium'}
-                  lockedMessage="Blogs and articles are available only for Premium brokers. Upgrade to Premium to publish SEO articles, location guides, and property investment content."
-                  title="Broker Blogs & Articles"
-                  description="Premium brokers can publish buyer guides and property investment articles on Plotyards."
+                  lockedMessage="Blogs and articles are available only for Premium Associate Partners. Upgrade to Premium to publish SEO articles, location guides, and property investment content."
+                  title="Associate Partner Blogs & Articles"
+                  description="Premium Associate Partners can publish buyer guides and property investment articles on Plotyards."
                 />
               ) : activeTab === 'leads' ? (
                 <div className="space-y-5">
@@ -666,7 +666,7 @@ const Dashboard = () => {
                 <div className="space-y-8">
                   <div>
                     <h2 className="text-2xl font-extrabold text-text mb-2">Welcome back, {user?.name}</h2>
-                    <p className="text-gray-500 font-medium">Here is your live broker activity.</p>
+                    <p className="text-gray-500 font-medium">Here is your live associate partner activity.</p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {brokerStats.map(([Icon, label, value, color]) => (
@@ -681,7 +681,7 @@ const Dashboard = () => {
                     <h3 className="text-xl font-bold text-text mb-4">Next steps</h3>
                     <p className="text-sm font-medium text-muted flex items-center gap-2">
                       <CheckCircle2 size={16} className="text-primary" />
-                      {brokerApproved ? 'Keep listings approved and respond to leads quickly.' : 'Broker approval is pending. Subscribe to the Premium plan for instant automatic broker approval and listing permissions.'}
+                      {brokerApproved ? 'Keep listings approved and respond to leads quickly.' : 'Associate Partner approval is pending. Subscribe to the Premium plan for instant automatic associate partner approval and listing permissions.'}
                     </p>
                   </div>
                 </div>
@@ -694,8 +694,8 @@ const Dashboard = () => {
                 </div>
                 {user?.role === 'user' && (
                   <div className="rounded-[2rem] border border-border/80 bg-surface p-6 shadow-lg shadow-gray-200/70 ring-1 ring-black/5">
-                    <h3 className="text-xl font-bold text-text">Become a Broker</h3>
-                    <p className="mt-2 text-sm text-muted">Activate your Premium Broker account instantly to post plot listings and receive direct buyer inquiries. No admin approval required.</p>
+                    <h3 className="text-xl font-bold text-text">Become an Associate Partner</h3>
+                    <p className="mt-2 text-sm text-muted">Activate your Premium Associate Partner account instantly to post plot listings and receive direct buyer inquiries. No admin approval required.</p>
                     <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
                       <button
                         type="button"
@@ -703,7 +703,7 @@ const Dashboard = () => {
                         disabled={brokerRequesting}
                         className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-rose-600 disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        {brokerRequesting ? 'Processing...' : 'Become a Broker'}
+                        {brokerRequesting ? 'Processing...' : 'Become an Associate Partner'}
                       </button>
                       {brokerRequestStatus && <p className="text-sm text-muted">{brokerRequestStatus}</p>}
                     </div>
@@ -749,7 +749,7 @@ const Dashboard = () => {
                     <div className="space-y-6">
                       <div className="rounded-2xl border border-border bg-surface p-8">
                         <h3 className="text-xl font-bold text-text">Start browsing</h3>
-                        <p className="mt-2 text-sm text-muted">Find the best listings from verified brokers on Plotyards.</p>
+                        <p className="mt-2 text-sm text-muted">Find the best listings from verified associate partners on Plotyards.</p>
                         <Link href="/listings" className="mt-4 inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white">Browse listings</Link>
                       </div>
                       <div className="grid gap-4 lg:grid-cols-2">

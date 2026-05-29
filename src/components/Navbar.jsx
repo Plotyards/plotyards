@@ -22,7 +22,7 @@ const Navbar = () => {
   const showNavSearch = isScrolled && !hideSearchRoutes.some((route) => pathname.startsWith(route));
   const showSolidNav = !isHomePage || isScrolled;
   const canPostProperty = isAdmin || (isBroker && user?.brokerStatus === 'approved');
-  const roleLabel = user?.role === 'user' ? 'buyer' : user?.role;
+  const roleLabel = user?.role === 'user' ? 'buyer' : user?.role === 'broker' ? 'associate partner' : user?.role;
 
   const whatsappNumber = '918287697756';
   const assistanceLinks = [
@@ -111,7 +111,7 @@ const Navbar = () => {
                   onClick={closeMenu}
                   className={`group relative text-sm font-extrabold tracking-wide transition-colors duration-300 ${
                     showSolidNav
-                      ? 'text-secondary drop-shadow-[0_0_5px_rgba(0,105,122,0.25)] hover:text-primary hover:drop-shadow-[0_0_8px_rgba(250,62,78,0.35)]'
+                      ? 'text-text  hover:text-green-500 '
                       : 'text-white/95 drop-shadow-[0_0_7px_rgba(255,255,255,0.35)] hover:text-amber-200 hover:drop-shadow-[0_0_10px_rgba(251,191,36,0.55)]'
                   }`}
                 >
@@ -155,10 +155,10 @@ const Navbar = () => {
               if (canPostProperty) {
                 navigate.push('/post-property');
               } else if (isBroker) {
-                alert('Broker approval is required before posting properties.');
+                alert('Associate Partner approval is required before posting properties.');
                 navigate.push('/dashboard?tab=subscription');
               } else {
-                alert('Only brokers can post properties. Please upgrade your account.');
+                alert('Only Associate Partners can post properties. Please upgrade your account.');
                 navigate.push('/dashboard?tab=subscription');
               }
             }}

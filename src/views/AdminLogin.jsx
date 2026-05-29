@@ -65,9 +65,9 @@ const AdminLogin = () => {
           <p className="inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1 text-xs font-extrabold uppercase tracking-wide ring-1 ring-white/20">
             <Sparkles size={14} /> Plotadmin gateway
           </p>
-          <h1 className="mt-5 max-w-xl text-5xl font-extrabold leading-tight">Admin access for listings, brokers, and homepage controls.</h1>
+          <h1 className="mt-5 max-w-xl text-5xl font-extrabold leading-tight">Admin access for listings, associate partners, and homepage controls.</h1>
           <p className="mt-5 max-w-lg text-sm font-medium leading-7 text-white/75">
-            Use your administrator account to review broker requests, manage featured properties, edit selected top cities, and publish site announcements.
+            Use your administrator account to review associate partner requests, manage featured properties, edit selected top cities, and publish site announcements.
           </p>
         </div>
 

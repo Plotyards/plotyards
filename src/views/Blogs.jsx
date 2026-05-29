@@ -60,7 +60,7 @@ const Blogs = () => {
     '@context': 'https://schema.org',
     '@type': 'Blog',
     name: 'Plotyards Blogs and Articles',
-    description: 'Real estate investment guides, property buying checklists, broker marketing tips, and plot investment articles.',
+    description: 'Real estate investment guides, property buying checklists, associate partner marketing tips, and plot investment articles.',
     url: (typeof window !== 'undefined' ? window.location.href : '')
   };
 
@@ -76,7 +76,7 @@ const Blogs = () => {
             </span>
             <h1 className="text-2xl font-extrabold tracking-tight text-text md:mt-5 md:text-4xl lg:text-5xl">Blogs & Articles</h1>
             <p className="mt-4 hidden max-w-3xl text-base font-medium leading-8 text-muted md:block">
-              Practical guides for plot buyers, real estate investors, and brokers who want clearer property decisions.
+              Practical guides for plot buyers, real estate investors, and associate partners who want clearer property decisions.
             </p>
           </div>
           <div className="grid gap-3 rounded-xl bg-surface p-3 md:rounded-2xl md:border md:border-border md:p-4">

@@ -32,6 +32,7 @@ const typeFilterOptions = [
 const isMongoId = (val) => /^[0-9a-fA-F]{24}$/.test(String(val));
 
 const listingFilterKeys = ['city', 'type', 'approvedOnly', 'minPrice', 'maxPrice', 'minSize', 'maxSize'];
+const LISTINGS_PAGE_SIZE = 10;
 
 const Listings = () => {
   const searchParams = useSearchParams();
@@ -47,6 +48,8 @@ const Listings = () => {
   const navigate = useRouter();
   const query = searchParams.get('q') || '';
   const sortBy = searchParams.get('sort') || 'recommended';
+  const requestedPage = Number(searchParams.get('page') || 1);
+  const currentPage = Number.isFinite(requestedPage) && requestedPage > 0 ? Math.floor(requestedPage) : 1;
 
   const urlFilters = useMemo(() => {
     const filters = {};
@@ -92,17 +95,46 @@ const Listings = () => {
   const sortedListings = useMemo(() => {
     const source = advancedPropertySearch(visibleListingsSource, query, urlFilters);
     const list = [...source];
+    const featuredFirst = (a, b) => (
+      Number(Boolean(b.featured)) - Number(Boolean(a.featured))
+      || Number(Boolean(b.approved)) - Number(Boolean(a.approved))
+    );
 
     if (sortBy === 'price-low') {
-      return list.sort((a, b) => a.priceValue - b.priceValue);
+      return list.sort((a, b) => featuredFirst(a, b) || (a.priceValue || 0) - (b.priceValue || 0));
     }
 
     if (sortBy === 'price-high') {
-      return list.sort((a, b) => b.priceValue - a.priceValue);
+      return list.sort((a, b) => featuredFirst(a, b) || (b.priceValue || 0) - (a.priceValue || 0));
     }
 
-    return list;
+    return list.sort((a, b) => (
+      featuredFirst(a, b)
+      || (b.viewsCount || 0) - (a.viewsCount || 0)
+      || (b.priceValue || 0) - (a.priceValue || 0)
+    ));
   }, [query, sortBy, urlFilters, visibleListingsSource]);
+
+  const pageCount = Math.max(1, Math.ceil(sortedListings.length / LISTINGS_PAGE_SIZE));
+  const safePage = Math.min(currentPage, pageCount);
+  const pageStart = (safePage - 1) * LISTINGS_PAGE_SIZE;
+  const paginatedListings = sortedListings.slice(pageStart, pageStart + LISTINGS_PAGE_SIZE);
+  const visibleStart = sortedListings.length > 0 ? pageStart + 1 : 0;
+  const visibleEnd = pageStart + paginatedListings.length;
+  const paginationItems = useMemo(() => {
+    const pages = pageCount <= 7
+      ? Array.from({ length: pageCount }, (_, index) => index + 1)
+      : [...new Set([1, safePage - 1, safePage, safePage + 1, pageCount].filter((page) => page >= 1 && page <= pageCount))]
+        .sort((a, b) => a - b);
+
+    return pages.reduce((items, page, index) => {
+      if (index > 0 && page - pages[index - 1] > 1) {
+        items.push(`gap-${pages[index - 1]}-${page}`);
+      }
+      items.push(page);
+      return items;
+    }, []);
+  }, [pageCount, safePage]);
 
   const suggestedProperties = useMemo(() => {
     const source = visibleListingsSource.length ? visibleListingsSource : propertyListings;
@@ -203,6 +235,7 @@ const Listings = () => {
     else nextParams.delete('q');
     if (sortBy !== 'recommended') nextParams.set('sort', sortBy);
     else nextParams.delete('sort');
+    nextParams.delete('page');
 
     navigate.push(`?${nextParams.toString()}`);
   };
@@ -214,6 +247,7 @@ const Listings = () => {
     else nextParams.set('sort', value);
 
     if (query.trim()) nextParams.set('q', query.trim());
+    nextParams.delete('page');
     navigate.push(`?${nextParams.toString()}`);
   };
 
@@ -221,6 +255,7 @@ const Listings = () => {
     const nextParams = new URLSearchParams(searchParams);
     if (value) nextParams.set('q', value);
     else nextParams.delete('q');
+    nextParams.delete('page');
     navigate.replace(`?${nextParams.toString()}`);
   };
 
@@ -229,6 +264,7 @@ const Listings = () => {
 
     if (value) nextParams.set(key, value);
     else nextParams.delete(key);
+    nextParams.delete('page');
 
     navigate.push(`?${nextParams.toString()}`);
   };
@@ -236,6 +272,17 @@ const Listings = () => {
   const resetFilters = () => {
     const nextParams = new URLSearchParams(searchParams);
     listingFilterKeys.forEach((key) => nextParams.delete(key));
+    nextParams.delete('page');
+    navigate.push(`?${nextParams.toString()}`);
+  };
+
+  const handlePageChange = (page) => {
+    const targetPage = Math.min(Math.max(page, 1), pageCount);
+    const nextParams = new URLSearchParams(searchParams);
+
+    if (targetPage <= 1) nextParams.delete('page');
+    else nextParams.set('page', String(targetPage));
+
     navigate.push(`?${nextParams.toString()}`);
   };
 
@@ -381,14 +428,14 @@ const Listings = () => {
               </div>
               <h1 className="text-3xl font-extrabold text-text sm:text-4xl">Premium plots matched to your investment goals</h1>
               <p className="mt-3 max-w-xl text-sm font-medium leading-6 text-muted">
-                Browse RERA-ready layouts, broker-verified parcels, and high-growth land opportunities.
+                Browse RERA-ready layouts, associate partner-verified parcels, and high-growth land opportunities.
               </p>
             </div>
 
             <div className="grid grid-cols-2 overflow-hidden rounded-2xl border border-white/80 bg-white/70 shadow-lg shadow-gray-200/70 backdrop-blur-xl sm:min-w-[320px]">
               {[
                 [String(sortedListings.length), 'Matches'],
-                [stats.totalBrokers > 0 ? `${stats.totalBrokers}+` : '850+', 'Brokers']
+                [stats.totalBrokers > 0 ? `${stats.totalBrokers}+` : '850+', 'Associate Partners']
               ].map(([value, label]) => (
                 <div key={label} className="border-r border-border px-4 py-4 last:border-r-0">
                   <p className="text-xl font-extrabold text-text">{value}</p>
@@ -410,7 +457,7 @@ const Listings = () => {
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') applySearchToUrl();
                 }}
-                placeholder="Search locality, project, or broker"
+                placeholder="Search locality, project, or associate partner"
                 className="w-full bg-transparent text-sm font-semibold text-text outline-none placeholder:text-muted"
               />
             </label>
@@ -521,7 +568,7 @@ const Listings = () => {
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-bold text-text">
-                Showing {sortedListings.length} of {visibleListingsSource.length} properties
+                Showing {sortedListings.length === 0 ? '0' : `${visibleStart}-${visibleEnd}`} of {sortedListings.length} properties
               </p>
               <p className="text-xs font-medium text-muted">
                 {loading || !statsLoaded ? 'Loading live listings...' : usingFallback ? 'Unable to load live listings right now' : dbHasProperties ? 'Showing live approved listings' : canShowDemoListings ? 'Showing demo listings because database is empty' : 'No live listings yet'}
@@ -533,7 +580,7 @@ const Listings = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-8 xl:grid-cols-3">
-              {sortedListings.map((listing, index) => (
+              {paginatedListings.map((listing, index) => (
                 <motion.article
                   key={listing.id}
                   initial={{ opacity: 0, y: 18 }}
@@ -642,7 +689,7 @@ const Listings = () => {
                       <div>
                         <p className="hidden text-xs font-bold text-text md:block">{listing.rate}</p>
                         <p className="mt-0.5 flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider text-secondary md:text-[10px]">
-                          <Sparkles size={10} /> Broker verified
+                          <Sparkles size={10} /> Associate Partner verified
                         </p>
                       </div>
                       <span className="inline-flex items-center justify-center rounded-lg bg-text px-3 py-2 text-xs font-bold text-white shadow-sm transition-all hover:shadow-primary/30 group-hover:bg-primary md:rounded-xl md:px-5 md:py-2.5 md:text-sm">
@@ -653,6 +700,46 @@ const Listings = () => {
                 </motion.article>
               ))}
             </div>
+
+          {sortedListings.length > LISTINGS_PAGE_SIZE && (
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => handlePageChange(safePage - 1)}
+                disabled={safePage === 1}
+                className="min-h-10 rounded-xl border border-border bg-white px-4 text-sm font-extrabold text-text shadow-sm transition-colors hover:border-primary/40 disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                Previous
+              </button>
+              {paginationItems.map((item) => (
+                typeof item === 'number' ? (
+                  <button
+                    type="button"
+                    key={item}
+                    onClick={() => handlePageChange(item)}
+                    className={`flex h-10 min-w-10 items-center justify-center rounded-xl border px-3 text-sm font-extrabold shadow-sm transition-colors ${
+                      item === safePage
+                        ? 'border-primary bg-primary text-white'
+                        : 'border-border bg-white text-text hover:border-primary/40'
+                    }`}
+                    aria-current={item === safePage ? 'page' : undefined}
+                  >
+                    {item}
+                  </button>
+                ) : (
+                  <span key={item} className="px-1 text-sm font-extrabold text-muted">...</span>
+                )
+              ))}
+              <button
+                type="button"
+                onClick={() => handlePageChange(safePage + 1)}
+                disabled={safePage === pageCount}
+                className="min-h-10 rounded-xl border border-border bg-white px-4 text-sm font-extrabold text-text shadow-sm transition-colors hover:border-primary/40 disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                Next
+              </button>
+            </div>
+          )}
 
           {sortedListings.length === 0 && (
             <>

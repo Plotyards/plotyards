@@ -134,7 +134,7 @@ const AdminPanel = () => {
     const options = { method: 'PATCH' };
 
     if (action === 'reject') {
-      const reason = window.prompt('Please enter the rejection reason for this broker approval:');
+      const reason = window.prompt('Please enter the rejection reason for this associate partner approval:');
       if (!reason?.trim()) return;
       options.body = { reason: reason.trim() };
     }
@@ -227,7 +227,7 @@ const AdminPanel = () => {
 
   const navItems = [
     ['stats', BarChart3, 'Analytics'],
-    ['manageBrokers', Users, 'Manage Brokers'],
+    ['manageBrokers', Users, 'Manage Associate Partners'],
     ['features', Star, 'Feature Properties'],
     ['blogs', FileText, 'Blogs'],
     ['announcement', Megaphone, 'Announcement'],
@@ -238,13 +238,13 @@ const AdminPanel = () => {
 
   const statCards = [
     [Activity, 'Live Buyers', liveUsersDisplay, 'text-emerald-700'],
-    [ShieldCheck, 'Total Brokers', stats?.brokers ?? '-', 'text-secondary'],
+    [ShieldCheck, 'Total Associate Partners', stats?.brokers ?? '-', 'text-secondary'],
     [BarChart3, 'Posts This Week', stats?.postsThisWeek ?? '-', 'text-violet-700']
   ];
 
   const analyticsData = [
     { label: 'Total Buyers', value: stats?.users || 0, color: 'bg-primary' },
-    { label: 'Brokers', value: stats?.brokers || 0, color: 'bg-secondary' },
+    { label: 'Associate Partners', value: stats?.brokers || 0, color: 'bg-secondary' },
     { label: 'Pending Properties', value: stats?.pendingProperties || 0, color: 'bg-amber-500' },
     { label: 'Inquiries', value: stats?.inquiries || 0, color: 'bg-violet-600' },
     { label: 'Posts This Week', value: stats?.postsThisWeek || 0, color: 'bg-cyan-600' }
@@ -253,7 +253,7 @@ const AdminPanel = () => {
   const brokerSearchTerm = brokerSearch.trim().toLowerCase();
   const pendingBrokerSearchTerm = pendingBrokerSearch.trim().toLowerCase();
   const filteredPendingBrokers = pendingBrokers.filter((broker) => {
-    const haystack = [broker.name, broker.email, broker.phone, broker.brokerProfile?.companyName, broker.brokerProfile?.reraId]
+    const haystack = [broker.name, broker.email, broker.phone, broker.brokerProfile?.companyName]
       .filter(Boolean)
       .join(' ')
       .toLowerCase();
@@ -290,7 +290,7 @@ const AdminPanel = () => {
               <Sparkles size={14} /> Plotyards admin
             </p>
             <h1 className="mt-3 text-3xl font-extrabold text-text">Admin Control Panel</h1>
-            <p className="mt-2 text-sm font-medium text-muted">Manage broker approvals, homepage cities, announcements, and platform activity.</p>
+            <p className="mt-2 text-sm font-medium text-muted">Manage associate partner approvals, homepage cities, announcements, and platform activity.</p>
           </div>
           <div className="rounded-2xl border border-black/10 bg-white px-5 py-4 shadow-sm">
             <p className="text-xs font-bold uppercase tracking-wide text-muted">Live buyers now</p>
@@ -319,8 +319,8 @@ const AdminPanel = () => {
               <div className="grid gap-5">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                   <div>
-                    <h2 className="text-2xl font-extrabold text-text">Broker Approvals</h2>
-                    <p className="mt-2 text-sm font-medium text-muted">Review pending broker requests and search by name, phone, company, or RERA ID.</p>
+                    <h2 className="text-2xl font-extrabold text-text">Associate Partner Approvals</h2>
+                    <p className="mt-2 text-sm font-medium text-muted">Review pending associate partner requests and search by name, phone, or company.</p>
                   </div>
                   <label className="flex min-h-12 w-full items-center gap-2 rounded-xl border border-border bg-surface px-4 lg:max-w-sm">
                     <Search size={17} className="text-muted" />
@@ -328,7 +328,7 @@ const AdminPanel = () => {
                       value={pendingBrokerSearch}
                       onChange={(event) => setPendingBrokerSearch(event.target.value)}
                       className="w-full bg-transparent text-sm font-semibold text-text outline-none placeholder:text-muted"
-                      placeholder="Search pending brokers..."
+                      placeholder="Search pending associate partners..."
                     />
                   </label>
                 </div>
@@ -338,9 +338,8 @@ const AdminPanel = () => {
                     <table className="w-full min-w-[980px] border-collapse text-left text-sm">
                       <thead className="bg-surface text-xs font-extrabold uppercase tracking-wide text-muted">
                         <tr>
-                          <th className="px-4 py-3">Broker</th>
+                          <th className="px-4 py-3">Associate Partner</th>
                           <th className="px-4 py-3">Company</th>
-                          <th className="px-4 py-3">RERA</th>
                           <th className="px-4 py-3">Requested</th>
                           <th className="px-4 py-3 text-right">Decision</th>
                         </tr>
@@ -354,7 +353,6 @@ const AdminPanel = () => {
                               <p className="text-xs font-semibold text-muted">{broker.phone || broker.brokerProfile?.contactPhone || 'No phone'}</p>
                             </td>
                             <td className="px-4 py-4 font-semibold text-muted">{broker.brokerProfile?.companyName || 'N/A'}</td>
-                            <td className="px-4 py-4 font-semibold text-muted">{broker.brokerProfile?.reraId || 'N/A'}</td>
                             <td className="px-4 py-4 font-semibold text-muted">{formatAdminDate(broker.updatedAt || broker.createdAt)}</td>
                             <td className="px-4 py-4 text-right">
                               <div className="flex justify-end gap-2">
@@ -370,8 +368,8 @@ const AdminPanel = () => {
                         ))}
                         {!filteredPendingBrokers.length && (
                           <tr>
-                            <td colSpan="5" className="px-4 py-8 text-center text-sm font-bold text-muted">
-                              No pending broker request found.
+                            <td colSpan="4" className="px-4 py-8 text-center text-sm font-bold text-muted">
+                              No pending associate partner request found.
                             </td>
                           </tr>
                         )}
@@ -383,8 +381,8 @@ const AdminPanel = () => {
             ) : activeTab === 'manageBrokers' ? (
               <div className="grid gap-5">
                 <div>
-                  <h2 className="text-2xl font-extrabold text-text">Manage Brokers</h2>
-                  <p className="mt-2 text-sm font-medium text-muted">Search brokers by name, email, phone, or company.</p>
+                  <h2 className="text-2xl font-extrabold text-text">Manage Associate Partners</h2>
+                  <p className="mt-2 text-sm font-medium text-muted">Search associate partners by name, email, phone, or company.</p>
                 </div>
                 <input
                   value={brokerSearch}
@@ -393,14 +391,14 @@ const AdminPanel = () => {
                     setBrokerPage(1);
                   }}
                   className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text outline-none focus:border-primary"
-                  placeholder="Search brokers..."
+                  placeholder="Search associate partners..."
                 />
                 <div className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[840px] border-collapse text-left text-sm">
                       <thead className="bg-surface text-xs font-extrabold uppercase tracking-wide text-muted">
                         <tr>
-                          <th className="px-4 py-3">Broker</th>
+                          <th className="px-4 py-3">Associate Partner</th>
                           <th className="px-4 py-3">Company</th>
                           <th className="px-4 py-3">Approval</th>
                           <th className="px-4 py-3">Account</th>
@@ -444,7 +442,7 @@ const AdminPanel = () => {
                                 }`}
                               >
                                 {broker.isActive ? <XCircle size={16} /> : <CheckCircle2 size={16} />}
-                                {broker.isActive ? 'Disable Broker' : 'Enable Broker'}
+                                {broker.isActive ? 'Disable Associate Partner' : 'Enable Associate Partner'}
                               </button>
                             </td>
                           </tr>
@@ -452,7 +450,7 @@ const AdminPanel = () => {
                         {!paginatedBrokers.length && (
                           <tr>
                             <td colSpan="5" className="px-4 py-8 text-center text-sm font-bold text-muted">
-                              No brokers found.
+                              No associate partners found.
                             </td>
                           </tr>
                         )}
@@ -541,7 +539,7 @@ const AdminPanel = () => {
                 showAuthor
                 showFeatured
                 title="Manage Blogs & Articles"
-                description="Publish admin articles and manage premium broker posts for property SEO."
+                description="Publish admin articles and manage premium associate partner posts for property SEO."
               />
             ) : activeTab === 'announcement' ? (
               <div className="grid gap-6">

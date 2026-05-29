@@ -14,7 +14,6 @@ const Register = () => {
     phone: '',
     password: '',
     companyName: '',
-    reraId: '',
     address: ''
   });
   const [error, setError] = useState('');
@@ -37,7 +36,6 @@ const Register = () => {
         brokerProfile: accountType === 'broker'
           ? {
               companyName: form.companyName,
-              reraId: form.reraId,
               contactPhone: form.phone,
               address: form.address
             }
@@ -61,7 +59,7 @@ const Register = () => {
         <form onSubmit={handleRegister} className="relative z-10 flex flex-col gap-5">
           <div className="text-center mb-3">
             <h2 className="text-3xl font-extrabold text-text mb-2">
-              {accountType === 'broker' ? 'Broker Registration' : 'Create Buyer Account'}
+              {accountType === 'broker' ? 'Associate Partner Registration' : 'Create Buyer Account'}
             </h2>
             <p className="text-gray-500 font-medium text-sm">
               {accountType === 'broker'
@@ -75,7 +73,7 @@ const Register = () => {
           <div className="grid grid-cols-2 gap-2 rounded-2xl bg-gray-50 p-1">
             {[
               ['user', 'Buyer'],
-              ['broker', 'Broker']
+              ['broker', 'Associate Partner']
             ].map(([value, label]) => (
               <button
                 key={value}
@@ -116,10 +114,6 @@ const Register = () => {
                 <input value={form.companyName} onChange={(event) => setForm({ ...form, companyName: event.target.value })} type="text" className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium" placeholder="Plotyards Realty" required />
               </div>
               <div>
-                <label className="block text-sm font-bold text-text mb-1">RERA ID</label>
-                <input value={form.reraId} onChange={(event) => setForm({ ...form, reraId: event.target.value })} type="text" className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium" placeholder="RERA registration number" required />
-              </div>
-              <div>
                 <label className="block text-sm font-bold text-text mb-1">Office Address</label>
                 <textarea value={form.address} onChange={(event) => setForm({ ...form, address: event.target.value })} className="min-h-24 w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium" placeholder="Office address and operating city" required />
               </div>
@@ -127,7 +121,7 @@ const Register = () => {
           )}
 
           <button disabled={loading} className="w-full bg-primary hover:bg-rose-600 disabled:opacity-60 text-white font-bold py-4 rounded-xl mt-2 transition-colors text-lg shadow-sm">
-            {loading ? 'Creating...' : accountType === 'broker' ? 'Register as Broker' : 'Sign Up as Buyer'}
+            {loading ? 'Creating...' : accountType === 'broker' ? 'Register as Associate Partner' : 'Sign Up as Buyer'}
           </button>
 
           <div className="text-center mt-2 text-sm font-medium text-gray-500">

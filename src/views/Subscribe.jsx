@@ -38,12 +38,12 @@ const Subscribe = () => {
 
   const premiumPlan = {
     id: 'premium',
-    name: 'Premium Broker Plan',
+    name: 'Premium Associate Partner Plan',
     price: 'Rs. 11,000',
     period: '3 months',
     highlights: [
       'Post up to 9 active plot listings',
-      'Instant automatic broker approval',
+      'Instant automatic associate partner approval',
       'No admin approval delay or queue',
       'Direct WhatsApp chat button & click analytics',
       'Premium social media promotion packages',
@@ -73,7 +73,7 @@ const Subscribe = () => {
         amount: payment.amount,
         currency: payment.currency,
         name: 'Plotyards',
-        description: 'Premium Broker Subscription',
+        description: 'Premium Associate Partner Subscription',
         order_id: payment.order.id,
         prefill: {
           name: user?.name || '',
@@ -158,7 +158,7 @@ const Subscribe = () => {
           <div className="mx-auto w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-3">
             <ShieldCheck size={26} />
           </div>
-          <h2 className="text-2xl font-extrabold text-text leading-tight">Broker Subscription</h2>
+          <h2 className="text-2xl font-extrabold text-text leading-tight">Associate Partner Subscription</h2>
           <p className="mt-2 text-sm font-semibold text-muted">
             Subscribe to list plots and receive direct buyer leads.
           </p>
@@ -196,7 +196,7 @@ const Subscribe = () => {
               Premium promotion package
             </p>
             <p className="mt-1 text-[11px] font-semibold text-muted leading-normal">
-              Instant automatic broker approval, verified badge status, and unlimited buyer leads.
+              Instant automatic associate partner approval, verified badge status, and unlimited buyer leads.
             </p>
           </div>
 

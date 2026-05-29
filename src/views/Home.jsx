@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, MapPin, ChevronDown, ChevronLeft, ChevronRight, CheckCircle2, ShieldCheck, Heart, Camera, Check, Star, Download, Paperclip, Scale, BookOpen, ArrowRight, Menu, TrendingUp } from 'lucide-react';
+import { Search, MapPin, ChevronDown, CheckCircle2, ShieldCheck, Heart, Camera, Check, Star, Download, Paperclip, Scale, BookOpen, ArrowRight, Menu, TrendingUp, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -53,7 +53,6 @@ const Home = () => {
   const stateMenuRef = useRef(null);
   const moreMenuRef = useRef(null);
   const mobileHeroSearchRef = useRef(null);
-  const blogScrollerRef = useRef(null);
   const navigate = useRouter();
   const { compareList, toggleCompare } = useCompare();
 
@@ -116,17 +115,18 @@ const Home = () => {
 
     return true;
   });
+  const visibleFeaturedPlots = filteredFeaturedPlots.slice(0, 5);
 
   const displayTrending = hasLiveDatabase
-    ? [...realProperties].sort((a, b) => (b.viewsCount || 0) - (a.viewsCount || 0)).slice(0, 3)
-    : canShowDemoProperties ? propertyListings.slice(0, 3) : [];
+    ? [...realProperties].sort((a, b) => (b.viewsCount || 0) - (a.viewsCount || 0)).slice(0, 5)
+    : canShowDemoProperties ? propertyListings.slice(0, 5) : [];
   const featuredSubtitle = loadingReal
-    ? 'Loading live featured plots from verified brokers.'
+    ? 'Loading live featured plots from verified associate partners.'
     : hasLiveDatabase
       ? "Hand-picked verified listings across India's growth corridors"
       : canShowDemoProperties
         ? 'Demo listings are visible because the live database is empty.'
-        : 'Live listings will appear here after brokers post properties.';
+        : 'Live listings will appear here after associate partners post properties.';
 
   const handleSeeAllClick = () => {
     const category = featuredCategories.find((item) => item.name === activeFeaturedCategory) || {};
@@ -161,13 +161,6 @@ const Home = () => {
     }
 
     navigate.push(buildListingsSearchUrl(terms.filter(Boolean).join(' '), filters));
-  };
-
-  const scrollBlogCards = (direction) => {
-    blogScrollerRef.current?.scrollBy({
-      left: direction === 'next' ? 300 : -300,
-      behavior: 'smooth'
-    });
   };
 
   useEffect(() => {
@@ -244,7 +237,7 @@ const Home = () => {
         .catch(() => {})
         .finally(() => isMounted && setLoadingReal(false));
 
-      apiRequest('/blogs?limit=3')
+      apiRequest('/blogs?limit=4')
         .then((data) => {
           if (isMounted && Array.isArray(data.blogs)) {
             setLatestBlogs(data.blogs);
@@ -262,6 +255,145 @@ const Home = () => {
       clearInterval(interval);
     };
   }, []);
+
+  const renderHomePropertyCard = (plot) => {
+    const imageUrl = plot.image || plot.img;
+    const locationText = plot.location || plot.loc;
+    const sizeText = plot.size || plot.sqyd || 'Size on request';
+    const priceText = plot.price || 'Price on request';
+    const rateText = plot.rate || 'Rate on request';
+    const roiText = plot.roi || '12%';
+    const photoCount = plot.photoCount ?? 12;
+    const linkId = plot.id || plot._id;
+    const isCompared = compareList.some((item) => String(item.id || item._id) === String(linkId));
+
+    return (
+      <Link
+        href={`/property/${linkId}`}
+        key={linkId || plot.title}
+        className="group flex w-[236px] min-w-[236px] flex-shrink-0 snap-start cursor-pointer flex-col rounded-2xl border border-border bg-white p-2 shadow-sm transition-all active:scale-[0.99] sm:w-[260px] sm:min-w-[260px] md:w-auto md:min-w-0 md:overflow-hidden md:rounded-[2rem] md:p-0 md:hover:-translate-y-2 md:hover:shadow-xl"
+      >
+        <div className="relative mb-3 aspect-[4/3] overflow-hidden rounded-[1.15rem] shadow-sm transition-all group-hover:shadow-md md:mb-0 md:rounded-none">
+          <img src={imageUrl} alt={plot.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+
+          <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-t from-black/60 via-transparent to-black/20 md:block"></div>
+
+          <div className="absolute left-4 top-4 hidden flex-wrap gap-2 md:flex">
+            {plot.isDemo && (
+              <span className="rounded bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 shadow-sm">
+                Demo property
+              </span>
+            )}
+            {plot.featured && (
+              <span className="inline-flex items-center gap-1 rounded bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                <Sparkles size={12} />
+                Featured
+              </span>
+            )}
+            {plot.approved ? (
+              <span className="inline-flex items-center gap-1 rounded bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-text shadow-sm">
+                <CheckCircle2 size={12} className="text-green-500" />
+                RERA Approved
+              </span>
+            ) : null}
+          </div>
+
+          <div className="absolute right-4 top-4 hidden flex-col gap-2 md:flex">
+            <button
+              type="button"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              }}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-gray-600 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-primary"
+              title="Favourite"
+            >
+              <Heart size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                toggleCompare(plot);
+              }}
+              className={`flex h-9 w-9 items-center justify-center rounded-full shadow-sm backdrop-blur transition-colors ${
+                isCompared ? 'bg-primary text-white' : 'bg-white/90 text-gray-600 hover:bg-white hover:text-primary'
+              }`}
+              title="Add to Compare"
+            >
+              <Scale size={16} />
+            </button>
+          </div>
+
+          <div className="absolute bottom-4 right-4 hidden items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur-md md:flex">
+            <Camera size={12} /> {photoCount}
+          </div>
+
+          <div className="absolute bottom-4 left-4 hidden md:block">
+            <span className="rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-text shadow-sm backdrop-blur-md">
+              {plot.type || 'Plot'}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-1 flex-col overflow-hidden px-1 pb-1 md:p-6">
+          {plot.isDemo && (
+            <p className="mb-3 hidden rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-extrabold uppercase tracking-wide text-amber-700 md:block">
+              This is a demo property
+            </p>
+          )}
+
+          <h3 className="line-clamp-2 text-[15px] font-extrabold leading-tight text-text transition-colors group-hover:text-primary md:mb-2 md:text-xl">{plot.title}</h3>
+
+          <p className="mt-2 flex min-w-0 items-center gap-1 text-xs font-semibold text-gray-500 md:mb-5 md:mt-0 md:gap-1.5 md:text-sm">
+            <MapPin size={14} className="flex-shrink-0 text-gray-400 md:size-4" />
+            <span className="min-w-0 truncate">{locationText}</span>
+          </p>
+
+          <div className="mt-3 grid grid-cols-2 gap-2 md:hidden">
+            <div className="min-w-0 rounded-xl bg-surface px-3 py-2">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-muted">Size</p>
+              <p className="mt-0.5 truncate text-xs font-extrabold text-text">{sizeText}</p>
+            </div>
+            <div className="min-w-0 rounded-xl bg-surface px-3 py-2">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-muted">Rate</p>
+              <p className="mt-0.5 truncate text-xs font-extrabold text-text">{rateText}</p>
+            </div>
+          </div>
+
+          <div className="mb-6 hidden grid-cols-3 gap-3 md:grid">
+            <div className="rounded-xl border border-border/50 bg-surface p-3">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Price</p>
+              <p className="mt-1 truncate text-sm font-black text-text">{priceText}</p>
+            </div>
+            <div className="rounded-xl border border-border/50 bg-surface p-3 text-center">
+              <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-muted">Size</p>
+              <p className="text-sm font-extrabold text-text">{sizeText}</p>
+            </div>
+            <div className="rounded-xl border border-border/50 bg-surface p-3 text-center">
+              <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-muted">ROI</p>
+              <p className="flex items-center justify-center gap-1 text-sm font-extrabold text-green-600">
+                <TrendingUp size={12} /> {roiText}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-auto hidden items-center justify-between border-t border-border pt-4 md:flex">
+            <div>
+              <p className="text-xs font-bold text-text">{rateText}</p>
+              <p className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-secondary">
+                <Sparkles size={10} /> Associate Partner verified
+              </p>
+            </div>
+            <span className="inline-flex items-center justify-center rounded-xl bg-text px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all group-hover:bg-primary">
+              View
+            </span>
+          </div>
+        </div>
+      </Link>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background pb-28 font-sans md:pb-0">
@@ -330,7 +462,7 @@ const Home = () => {
             <div className="absolute left-5 top-6 max-w-[72%]">
               <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">New launch</p>
               <h1 className="mt-2 text-[22px] font-black leading-tight text-text">Verified plots for serious buyers</h1>
-              <p className="mt-2 text-xs font-bold leading-5 text-muted">Search locations, compare layouts, and talk to trusted brokers.</p>
+              <p className="mt-2 text-xs font-bold leading-5 text-muted">Search locations, compare layouts, and talk to trusted associate partners.</p>
             </div>
           </div>
 
@@ -400,9 +532,9 @@ const Home = () => {
           </h1>
           <p className="text-lg md:text-xl text-white/90 max-w-2xl mb-10 font-medium leading-relaxed">
             {stats.totalProperties > 0 ? (
-              `${stats.totalProperties.toLocaleString('en-IN')} verified plots from ${stats.totalBrokers.toLocaleString('en-IN')} trusted brokers. RERA approved layouts, ready-to-register parcels, transparent pricing.`
+              `${stats.totalProperties.toLocaleString('en-IN')} verified plots from ${stats.totalBrokers.toLocaleString('en-IN')} trusted associate partners. RERA approved layouts, ready-to-register parcels, transparent pricing.`
             ) : (
-              "12,000+ verified plots from 850+ trusted brokers. RERA approved layouts, ready-to-register parcels, transparent pricing."
+              "12,000+ verified plots from 850+ trusted associate partners. RERA approved layouts, ready-to-register parcels, transparent pricing."
             )}
           </p>
 
@@ -532,7 +664,7 @@ const Home = () => {
             </div>
             <div className="flex items-center gap-2 font-medium text-sm">
               <CheckCircle2 size={18} />
-              <span>{statsLoaded ? `${stats.totalBrokers.toLocaleString('en-IN')} Trusted brokers` : 'Loading Trusted brokers'}</span>
+              <span>{statsLoaded ? `${stats.totalBrokers.toLocaleString('en-IN')} Trusted associate partners` : 'Loading Trusted associate partners'}</span>
             </div>
           </div>
         </div>
@@ -572,7 +704,7 @@ const Home = () => {
         <div className="mb-5 flex items-end justify-between gap-4 md:mb-8">
           <div>
             <h2 className="mb-2 text-3xl font-extrabold text-text">
-              <span className="md:hidden">Projects in High Demand</span>
+              <span className="md:hidden text-[20px]">Plots in High Demand</span>
               <span className="hidden md:inline">Featured Plots Near You</span>
             </h2>
             <p className="font-medium text-muted">
@@ -590,91 +722,8 @@ const Home = () => {
         </div>
 
         {/* Listings Grid */}
-        <div className="-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3">
-          {filteredFeaturedPlots.map((plot) => {
-            const imageUrl = plot.image || plot.img;
-            const locationText = plot.location || plot.loc;
-            const sizeText = plot.size || plot.sqyd;
-            const photoCount = plot.photoCount ?? 12;
-            const linkId = plot.id || plot._id;
-
-            return (
-              <Link href={`/property/${linkId}`} key={linkId || plot.title} className="group block w-[236px] min-w-[236px] flex-shrink-0 snap-start cursor-pointer rounded-2xl border border-border bg-white p-2 shadow-sm transition-all active:scale-[0.99] sm:w-[260px] sm:min-w-[260px] md:w-auto md:min-w-0 md:max-w-none md:border-0 md:bg-transparent md:p-0 md:shadow-none">
-                {/* Image Container */}
-                  <div className="relative mb-3 aspect-[4/3] overflow-hidden rounded-[1.15rem] shadow-sm transition-all group-hover:shadow-md md:rounded-2xl">
-                  <img src={imageUrl} alt={plot.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  
-                  {/* Top Badges */}
-                  <div className="absolute left-3 top-3 flex gap-2">
-                    {plot.featured && (
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow-sm" title="Featured">
-                        <Star size={15} fill="currentColor" />
-                      </span>
-                    )}
-                    {plot.approved && (
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-green-600 shadow-sm" title="Approved">
-                        <CheckCircle2 size={16} />
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="absolute right-4 top-4 hidden flex-col gap-2 md:flex">
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                      className="w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-gray-600 hover:text-primary transition-colors shadow-sm"
-                    >
-                      <Heart size={16} />
-                    </button>
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleCompare(plot); }}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm backdrop-blur transition-colors ${compareList.some(p => String(p.id) === String(linkId)) ? 'bg-primary text-white' : 'bg-white/90 text-gray-600 hover:text-primary'}`}
-                      title="Compare Property"
-                    >
-                      <Scale size={16} />
-                    </button>
-                  </div>
-
-                  {/* Bottom Badge */}
-                  <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-white flex items-center gap-1.5 text-xs font-medium">
-                    <Camera size={12} /> {photoCount}
-                  </div>
-                </div>
-
-                {/* Details */}
-                <div className="overflow-hidden px-1 pb-1 md:px-0 md:pb-0">
-                  {plot.isDemo && (
-                    <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-extrabold uppercase tracking-wide text-amber-700">
-                      Demo property
-                    </p>
-                  )}
-                  <div className="mb-1 flex min-w-0 items-start justify-between gap-2">
-                    <h3 className="min-w-0 flex-1 line-clamp-2 text-[15px] font-extrabold leading-tight text-text md:text-lg">{plot.title}</h3>
-                    <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-50 text-green-600">
-                      <CheckCircle2 size={14} />
-                    </div>
-                  </div>
-                  
-                  <p className="mb-2 flex min-w-0 items-center gap-1 text-xs font-semibold text-gray-500 md:mb-3 md:text-sm">
-                    <MapPin size={14} className="flex-shrink-0 text-gray-400" />
-                    <span className="min-w-0 truncate">{locationText}</span>
-                  </p>
-                  
-                  <div className="mb-3 flex min-w-0 items-center gap-1.5 overflow-hidden text-[11px] font-semibold text-gray-500 md:mb-4">
-                    <span className="flex min-w-0 items-center gap-1"><Paperclip size={12} className="flex-shrink-0 text-gray-400" /> <span className="truncate">{sizeText}</span></span>
-                    <span className="hidden md:inline">&bull;</span>
-                    <span className="hidden truncate md:inline">{plot.type}</span>
-                    <span className="hidden md:inline">&bull;</span>
-                    <span className="hidden truncate md:inline">{plot.rate}</span>
-                  </div>
-                  
-                  <div className="flex min-w-0 items-baseline gap-1 overflow-hidden">
-                    <span className="truncate text-[18px] font-black text-text md:text-xl">{plot.price}</span>
-                    <span className="flex-shrink-0 text-xs font-medium text-gray-500">onwards</span>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+        <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3">
+          {visibleFeaturedPlots.map((plot) => renderHomePropertyCard(plot))}
           {filteredFeaturedPlots.length === 0 && (
             <div className="col-span-full rounded-[2rem] border border-dashed border-border bg-white p-12 text-center shadow-sm">
               <p className="text-lg font-extrabold text-text">No featured plots available</p>
@@ -692,54 +741,37 @@ const Home = () => {
                 <BookOpen size={14} />
                 Latest insights
               </p>
-              <h2 className="mt-2 text-3xl font-extrabold text-text md:mt-4">Blogs & Articles For Smarter Property Decisions</h2>
-              <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-muted">Read buyer checklists, investment guides, and broker-written location insights.</p>
+              <h2 className="mt-2 text-xl md:text-3xl font-extrabold text-text md:mt-4">Blogs & Articles For Smarter Property Decisions</h2>
+              <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-muted">Read buyer checklists, investment guides, and associate partner-written location insights.</p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Link href="/blogs" className="inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-extrabold text-white transition-colors hover:bg-rose-600">
+            <div className="hidden md:flex md:flex-wrap items-center gap-2 ">
+              <Link href="/blogs" className="inline-flex  w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-extrabold text-white transition-colors hover:bg-rose-600">
                 View all articles <ArrowRight size={16} />
               </Link>
             </div>
           </div>
 
           <div className="mt-5 md:mt-8">
-            <div className="mb-3 flex items-center justify-end gap-2 md:hidden">
-              <button
-                type="button"
-                onClick={() => scrollBlogCards('prev')}
-                aria-label="Previous article"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-text shadow-sm"
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollBlogCards('next')}
-                aria-label="Next article"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-text shadow-sm"
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
             <div className="relative md:hidden">
-              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-background to-transparent"></div>
-              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-background to-transparent"></div>
-              <div ref={blogScrollerRef} className="-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-3 no-scrollbar">
-                {latestBlogs.map((blog) => (
-                  <Link key={blog.slug} href={`/blogs/${blog.slug}`} className="group w-[min(82vw,330px)] min-w-[min(82vw,330px)] snap-center overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all duration-500 active:translate-y-0.5 active:rotate-1">
+              <div className="grid grid-cols-2 gap-3">
+                {latestBlogs.slice(0, 4).map((blog) => (
+                  <Link key={blog.slug} href={`/blogs/${blog.slug}`} className="group min-w-0 overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all duration-500 active:translate-y-0.5 active:rotate-1">
                     <div className="relative aspect-[16/10] overflow-hidden bg-surface">
                       <img src={blog.coverImage || '/hero-bg.jpg'} alt={blog.title} className="h-full w-full object-cover transition-transform duration-500 group-active:scale-105" />
                       <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-black/35 to-transparent"></div>
                       <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-black/35 to-transparent"></div>
                     </div>
-                    <div className="p-4">
+                    <div className="p-3">
                       <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-primary">{blog.category || 'Real Estate'}</span>
-                      <h3 className="mt-3 line-clamp-2 text-base font-extrabold leading-tight text-text">{blog.title}</h3>
+                      <h3 className="mt-3 line-clamp-2 text-sm font-extrabold leading-tight text-text">{blog.title}</h3>
                       <p className="mt-3 text-[11px] font-bold text-muted">{blog.readingTime || 1} min read</p>
                     </div>
                   </Link>
                 ))}
               </div>
+              <Link href="/blogs" className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-extrabold text-white transition-colors active:bg-rose-600">
+                Show more <ArrowRight size={16} />
+              </Link>
             </div>
             <div className="hidden md:grid md:grid-cols-3 md:gap-5">
               {latestBlogs.map((blog) => (
@@ -770,7 +802,7 @@ const Home = () => {
           <p className="text-gray-500 font-medium">Where investors are putting their money in 2026</p>
         </div>
         
-        <div className="-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-6 no-scrollbar md:mx-0 md:px-0">
+        <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-6 no-scrollbar md:mx-0 md:px-0">
           {topCities.map((city) => (
             <Link key={city.name} href={buildListingsSearchUrl(city.name, { city: city.name })} className="group relative h-[300px] w-[calc(100vw-3rem)] min-w-[calc(100vw-3rem)] flex-shrink-0 snap-start cursor-pointer overflow-hidden rounded-2xl shadow-sm transition-shadow hover:shadow-md sm:w-[260px] sm:min-w-[260px] md:h-[320px]">
               <img src={city.image || DEFAULT_TOP_CITIES[0].image} alt={city.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -795,91 +827,8 @@ const Home = () => {
         </div>
 
         {/* Listings Grid */}
-        <div className="-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3">
-          {displayTrending.map((plot) => {
-            const imageUrl = plot.image || plot.img;
-            const locationText = plot.location || plot.loc;
-            const sizeText = plot.size || plot.sqyd;
-            const photoCount = plot.photoCount ?? 12;
-            const linkId = plot.id || plot._id;
-
-            return (
-              <Link href={`/property/${linkId}`} key={linkId || plot.title} className="group block w-[236px] min-w-[236px] flex-shrink-0 snap-start cursor-pointer rounded-2xl border border-border bg-white p-2 shadow-sm transition-all active:scale-[0.99] sm:w-[260px] sm:min-w-[260px] md:w-auto md:min-w-0 md:max-w-none md:border-0 md:bg-transparent md:p-0 md:shadow-none">
-                {/* Image Container */}
-                <div className="relative mb-3 aspect-[4/3] overflow-hidden rounded-[1.15rem] shadow-sm transition-all group-hover:shadow-md md:rounded-2xl">
-                  <img src={imageUrl} alt={plot.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  
-                  {/* Top Badges */}
-                  <div className="absolute left-3 top-3 flex gap-2">
-                    {plot.featured && (
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow-sm" title="Featured">
-                        <Star size={15} fill="currentColor" />
-                      </span>
-                    )}
-                    {plot.approved && (
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-green-600 shadow-sm" title="Approved">
-                        <CheckCircle2 size={16} />
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="absolute right-4 top-4 hidden flex-col gap-2 md:flex">
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                      className="w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-gray-600 hover:text-primary transition-colors shadow-sm"
-                    >
-                      <Heart size={16} />
-                    </button>
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleCompare(plot); }}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm backdrop-blur transition-colors ${compareList.some(p => String(p.id) === String(linkId)) ? 'bg-primary text-white' : 'bg-white/90 text-gray-600 hover:text-primary'}`}
-                      title="Compare Property"
-                    >
-                      <Scale size={16} />
-                    </button>
-                  </div>
-
-                  {/* Bottom Badge */}
-                  <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-white flex items-center gap-1.5 text-xs font-medium">
-                    <Camera size={12} /> {photoCount}
-                  </div>
-                </div>
-
-                {/* Details */}
-                <div className="overflow-hidden px-1 pb-1 md:px-0 md:pb-0">
-                  {plot.isDemo && (
-                    <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-extrabold uppercase tracking-wide text-amber-700">
-                      This is a demo property
-                    </p>
-                  )}
-                  <div className="mb-1 flex min-w-0 items-start justify-between gap-2">
-                    <h3 className="min-w-0 flex-1 line-clamp-2 text-[15px] font-extrabold leading-tight text-text md:text-lg">{plot.title}</h3>
-                    <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-50 text-green-600">
-                      <CheckCircle2 size={14} />
-                    </div>
-                  </div>
-                  
-                  <p className="mb-2 flex min-w-0 items-center gap-1 text-xs font-semibold text-gray-500 md:mb-3 md:text-sm">
-                    <MapPin size={14} className="flex-shrink-0 text-gray-400" />
-                    <span className="min-w-0 truncate">{locationText}</span>
-                  </p>
-                  
-                  <div className="mb-3 flex min-w-0 items-center gap-1.5 overflow-hidden text-[11px] font-semibold text-gray-500 md:mb-4">
-                    <span className="flex min-w-0 items-center gap-1"><Paperclip size={12} className="flex-shrink-0 text-gray-400" /> <span className="truncate">{sizeText}</span></span>
-                    <span className="hidden md:inline">&bull;</span>
-                    <span className="hidden truncate md:inline">{plot.type}</span>
-                    <span className="hidden md:inline">&bull;</span>
-                    <span className="hidden truncate md:inline">{plot.rate}</span>
-                  </div>
-                  
-                  <div className="flex min-w-0 items-baseline gap-1 overflow-hidden">
-                    <span className="truncate text-[18px] font-black text-text md:text-xl">{plot.price}</span>
-                    <span className="flex-shrink-0 text-xs font-medium text-gray-500">onwards</span>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+        <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3">
+          {displayTrending.map((plot) => renderHomePropertyCard(plot))}
         </div>
       </section>
 
@@ -904,10 +853,10 @@ const Home = () => {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ShieldCheck className="text-primary" size={20} />
-                  <h3 className="font-bold text-lg">Direct broker contact</h3>
+                  <h3 className="font-bold text-lg">Direct associate partner contact</h3>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
-                  Call or WhatsApp brokers directly - no middlemen, no spam routing.
+                  Call or WhatsApp associate partners directly - no middlemen, no spam routing.
                 </p>
               </div>
               <div>
@@ -925,7 +874,7 @@ const Home = () => {
                   <h3 className="font-bold text-lg">Free site visit help</h3>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
-                  We coordinate visits and document checks with the broker on your behalf.
+                  We coordinate visits and document checks with the associate partner on your behalf.
                 </p>
               </div>
             </div>
@@ -936,7 +885,7 @@ const Home = () => {
               <p className="text-primary text-xs font-bold uppercase tracking-wider mb-2">Get the App</p>
               <h3 className="text-2xl font-extrabold mb-3">India's first plots-only app.</h3>
               <p className="text-gray-500 text-sm mb-8">
-                Saved plots, instant alerts, live broker chat. Install in seconds.
+                Saved plots, instant alerts, live associate partner chat. Install in seconds.
               </p>
               
               <div className="flex flex-col gap-3 mb-6">

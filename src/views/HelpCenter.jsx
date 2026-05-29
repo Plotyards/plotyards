@@ -12,22 +12,22 @@ const FAQ_DATA = [
   {
     category: 'buying',
     question: 'Are all listed properties RERA-approved?',
-    answer: 'We encourage brokers to specify RERA status and upload verified documents. Look for the "RERA Approved" badge on listings. However, we strongly recommend conducting independent legal verification before completing any land purchase.'
+    answer: 'We encourage associate partners to specify RERA status and upload verified documents. Look for the "RERA Approved" badge on listings. However, we strongly recommend conducting independent legal verification before completing any land purchase.'
   },
   {
     category: 'buying',
-    question: 'Is it free to browse and contact brokers?',
-    answer: 'Yes! Browsing listings and contacting brokers is completely free for buyers. To protect our brokers and prevent spam, we require buyers to register and login before viewing a broker\'s direct phone number or sending an inquiry.'
+    question: 'Is it free to browse and contact associate partners?',
+    answer: 'Yes! Browsing listings and contacting associate partners is completely free for buyers. To protect our associate partners and prevent spam, we require buyers to register and login before viewing an associate partner\'s direct phone number or sending an inquiry.'
   },
   {
     category: 'broker',
-    question: 'How can I register as a broker on Plotyards?',
-    answer: 'Go to the Dashboard page from your account menu. Click the "Become a Broker" button to upgrade instantly. You will be redirected to choose the Premium Plan, which grants instant, automatic broker activation upon subscribing. No manual admin approval or waiting queue is required!'
+    question: 'How can I register as an associate partner on Plotyards?',
+    answer: 'Go to the Dashboard page from your account menu. Click the "Become an Associate Partner" button to upgrade instantly. You will be redirected to choose the Premium Plan, which grants instant, automatic associate partner activation upon subscribing. No manual admin approval or waiting queue is required!'
   },
   {
     category: 'broker',
     question: 'How do I post a new property listing?',
-    answer: 'Once your Premium Broker plan is active, you will see a "Post Property" button in the top navigation or in the listings tab of your Dashboard. Fill in the details, specify verified documents, select amenities, and upload up to 4 images.'
+    answer: 'Once your Premium Associate Partner plan is active, you will see a "Post Property" button in the top navigation or in the listings tab of your Dashboard. Fill in the details, specify verified documents, select amenities, and upload up to 4 images.'
   },
   {
     category: 'broker',
@@ -42,7 +42,7 @@ const FAQ_DATA = [
   {
     category: 'trust',
     question: 'What are verified document checklists?',
-    answer: 'When brokers post a listing, they can check verify signals like "RERA approval copy", "Clear title verification", "Layout and plot demarcation", and "Ready registration support". These signals help buyers understand the level of compliance for the property.'
+    answer: 'When associate partners post a listing, they can check verify signals like "RERA approval copy", "Clear title verification", "Layout and plot demarcation", and "Ready registration support". These signals help buyers understand the level of compliance for the property.'
   },
   {
     category: 'trust',
@@ -91,7 +91,7 @@ const HelpCenter = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search FAQs, verification steps, broker rules..."
+              placeholder="Search FAQs, verification steps, associate partner rules..."
               className="w-full bg-white border border-black/10 rounded-[1.75rem] pl-14 pr-6 py-4.5 text-text shadow-xl shadow-gray-200/50 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-base font-medium transition-all"
             />
           </div>
@@ -102,7 +102,7 @@ const HelpCenter = () => {
           {[
             { id: 'all', label: 'All Topics', icon: MessageSquare, color: 'bg-primary/10 text-primary' },
             { id: 'buying', label: 'Buying & Investing', icon: Home, color: 'bg-emerald-50 text-emerald-700' },
-            { id: 'broker', label: 'Broker Support', icon: Users, color: 'bg-blue-50 text-blue-700' },
+            { id: 'broker', label: 'Associate Partner Support', icon: Users, color: 'bg-blue-50 text-blue-700' },
             { id: 'trust', label: 'Trust & Safety', icon: ShieldCheck, color: 'bg-amber-50 text-amber-700' }
           ].map((cat) => {
             const Icon = cat.icon;

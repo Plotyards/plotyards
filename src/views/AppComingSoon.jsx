@@ -23,7 +23,7 @@ const AppComingSoon = () => {
               The <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-rose-400">Plotyards App</span> is dropping soon.
             </h1>
             <p className="mt-6 max-w-lg text-lg font-medium leading-8 text-slate-600">
-              We're crafting a premium mobile experience for real estate and land investment. Get ready for seamless browsing, advanced ROI calculators, and instant broker connections right from your pocket.
+              We're crafting a premium mobile experience for real estate and land investment. Get ready for seamless browsing, advanced ROI calculators, and instant associate partner connections right from your pocket.
             </p>
           </div>
 
@@ -116,7 +116,7 @@ const AppComingSoon = () => {
                   </div>
                   <div>
                     <div className="text-[10px] font-extrabold uppercase tracking-wide text-slate-500">Lead Update</div>
-                    <div className="text-sm font-extrabold text-slate-900">Broker attached</div>
+                    <div className="text-sm font-extrabold text-slate-900">Associate Partner attached</div>
                   </div>
                 </div>
               </div>

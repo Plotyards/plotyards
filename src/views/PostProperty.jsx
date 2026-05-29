@@ -270,7 +270,7 @@ const PostProperty = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!brokerApproved) {
-      setError('Your broker account needs approval before you can post a property.');
+      setError('Your associate partner account needs approval before you can post a property.');
       return;
     }
 
@@ -349,9 +349,9 @@ const PostProperty = () => {
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <ShieldCheck size={26} />
             </div>
-            <h2 className="mt-5 text-2xl font-extrabold text-text">Finish broker approval first</h2>
+            <h2 className="mt-5 text-2xl font-extrabold text-text">Finish associate partner approval first</h2>
             <p className="mt-2 text-sm font-semibold leading-6 text-muted">
-              To keep listings trustworthy, only approved brokers can post properties. Choose a Premium plan for instant approval, or come back here once your broker profile is approved.
+              To keep listings trustworthy, only approved associate partners can post properties. Choose a Premium plan for instant approval, or come back here once your associate partner profile is approved.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link

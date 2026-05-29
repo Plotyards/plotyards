@@ -6,11 +6,11 @@ import { apiRequest } from '../lib/api';
 const pageContent = {
   about: {
     title: 'About Plotyards',
-    intro: 'Plotyards helps buyers, sellers, and brokers work through plot and land decisions with clearer listings, cleaner communication, and fewer blind spots.',
+    intro: 'Plotyards helps buyers, sellers, and associate partners work through plot and land decisions with clearer listings, cleaner communication, and fewer blind spots.',
     sections: [
       {
         heading: 'What We Do',
-        body: 'We bring plot listings, broker details, location context, and buyer enquiries into one place so people can compare opportunities without chasing scattered information.'
+        body: 'We bring plot listings, associate partner details, location context, and buyer enquiries into one place so people can compare opportunities without chasing scattered information.'
       },
       {
         heading: 'Our Approach',
@@ -29,11 +29,11 @@ const pageContent = {
       },
       {
         heading: '2. How We Use Your Information',
-        body: 'We use information to provide and improve our real estate services, connect buyers, sellers, and brokers, verify listings, maintain platform security, send updates or support responses, and improve buyer experience and marketing.'
+        body: 'We use information to provide and improve our real estate services, connect buyers, sellers, and associate partners, verify listings, maintain platform security, send updates or support responses, and improve buyer experience and marketing.'
       },
       {
         heading: '3. Property Listings and Buyer Content',
-        body: 'Any property listing, image, description, or uploaded content remains the responsibility of the buyer, broker, seller, or property owner who provides it. Buyers must make sure shared information is accurate, lawful, and valid.'
+        body: 'Any property listing, image, description, or uploaded content remains the responsibility of the buyer, associate partner, seller, or property owner who provides it. Buyers must make sure shared information is accurate, lawful, and valid.'
       },
       {
         heading: '4. Data Protection',
@@ -41,7 +41,7 @@ const pageContent = {
       },
       {
         heading: '5. Sharing of Information',
-        body: 'We do not sell personal information. We may share information with verified buyers, brokers, partners, or service providers for business purposes, when required by law, or when needed to prevent fraud, abuse, or security issues.'
+        body: 'We do not sell personal information. We may share information with verified buyers, associate partners, partners, or service providers for business purposes, when required by law, or when needed to prevent fraud, abuse, or security issues.'
       },
       {
         heading: '6. Cookies and Analytics',
@@ -72,19 +72,19 @@ const pageContent = {
     sections: [
       {
         heading: 'Use the Platform Honestly',
-        body: 'You agree to share accurate information, avoid fake enquiries or misleading listings, and use Plotyards only for lawful property discovery, listing, broker communication, and related services.'
+        body: 'You agree to share accurate information, avoid fake enquiries or misleading listings, and use Plotyards only for lawful property discovery, listing, associate partner communication, and related services.'
       },
       {
         heading: 'Listings Belong to Their Submitters',
-        body: 'Brokers, sellers, and property owners are responsible for the listings, images, prices, approval claims, documents, and descriptions they submit. Plotyards may review, edit visibility, reject, or remove listings that appear incomplete, misleading, abusive, or unlawful.'
+        body: 'Associate partners, sellers, and property owners are responsible for the listings, images, prices, approval claims, documents, and descriptions they submit. Plotyards may review, edit visibility, reject, or remove listings that appear incomplete, misleading, abusive, or unlawful.'
       },
       {
         heading: 'Verification Is a Helpful Signal, Not a Legal Guarantee',
         body: 'We try to improve listing quality, but buyers should independently check title, approvals, RERA status, ownership, zoning, access roads, dues, and local rules before making a payment or signing an agreement.'
       },
       {
-        heading: 'Broker and Buyer Communication',
-        body: 'When you contact a broker or submit an enquiry, you allow Plotyards to share relevant contact and enquiry details so the conversation can move forward. Buyers should communicate respectfully and avoid spam, harassment, or pressure tactics.'
+        heading: 'Associate Partner and Buyer Communication',
+        body: 'When you contact an associate partner or submit an enquiry, you allow Plotyards to share relevant contact and enquiry details so the conversation can move forward. Buyers should communicate respectfully and avoid spam, harassment, or pressure tactics.'
       },
       {
         heading: 'Accounts and Security',
@@ -106,12 +106,12 @@ const pageContent = {
   },
   refund: {
     title: 'Refund Policy - Plotyards',
-    intro: 'This Refund Policy explains how refunds, cancellations, and payment issues are handled for paid broker subscriptions and promotional services on Plotyards.',
+    intro: 'This Refund Policy explains how refunds, cancellations, and payment issues are handled for paid associate partner subscriptions and promotional services on Plotyards.',
     updated: 'Last updated: May 23, 2026',
     sections: [
       {
-        heading: '1. Broker Subscription Payments',
-        body: 'Premium Plan payments, including the Rs. 5,100 plan for 3 months, are generally non-refundable once the plan is activated, broker approval is granted, or promotional work such as featured visibility, reels, leads support, or social promotion has started.'
+        heading: '1. Associate Partner Subscription Payments',
+        body: 'Premium Plan payments, including the Rs. 5,100 plan for 3 months, are generally non-refundable once the plan is activated, associate partner approval is granted, or promotional work such as featured visibility, reels, leads support, or social promotion has started.'
       },
       {
         heading: '2. Duplicate or Failed Payments',
@@ -141,7 +141,7 @@ const pageContent = {
   },
   faq: {
     title: 'Frequently Asked Questions',
-    intro: 'Quick answers for buyers, brokers, and anyone comparing land opportunities on Plotyards.',
+    intro: 'Quick answers for buyers, associate partners, and anyone comparing land opportunities on Plotyards.',
     sections: [
       {
         heading: 'How do I search for plots?',
@@ -152,16 +152,16 @@ const pageContent = {
         body: 'We highlight verification signals where available and review listings for quality, but buyers should still verify ownership, approvals, title documents, road access, and local rules before committing.'
       },
       {
-        heading: 'How do I contact a broker?',
-        body: 'Open a listing and send an enquiry or use the available contact option. The broker receives your details so they can respond with site visit, pricing, and document information.'
+        heading: 'How do I contact an associate partner?',
+        body: 'Open a listing and send an enquiry or use the available contact option. The associate partner receives your details so they can respond with site visit, pricing, and document information.'
       },
       {
-        heading: 'Can brokers post properties?',
-        body: 'Yes. Brokers can register, submit their profile details, and post properties after the account is approved by the admin team.'
+        heading: 'Can associate partners post properties?',
+        body: 'Yes. Associate partners can register, submit their profile details, and post properties after the account is approved by the admin team.'
       },
       {
-        heading: 'Why is my broker account pending?',
-        body: 'Broker approvals help keep the marketplace trustworthy. The admin team may review company details, contact information, and listing behavior before approval.'
+        heading: 'Why is my associate partner account pending?',
+        body: 'Associate Partner approvals help keep the marketplace trustworthy. The admin team may review company details, contact information, and listing behavior before approval.'
       },
       {
         heading: 'Can I save listings?',
@@ -206,7 +206,7 @@ const StaticPage = ({ type }) => {
           <h1 className="text-3xl font-extrabold text-text">{isContact ? 'Contact Plotyards' : content.title}</h1>
           {!isContact && content.updated && <p className="mt-2 text-xs font-bold uppercase tracking-wide text-primary">{content.updated}</p>}
           <p className="mt-4 text-sm font-medium leading-7 text-muted">
-            {isContact ? 'Tell us what you need. We can help with listings, broker onboarding, visits, approvals, and account questions.' : content.intro}
+            {isContact ? 'Tell us what you need. We can help with listings, associate partner onboarding, visits, approvals, and account questions.' : content.intro}
           </p>
 
           {isContact ? (

@@ -195,7 +195,7 @@ const PropertyDetails = () => {
     }
 
     if (!isMongoId(property.id)) {
-      setLeadStatus('Inquiry sent to broker (Demo).');
+      setLeadStatus('Inquiry sent to associate partner (Demo).');
       setHasSentInquiry(true);
       setLead({ phone: '', message: '' });
       return;
@@ -212,7 +212,7 @@ const PropertyDetails = () => {
           message: lead.message
         }
       });
-      setLeadStatus('Inquiry sent to broker.');
+      setLeadStatus('Inquiry sent to associate partner.');
       setHasSentInquiry(true);
       setLead({ phone: '', message: '' });
     } catch (err) {
@@ -467,7 +467,7 @@ const PropertyDetails = () => {
                   )}
                   <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text">
                     <ShieldCheck size={13} className="text-primary" />
-                    Broker verified
+                    Associate Partner verified
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text lg:hidden">
                     <Camera size={13} />
@@ -549,7 +549,7 @@ const PropertyDetails = () => {
               </div>
               <div className="mt-4 rounded-2xl border border-primary/15 bg-primary/10 p-4">
                 <p className="text-sm font-extrabold text-text">Best next step</p>
-                <p className="mt-1 text-xs font-semibold leading-5 text-muted">Ask the broker for the exact plot number, approach road width, and latest document photos before booking a site visit.</p>
+                <p className="mt-1 text-xs font-semibold leading-5 text-muted">Ask the associate partner for the exact plot number, approach road width, and latest document photos before booking a site visit.</p>
               </div>
             </section>
 
@@ -561,7 +561,7 @@ const PropertyDetails = () => {
                 </p>
               )}
               <p className="mt-4 max-w-4xl text-sm font-medium leading-7 text-muted">
-                {property.description || `Premium gated plot layout in ${property.locality}, positioned around ${property.corridor}. The parcel is suitable for long-term land banking, villa construction, and plotted development investment. Clear access roads, verified broker details, and registry support make the purchase flow easier for serious buyers.`}
+                {property.description || `Premium gated plot layout in ${property.locality}, positioned around ${property.corridor}. The parcel is suitable for long-term land banking, villa construction, and plotted development investment. Clear access roads, verified associate partner details, and registry support make the purchase flow easier for serious buyers.`}
               </p>
             </section>
 
@@ -618,7 +618,7 @@ const PropertyDetails = () => {
           <aside>
             <div className="space-y-5 md:sticky md:top-28">
               <div className="rounded-[1.5rem] border border-border bg-white p-4 shadow-card md:rounded-[2rem] md:p-6">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted">Broker contact</p>
+                <p className="text-xs font-bold uppercase tracking-wide text-muted">Associate Partner contact</p>
                 <div className="mt-5 flex items-center gap-4">
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-xl font-extrabold text-white">
                     {activeBroker.name.charAt(0)}
@@ -663,7 +663,7 @@ const PropertyDetails = () => {
                         className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-sm font-extrabold text-white transition-colors hover:bg-[#1ebd5a]"
                       >
                         <MessageCircle size={18} />
-                        Login to WhatsApp Broker
+                        Login to WhatsApp Associate Partner
                       </button>
                       <button
                         type="button"
@@ -671,7 +671,7 @@ const PropertyDetails = () => {
                         className="flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-white text-sm font-extrabold text-text transition-colors hover:border-primary hover:text-primary"
                       >
                         <Phone size={18} />
-                        Login to Call Broker
+                        Login to Call Associate Partner
                       </button>
                     </>
                   )}
@@ -694,7 +694,7 @@ const PropertyDetails = () => {
                       ) : (
                         <div className="rounded-2xl bg-surface p-4">
                           <p className="text-sm font-extrabold text-text">Login to send an inquiry</p>
-                          <p className="mt-1 text-xs font-semibold text-muted">Your saved name, mobile number, and email will be sent to the broker.</p>
+                          <p className="mt-1 text-xs font-semibold text-muted">Your saved name, mobile number, and email will be sent to the associate partner.</p>
                         </div>
                       )}
                       {user && !user.phone && (
@@ -704,7 +704,7 @@ const PropertyDetails = () => {
                         value={lead.message}
                         onChange={(event) => setLead({ ...lead, message: event.target.value })}
                         className="min-h-24 rounded-xl border border-border bg-surface px-4 py-3 text-sm disabled:opacity-60"
-                        placeholder={user ? "Optional message for the broker..." : "Please login to write an inquiry message..."}
+                        placeholder={user ? "Optional message for the associate partner..." : "Please login to write an inquiry message..."}
                         disabled={!user}
                       />
                       <button type="button" onClick={submitLead} className="rounded-xl bg-primary px-4 py-3 text-sm font-extrabold text-white">
@@ -719,7 +719,7 @@ const PropertyDetails = () => {
                 <ShieldCheck size={24} />
                 <h3 className="mt-4 text-lg font-extrabold">Buyer safety promise</h3>
                 <p className="mt-2 text-sm font-medium leading-6 text-white/75">
-                  We verify broker details and key property signals before showing them to buyers.
+                  We verify associate partner details and key property signals before showing them to buyers.
                 </p>
               </div>
             </div>
@@ -808,7 +808,7 @@ const PropertyDetails = () => {
               <a
                 href={`https://wa.me/${activeBroker.whatsapp}`}
                 className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-green-500/20"
-                aria-label="WhatsApp broker"
+                aria-label="WhatsApp associate partner"
               >
                 <MessageCircle size={20} />
               </a>

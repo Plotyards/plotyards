@@ -11,7 +11,7 @@ const BLOG_CATEGORIES = [
   'Investment Guide',
   'Buyer Checklist',
   'Location Strategy',
-  'Broker Marketing',
+  'Associate Partner Marketing',
   'Market Trends',
   'Legal & Documents',
   'Real Estate News'
@@ -474,7 +474,7 @@ const BlogManager = ({
       <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
         <div className="border-b border-border px-5 py-4">
           <h3 className="text-lg font-extrabold text-text">Your blog posts</h3>
-          <p className="mt-1 text-sm font-medium text-muted">{showAuthor ? 'All published and draft blog posts from admins and brokers.' : 'Your published and draft articles appear here.'}</p>
+          <p className="mt-1 text-sm font-medium text-muted">{showAuthor ? 'All published and draft blog posts from admins and associate partners.' : 'Your published and draft articles appear here.'}</p>
         </div>
         <div className="divide-y divide-border">
           {loading ? (
