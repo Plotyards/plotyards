@@ -823,8 +823,8 @@ const Home = () => {
         </div>
 
         {/* Listings Grid */}
-        <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3">
-          {displayTrending.map((plot) => renderHomePropertyCard(plot))}
+        <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0 md:pb-0">
+          {displayTrending.map((plot, index) => renderHomePropertyCard(plot, index))}
         </div>
       </section>
 
