@@ -237,7 +237,7 @@ const Home = () => {
         .catch(() => {})
         .finally(() => isMounted && setLoadingReal(false));
 
-      apiRequest('/blogs?limit=4')
+      apiRequest('/blogs?limit=6')
         .then((data) => {
           if (isMounted && Array.isArray(data.blogs)) {
             setLatestBlogs(data.blogs);
@@ -256,7 +256,7 @@ const Home = () => {
     };
   }, []);
 
-  const renderHomePropertyCard = (plot) => {
+  const renderHomePropertyCard = (plot, index) => {
     const imageUrl = plot.image || plot.img;
     const locationText = plot.location || plot.loc;
     const sizeText = plot.size || plot.sqyd || 'Size on request';
@@ -271,7 +271,7 @@ const Home = () => {
       <Link
         href={`/property/${linkId}`}
         key={linkId || plot.title}
-        className="group flex w-[236px] min-w-[236px] flex-shrink-0 snap-start cursor-pointer flex-col rounded-2xl border border-border bg-white p-2 shadow-sm transition-all active:scale-[0.99] sm:w-[260px] sm:min-w-[260px] md:w-auto md:min-w-0 md:overflow-hidden md:rounded-[2rem] md:p-0 md:hover:-translate-y-2 md:hover:shadow-xl"
+        className={`group flex w-[236px] min-w-[236px] flex-shrink-0 snap-start cursor-pointer flex-col rounded-2xl border border-border bg-white p-2 shadow-sm transition-all active:scale-[0.99] sm:w-[260px] sm:min-w-[260px] md:w-auto md:min-w-0 md:overflow-hidden md:rounded-[2rem] md:p-0 md:hover:-translate-y-2 md:hover:shadow-xl${index >= 3 ? ' md:hidden' : ''}`}
       >
         <div className="relative mb-3 aspect-[4/3] overflow-hidden rounded-[1.15rem] shadow-sm transition-all group-hover:shadow-md md:mb-0 md:rounded-none">
           <img src={imageUrl} alt={plot.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -718,8 +718,8 @@ const Home = () => {
         </div>
 
         {/* Listings Grid */}
-        <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-3">
-          {visibleFeaturedPlots.map((plot) => renderHomePropertyCard(plot))}
+        <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0 md:pb-0">
+          {visibleFeaturedPlots.map((plot, index) => renderHomePropertyCard(plot, index))}
           {filteredFeaturedPlots.length === 0 && (
             <div className="col-span-full rounded-[2rem] border border-dashed border-border bg-white p-12 text-center shadow-sm">
               <p className="text-lg font-extrabold text-text">No featured plots available</p>
