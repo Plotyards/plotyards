@@ -9,7 +9,12 @@ export default {
       colors: {
         background: '#ffffff',
         surface: '#f7f7f9',
-        primary: '#FA3E4E', // Coral accent
+        primary: '#f80e11', // Brand red
+        rose: {
+          400: '#ff5f61',
+          500: '#f80e11',
+          600: '#d60c0f',
+        },
         secondary: '#00697a', // Teal background for sections
         text: '#222222',
         muted: '#717171',

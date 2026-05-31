@@ -81,7 +81,7 @@ const Subscribe = () => {
           contact: user?.brokerProfile?.contactPhone || user?.phone || ''
         },
         theme: {
-          color: '#FA3E4E'
+          color: '#f80e11'
         },
         handler: async (response) => {
           try {

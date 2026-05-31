@@ -20,6 +20,7 @@ const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -56,6 +57,11 @@ const Blogs = () => {
 
   const featuredBlog = blogs[0];
   const restBlogs = featuredBlog ? blogs.slice(1) : blogs;
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    setSearch(searchInput.trim());
+    setSearchInput('');
+  };
   const blogSchema = {
     '@context': 'https://schema.org',
     '@type': 'Blog',
@@ -79,16 +85,21 @@ const Blogs = () => {
               Practical guides for plot buyers, real estate investors, and associate partners who want clearer property decisions.
             </p>
           </div>
-          <div className="grid gap-3 rounded-xl bg-surface p-3 md:rounded-2xl md:border md:border-border md:p-4">
-            <label className="flex min-h-12 items-center gap-2 rounded-xl border border-border bg-white px-4">
-              <Search size={17} className="text-muted" />
-              <input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                className="min-w-0 w-full bg-transparent text-sm font-semibold text-text outline-none placeholder:text-muted"
-                placeholder="Search articles..."
-              />
-            </label>
+          <form onSubmit={handleSearchSubmit} className="grid gap-3 rounded-xl bg-surface p-3 md:rounded-2xl md:border md:border-border md:p-4">
+            <div className="flex gap-2">
+              <label className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-white px-4">
+                <Search size={17} className="flex-shrink-0 text-muted" />
+                <input
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  className="min-w-0 w-full bg-transparent text-sm font-semibold text-text outline-none placeholder:text-muted"
+                  placeholder="Search articles..."
+                />
+              </label>
+              <button type="submit" className="min-h-12 rounded-xl bg-primary px-4 text-sm font-extrabold text-white transition-colors hover:bg-rose-600">
+                Search
+              </button>
+            </div>
             <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar md:flex-wrap md:overflow-visible md:pb-0">
               <button
                 type="button"
@@ -108,7 +119,7 @@ const Blogs = () => {
                 </button>
               ))}
             </div>
-          </div>
+          </form>
         </section>
 
         {error && <p className="mt-6 rounded-xl bg-rose-50 px-4 py-3 text-sm font-bold text-primary">{error}</p>}
@@ -118,7 +129,7 @@ const Blogs = () => {
         ) : blogs.length ? (
           <>
             {featuredBlog && (
-              <Link href={`/blogs/${featuredBlog.slug}`} className="group mt-6 grid overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl md:mt-8 md:rounded-[2rem] lg:grid-cols-[0.95fr_1.05fr]">
+              <Link href={`/blogs/${featuredBlog.slug}`} className="group mt-6 hidden overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl md:mt-8 md:grid md:rounded-[2rem] lg:grid-cols-[0.95fr_1.05fr]">
                 <div className="aspect-[16/10] overflow-hidden bg-surface md:min-h-72 md:aspect-auto">
                   <img src={featuredBlog.coverImage || '/hero-bg.jpg'} alt={featuredBlog.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 </div>
@@ -141,7 +152,22 @@ const Blogs = () => {
               </Link>
             )}
 
-            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-5 grid grid-cols-2 gap-3 md:hidden">
+              {blogs.map((blog) => (
+                <Link key={blog.slug} href={`/blogs/${blog.slug}`} className="group min-w-0 overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all active:translate-y-0.5">
+                  <div className="aspect-[16/10] overflow-hidden bg-surface">
+                    <img src={blog.coverImage || '/hero-bg.jpg'} alt={blog.title} className="h-full w-full object-cover transition-transform duration-500 group-active:scale-105" />
+                  </div>
+                  <div className="p-3">
+                    <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-primary">{blog.category}</span>
+                    <h3 className="mt-3 line-clamp-2 text-sm font-extrabold leading-tight text-text">{blog.title}</h3>
+                    <p className="mt-3 text-[11px] font-bold text-muted">{blog.readingTime || 1} min read</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="mt-8 hidden gap-5 md:grid md:grid-cols-2 xl:grid-cols-3">
               {restBlogs.map((blog) => (
                 <Link key={blog.slug} href={`/blogs/${blog.slug}`} className="group overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl">
                   <div className="aspect-[16/10] overflow-hidden bg-surface">

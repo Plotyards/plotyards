@@ -743,7 +743,7 @@ const AdminPanel = () => {
                       <path d="M20 150H340" stroke="#ffffff" strokeOpacity=".18" strokeWidth="2" />
                       <path d="M20 90H340" stroke="#ffffff" strokeOpacity=".12" strokeWidth="2" />
                       {[20, 90, 160, 230, 330].map((x) => (
-                        <circle key={x} cx={x} cy="150" r="5" fill="#fa3e4e" />
+                        <circle key={x} cx={x} cy="150" r="5" fill="#f80e11" />
                       ))}
                     </svg>
                     <div className="mt-5 grid grid-cols-2 gap-3">

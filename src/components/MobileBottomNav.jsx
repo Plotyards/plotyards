@@ -16,11 +16,10 @@ const navItems = [
 const MobileBottomNav = () => {
   const pathname = usePathname() || '/';
   const navigate = useRouter();
-  const { user, login, register, logout } = useAuth();
+  const { user, login, logout } = useAuth();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [loginForm, setLoginForm] = useState({ identifier: '', password: '' });
-  const [signupForm, setSignupForm] = useState({ name: '', email: '', phone: '', password: '' });
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
 
@@ -43,27 +42,6 @@ const MobileBottomNav = () => {
       navigate.push(user.role === 'broker' ? '/dashboard?tab=subscription' : '/');
     } catch (error) {
       setAuthError(error.message || 'Unable to sign in. Please try again.');
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const submitSignup = async (event) => {
-    event.preventDefault();
-    setAuthError('');
-    setAuthLoading(true);
-    try {
-      await register({
-        name: signupForm.name,
-        email: signupForm.email,
-        phone: signupForm.phone,
-        password: signupForm.password,
-        isBroker: false
-      });
-      closeAuth();
-      navigate.push('/');
-    } catch (error) {
-      setAuthError(error.message || 'Unable to create account. Please try again.');
     } finally {
       setAuthLoading(false);
     }
@@ -133,9 +111,9 @@ const MobileBottomNav = () => {
 
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">Buyer Account</p>
+                <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">Account</p>
                 <h2 className="mt-1 text-2xl font-extrabold leading-tight text-text">
-                  {user ? 'Account' : authMode === 'login' ? 'Welcome back' : 'Create buyer account'}
+                  {user ? 'Account' : 'Welcome back'}
                 </h2>
                 <p className="mt-1 text-sm font-medium text-muted">
                   {user ? 'Dashboard, saved plots, policies, and assistance links.' : authMode === 'login' ? 'Sign in to save plots and view enquiries.' : 'Join to shortlist verified plots and contact associate partners.'}
@@ -180,6 +158,11 @@ const MobileBottomNav = () => {
                       key={mode}
                       type="button"
                       onClick={() => {
+                        if (mode === 'signup') {
+                          closeAuth();
+                          navigate.push('/register');
+                          return;
+                        }
                         setAuthMode(mode);
                         setAuthError('');
                       }}
@@ -198,73 +181,33 @@ const MobileBottomNav = () => {
                   </p>
                 )}
 
-                {authMode === 'login' ? (
-                  <form onSubmit={submitLogin} className="grid gap-4">
-                    <input
-                      value={loginForm.identifier}
-                      onChange={(event) => setLoginForm({ ...loginForm, identifier: event.target.value })}
-                      className="h-[52px] rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-text outline-none transition-colors focus:border-primary/40 focus:bg-white"
-                      placeholder="Email or phone"
-                      required
-                    />
-                    <input
-                      value={loginForm.password}
-                      onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })}
-                      type="password"
-                      className="h-[52px] rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-text outline-none transition-colors focus:border-primary/40 focus:bg-white"
-                      placeholder="Password"
-                      required
-                    />
-                    <button disabled={authLoading} className="mt-1 flex h-[52px] items-center justify-center rounded-xl bg-primary text-base font-extrabold text-white shadow-lg shadow-primary/20 disabled:opacity-60">
-                      {authLoading ? <Loader2 className="animate-spin" size={20} /> : 'Login'}
-                    </button>
-                  </form>
-                ) : (
-                  <form onSubmit={submitSignup} className="grid gap-4">
-                    <input
-                      value={signupForm.name}
-                      onChange={(event) => setSignupForm({ ...signupForm, name: event.target.value })}
-                      className="h-[52px] rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-text outline-none transition-colors focus:border-primary/40 focus:bg-white"
-                      placeholder="Full name"
-                      required
-                    />
-                    <input
-                      value={signupForm.email}
-                      onChange={(event) => setSignupForm({ ...signupForm, email: event.target.value })}
-                      type="email"
-                      className="h-[52px] rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-text outline-none transition-colors focus:border-primary/40 focus:bg-white"
-                      placeholder="Email"
-                      required
-                    />
-                    <input
-                      value={signupForm.phone}
-                      onChange={(event) => setSignupForm({ ...signupForm, phone: event.target.value })}
-                      type="tel"
-                      className="h-[52px] rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-text outline-none transition-colors focus:border-primary/40 focus:bg-white"
-                      placeholder="Mobile number"
-                      required
-                    />
-                    <input
-                      value={signupForm.password}
-                      onChange={(event) => setSignupForm({ ...signupForm, password: event.target.value })}
-                      type="password"
-                      minLength={6}
-                      className="h-[52px] rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-text outline-none transition-colors focus:border-primary/40 focus:bg-white"
-                      placeholder="Password"
-                      required
-                    />
-                    <button disabled={authLoading} className="mt-1 flex h-[52px] items-center justify-center rounded-xl bg-primary text-base font-extrabold text-white shadow-lg shadow-primary/20 disabled:opacity-60">
-                      {authLoading ? <Loader2 className="animate-spin" size={20} /> : 'Create buyer account'}
-                    </button>
-                  </form>
-                )}
+                <form onSubmit={submitLogin} className="grid gap-4">
+                  <input
+                    value={loginForm.identifier}
+                    onChange={(event) => setLoginForm({ ...loginForm, identifier: event.target.value })}
+                    className="h-[52px] rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-text outline-none transition-colors focus:border-primary/40 focus:bg-white"
+                    placeholder="Email or phone"
+                    required
+                  />
+                  <input
+                    value={loginForm.password}
+                    onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })}
+                    type="password"
+                    className="h-[52px] rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-text outline-none transition-colors focus:border-primary/40 focus:bg-white"
+                    placeholder="Password"
+                    required
+                  />
+                  <button disabled={authLoading} className="mt-1 flex h-[52px] items-center justify-center rounded-xl bg-primary text-base font-extrabold text-white shadow-lg shadow-primary/20 disabled:opacity-60">
+                    {authLoading ? <Loader2 className="animate-spin" size={20} /> : 'Login'}
+                  </button>
+                </form>
 
                 <Link
-                  href={authMode === 'login' ? '/login' : '/register'}
+                  href="/login"
                   onClick={closeAuth}
                   className="mt-4 block text-center text-sm font-bold text-secondary"
                 >
-                  Open full {authMode === 'login' ? 'login' : 'registration'} page
+                  Open full login page
                 </Link>
               </>
             )}

@@ -59,7 +59,7 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(135deg,#052f35_0%,#0f766e_45%,#fa3e4e_100%)] px-6 pt-32 pb-12 text-white">
+    <div className="min-h-screen bg-[linear-gradient(135deg,#052f35_0%,#0f766e_45%,#f80e11_100%)] px-6 pt-32 pb-12 text-white">
       <div className="mx-auto grid max-w-5xl items-center gap-8 lg:grid-cols-[1fr_440px]">
         <div className="hidden lg:block">
           <p className="inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1 text-xs font-extrabold uppercase tracking-wide ring-1 ring-white/20">

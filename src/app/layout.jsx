@@ -8,6 +8,7 @@ import TrafficHeartbeat from '../components/TrafficHeartbeat';
 import CompareWidget from '../components/CompareWidget';
 import CompareModal from '../components/CompareModal';
 import MobileBottomNav from '../components/MobileBottomNav';
+import ScrollToTop from '../components/ScrollToTop';
 
 export const metadata = {
   title: {
@@ -24,6 +25,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="min-h-screen bg-background text-text flex flex-col antialiased">
         <Providers>
+          <Suspense fallback={null}>
+            <ScrollToTop />
+          </Suspense>
           <TrafficHeartbeat />
           <Suspense fallback={<div className="h-20" />}>
             <Navbar />

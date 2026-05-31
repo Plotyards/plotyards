@@ -459,10 +459,10 @@ const Home = () => {
           <div className="relative h-[190px] overflow-hidden rounded-lg bg-secondary/10 shadow-sm">
             <img src="/hero-bg.jpg" alt="Premium plots" className="h-full w-full object-cover object-center" />
             <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/55 to-white/10"></div>
-            <div className="absolute left-5 top-6 max-w-[72%]">
+            <div className="absolute left-5 top-6 max-w-[85%]">
               <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">New launch</p>
-              <h1 className="mt-2 text-[22px] font-black leading-tight text-text">Verified plots for serious buyers</h1>
-              <p className="mt-2 text-xs font-bold leading-5 text-muted">Search locations, compare layouts, and talk to trusted associate partners.</p>
+              <h1 className="mt-2 text-[22px] font-black leading-tight text-text">India's First <span className="block text-primary">Plot Marketplace</span></h1>
+              <p className="mt-2 text-xs font-bold leading-5 text-muted">Buy, Sell & Discover <span className="text-green-600">Verified Plots</span> Across India.</p>
             </div>
           </div>
 
@@ -517,7 +517,7 @@ const Home = () => {
         {/* Background Image & Gradient */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="./hero-bg.jpg" 
+            src="/hero-bg.jpg" 
             alt="Plots and Land" 
             className="w-full h-full object-cover object-bottom"
           />
@@ -528,14 +528,10 @@ const Home = () => {
         <div className="relative z-10 w-full max-w-[1400px] mx-auto flex flex-col items-start mt-12">
           {/* Headlines */}
           <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-4 leading-[1.1] max-w-4xl tracking-tight">
-            The smarter way to buy <span className="block">plots & land in India.</span>
+            India's First <span className="block text-white">Plot Marketplace</span>
           </h1>
           <p className="text-lg md:text-xl text-white/90 max-w-2xl mb-10 font-medium leading-relaxed">
-            {stats.totalProperties > 0 ? (
-              `${stats.totalProperties.toLocaleString('en-IN')} verified plots from ${stats.totalBrokers.toLocaleString('en-IN')} trusted associate partners. RERA approved layouts, ready-to-register parcels, transparent pricing.`
-            ) : (
-              "12,000+ verified plots from 850+ trusted associate partners. RERA approved layouts, ready-to-register parcels, transparent pricing."
-            )}
+            Buy, Sell & Discover <span className="text-green-400 font-bold">Verified Plots</span> Across India.
           </p>
 
           {/* Search Container */}

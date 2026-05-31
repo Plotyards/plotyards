@@ -30,7 +30,7 @@ const NotFound = () => {
             <defs>
               <linearGradient id="wireGradient" x1="80" x2="600" y1="160" y2="320" gradientUnits="userSpaceOnUse">
                 <stop stopColor="#00697a" />
-                <stop offset="1" stopColor="#fa3e4e" />
+                <stop offset="1" stopColor="#f80e11" />
               </linearGradient>
               <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
                 <feDropShadow dx="0" dy="18" stdDeviation="18" floodColor="#052f35" floodOpacity=".14" />
@@ -43,16 +43,16 @@ const NotFound = () => {
               <rect x="116" y="132" width="88" height="12" rx="6" fill="#00697a" fillOpacity=".22" />
               <rect x="116" y="160" width="126" height="12" rx="6" fill="#111827" fillOpacity=".10" />
               <rect x="116" y="188" width="96" height="12" rx="6" fill="#111827" fillOpacity=".10" />
-              <circle cx="228" cy="132" r="18" fill="#fa3e4e" fillOpacity=".16" />
+              <circle cx="228" cy="132" r="18" fill="#f80e11" fillOpacity=".16" />
             </g>
             <g filter="url(#softShadow)">
               <rect x="406" y="214" width="188" height="148" rx="28" fill="#ffffff" stroke="#111827" strokeOpacity=".12" />
-              <rect x="436" y="250" width="86" height="12" rx="6" fill="#fa3e4e" fillOpacity=".20" />
+              <rect x="436" y="250" width="86" height="12" rx="6" fill="#f80e11" fillOpacity=".20" />
               <rect x="436" y="278" width="126" height="12" rx="6" fill="#111827" fillOpacity=".10" />
               <rect x="436" y="306" width="96" height="12" rx="6" fill="#111827" fillOpacity=".10" />
               <circle cx="548" cy="250" r="18" fill="#00697a" fillOpacity=".16" />
             </g>
-            <path d="M286 247l34-34m0 34l-34-34" stroke="#fa3e4e" strokeWidth="12" strokeLinecap="round" />
+            <path d="M286 247l34-34m0 34l-34-34" stroke="#f80e11" strokeWidth="12" strokeLinecap="round" />
             <path d="M340 247l34-34m0 34l-34-34" stroke="#00697a" strokeWidth="12" strokeLinecap="round" />
             <circle cx="328" cy="230" r="76" fill="#ffffff" fillOpacity=".66" stroke="#111827" strokeOpacity=".08" />
             <text x="328" y="245" textAnchor="middle" fontFamily="Inter, Arial, sans-serif" fontSize="54" fontWeight="800" fill="#222222">404</text>

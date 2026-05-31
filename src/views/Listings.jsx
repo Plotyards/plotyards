@@ -47,6 +47,7 @@ const Listings = () => {
   const { compareList, toggleCompare } = useCompare();
   const navigate = useRouter();
   const query = searchParams.get('q') || '';
+  const [searchInput, setSearchInput] = useState('');
   const sortBy = searchParams.get('sort') || 'recommended';
   const requestedPage = Number(searchParams.get('page') || 1);
   const currentPage = Number.isFinite(requestedPage) && requestedPage > 0 ? Math.floor(requestedPage) : 1;
@@ -224,20 +225,24 @@ const Listings = () => {
   }, []);
 
   const applySearchToUrl = () => {
-    if (isAdminSearchQuery(query)) {
+    const nextQuery = searchInput.trim();
+
+    if (isAdminSearchQuery(nextQuery)) {
       openAdminEntry(navigate);
+      setSearchInput('');
       return;
     }
 
     const nextParams = new URLSearchParams(searchParams);
 
-    if (query.trim()) nextParams.set('q', query.trim());
+    if (nextQuery) nextParams.set('q', nextQuery);
     else nextParams.delete('q');
     if (sortBy !== 'recommended') nextParams.set('sort', sortBy);
     else nextParams.delete('sort');
     nextParams.delete('page');
 
     navigate.push(`?${nextParams.toString()}`);
+    setSearchInput('');
   };
 
   const handleSortChange = (value) => {
@@ -249,14 +254,6 @@ const Listings = () => {
     if (query.trim()) nextParams.set('q', query.trim());
     nextParams.delete('page');
     navigate.push(`?${nextParams.toString()}`);
-  };
-
-  const handleQueryChange = (value) => {
-    const nextParams = new URLSearchParams(searchParams);
-    if (value) nextParams.set('q', value);
-    else nextParams.delete('q');
-    nextParams.delete('page');
-    navigate.replace(`?${nextParams.toString()}`);
   };
 
   const handleFilterChange = (key, value) => {
@@ -344,8 +341,8 @@ const Listings = () => {
               <Search size={17} className="flex-shrink-0 text-primary" />
               <input
                 type="text"
-                value={query}
-                onChange={(event) => handleQueryChange(event.target.value)}
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') applySearchToUrl();
                 }}
@@ -452,8 +449,8 @@ const Listings = () => {
               <Search size={18} className="text-muted" />
               <input
                 type="text"
-                value={query}
-                onChange={(event) => handleQueryChange(event.target.value)}
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') applySearchToUrl();
                 }}
@@ -542,7 +539,7 @@ const Listings = () => {
               <h2 className="text-lg font-extrabold text-text">Suggestions</h2>
               <span className="text-xs font-bold text-primary">Swipe</span>
             </div>
-            <div className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-2 no-scrollbar">
+            <div className="-mx-2 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-2 no-scrollbar">
               {suggestedProperties.map((suggestion) => (
                 <Link
                   key={suggestion.id}

@@ -59,8 +59,8 @@ const AppComingSoon = () => {
                 
                 {/* App Content Fake UI */}
                 <g transform="translate(50, 100)">
-                  <circle cx="20" cy="20" r="20" fill="#fa3e4e" opacity="0.1" />
-                  <path d="M13 20 L27 20 M20 13 L20 27" stroke="#fa3e4e" strokeWidth="3" strokeLinecap="round" />
+                  <circle cx="20" cy="20" r="20" fill="#f80e11" opacity="0.1" />
+                  <path d="M13 20 L27 20 M20 13 L20 27" stroke="#f80e11" strokeWidth="3" strokeLinecap="round" />
                   <rect x="55" y="10" width="120" height="8" rx="4" fill="#94a3b8" />
                   <rect x="55" y="24" width="80" height="6" rx="3" fill="#cbd5e1" />
                   
@@ -79,7 +79,7 @@ const AppComingSoon = () => {
                   <rect x="16" y="396" width="100" height="88" rx="16" fill="#f8fafc" />
                   <rect x="132" y="406" width="120" height="10" rx="5" fill="#94a3b8" />
                   <rect x="132" y="426" width="80" height="8" rx="4" fill="#cbd5e1" />
-                  <rect x="132" y="460" width="60" height="12" rx="6" fill="#fa3e4e" opacity="0.2" />
+                  <rect x="132" y="460" width="60" height="12" rx="6" fill="#f80e11" opacity="0.2" />
 
                   <rect x="0" y="520" width="300" height="120" rx="24" fill="#ffffff" stroke="#f1f5f9" strokeWidth="2" />
                   <rect x="16" y="536" width="100" height="88" rx="16" fill="#f8fafc" />
@@ -90,7 +90,7 @@ const AppComingSoon = () => {
                 {/* Bottom Bar */}
                 <rect x="40" y="680" width="320" height="80" rx="40" fill="#ffffff" filter="drop-shadow(0 -10px 20px rgba(0,0,0,0.05))" />
                 <circle cx="90" cy="720" r="6" fill="#cbd5e1" />
-                <circle cx="160" cy="720" r="6" fill="#fa3e4e" />
+                <circle cx="160" cy="720" r="6" fill="#f80e11" />
                 <circle cx="230" cy="720" r="6" fill="#cbd5e1" />
                 <circle cx="300" cy="720" r="6" fill="#cbd5e1" />
               </svg>
