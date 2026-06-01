@@ -6,15 +6,21 @@ const PROPERTY_TYPE_LABELS = {
   apartment: 'Residential',
   commercial: 'Commercial',
   farmland: 'Farm Land',
-  'farm land': 'Farm Land'
+  'farm land': 'Farm Land',
+  'industrial': 'Industrial Land',
+  'industrial land': 'Industrial Land',
+  'new projects': 'New Projects',
+  'new project': 'New Projects'
 };
 
 export const normalizePropertyType = (type = '') => {
   const normalized = String(type).trim().toLowerCase().replace(/[\s_-]+/g, ' ');
 
-  if (normalized === 'commercial') return 'commercial';
+  if (['commercial'].includes(normalized)) return 'commercial';
   if (['farm land', 'farmland', 'farm'].includes(normalized)) return 'farmland';
   if (['residential', 'plot', 'plots', 'land', 'villa', 'apartment'].includes(normalized)) return 'plot';
+  if (['industrial', 'industrial land'].includes(normalized)) return 'industrial land';
+  if (['new projects', 'new project'].includes(normalized)) return 'new projects';
 
   return normalized || 'plot';
 };

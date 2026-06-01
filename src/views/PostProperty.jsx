@@ -425,9 +425,11 @@ const PostProperty = () => {
                 value={form.propertyType}
                 onChange={(value) => updateField('propertyType', value)}
                 options={[
-                  { value: 'plot', label: 'Plot' },
-                  { value: 'commercial', label: 'Commercial' },
-                  { value: 'farmland', label: 'Farm Land' }
+                  { value: 'plot', label: 'Plots / Residential' },
+                  { value: 'farmland', label: 'Farm Land' },
+                  { value: 'industrial land', label: 'Industrial Land' },
+                  { value: 'commercial', label: 'Commercial Plots' },
+                  { value: 'new projects', label: 'New Projects' }
                 ]}
                 icon={Layers}
               />
