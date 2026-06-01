@@ -390,7 +390,7 @@ const Home = () => {
             <div>
               <p className="text-xs font-bold text-text">{rateText}</p>
               <p className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-secondary">
-                <Sparkles size={10} /> Associate Partner verified
+                <Sparkles size={10} /> Associate Partner Verified
               </p>
             </div>
             <span className="inline-flex items-center justify-center rounded-xl bg-text px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all group-hover:bg-primary">
@@ -655,15 +655,15 @@ const Home = () => {
           <div className="flex flex-wrap items-center gap-6 md:gap-10 text-white/90">
             <div className="flex items-center gap-2 font-medium text-sm">
               <ShieldCheck size={18} />
-              <span>RERA verified</span>
+              <span>RERA Verified</span>
             </div>
             <div className="flex items-center gap-2 font-medium text-sm">
               <CheckCircle2 size={18} />
-              <span>{statsLoaded ? `${stats.totalProperties.toLocaleString('en-IN')} Live listings` : 'Loading Live listings'}</span>
+              <span>{statsLoaded ? `${stats.totalProperties.toLocaleString('en-IN')} Live Listings` : 'Loading Live listings'}</span>
             </div>
             <div className="flex items-center gap-2 font-medium text-sm">
               <CheckCircle2 size={18} />
-              <span>{statsLoaded ? `${stats.totalBrokers.toLocaleString('en-IN')} Trusted Associate Partners` : 'Loading Trusted associate partners'}</span>
+              <span>{statsLoaded ? `${stats.totalBrokers.toLocaleString('en-IN')} Trusted Associate Partners` : 'Loading Trusted Associate Partners'}</span>
             </div>
           </div>
         </div>
@@ -861,7 +861,7 @@ const Home = () => {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ShieldCheck className="text-primary" size={20} />
-                  <h3 className="font-bold text-lg">Investment-grade Filters</h3>
+                  <h3 className="font-bold text-lg">Investment-Grade Filters</h3>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
                   Filter by approval, registry-readiness, zoning and per-sq-yd rate.
@@ -882,9 +882,9 @@ const Home = () => {
           <div className="flex justify-center lg:justify-end">
             <div className="bg-white rounded-[2rem] p-8 w-full max-w-md text-text shadow-2xl">
               <p className="text-primary text-xs font-bold uppercase tracking-wider mb-2">Get the App</p>
-              <h3 className="text-2xl font-extrabold mb-3">India's first plots-only app.</h3>
+              <h3 className="text-2xl font-extrabold mb-3">India's First Plots-Only App.</h3>
               <p className="text-gray-500 text-sm mb-8">
-                Saved plots, instant alerts, live associate partner chat. Install in seconds.
+                Saved Plots, Instant Alerts, Live Associate Partner Chat. Install In Seconds.
               </p>
               
               <div className="flex flex-col gap-3 mb-6">
