@@ -732,6 +732,44 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Explore top cities */}
+      {topCities.length > 0 && (
+      <section className="my-6 px-6 py-9 md:my-10 md:py-12 lg:px-12 max-w-[1400px] mx-auto bg-gray-50/50 rounded-[3rem]">
+        <div className="mb-8">
+          <h2 className="text-3xl font-extrabold text-text mb-2">Explore Plots In Top Cities</h2>
+          <p className="text-gray-500 font-medium">Where investors are putting their money in 2026</p>
+        </div>
+        
+        <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-6 no-scrollbar md:mx-0 md:px-0">
+          {topCities.map((city) => (
+            <Link key={city.name} href={buildListingsSearchUrl(city.name, { city: city.name })} className="group relative h-[300px] w-[calc(100vw-3rem)] min-w-[calc(100vw-3rem)] flex-shrink-0 snap-start cursor-pointer overflow-hidden rounded-2xl shadow-sm transition-shadow hover:shadow-md sm:w-[260px] sm:min-w-[260px] md:h-[320px]">
+              <img src={city.image || DEFAULT_TOP_CITIES[0].image} alt={city.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+              <div className="absolute bottom-6 left-6">
+                <h3 className="text-xl font-bold text-white mb-1">{city.name}</h3>
+                <p className="text-xs text-white/80 font-medium">
+                  {city.propertyCount ?? city.plots} plots &bull; {city.price === 'Price on request' ? 'price on request' : `from ${city.price}`}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+      )}
+
+      {/* Trending Projects Section */}
+      <section className="px-6 py-9 md:py-20 lg:px-12 max-w-[1400px] mx-auto">
+        <div className="mb-5 md:mb-8">
+          <h2 className="text-3xl font-extrabold text-text mb-2">Trending Projects</h2>
+          <p className="text-gray-500 font-medium">Most-viewed plot layouts this week</p>
+        </div>
+
+        {/* Listings Grid */}
+        <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0 md:pb-0">
+          {displayTrending.map((plot, index) => renderHomePropertyCard(plot, index))}
+        </div>
+      </section>
+
       {latestBlogs.length > 0 && (
         <section className="px-6 py-6 md:py-14 lg:px-12 max-w-[1400px] mx-auto">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -792,44 +830,6 @@ const Home = () => {
           </div>
         </section>
       )}
-
-      {/* Explore top cities */}
-      {topCities.length > 0 && (
-      <section className="my-6 px-6 py-9 md:my-10 md:py-12 lg:px-12 max-w-[1400px] mx-auto bg-gray-50/50 rounded-[3rem]">
-        <div className="mb-8">
-          <h2 className="text-3xl font-extrabold text-text mb-2">Explore Plots In Top Cities</h2>
-          <p className="text-gray-500 font-medium">Where investors are putting their money in 2026</p>
-        </div>
-        
-        <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-6 no-scrollbar md:mx-0 md:px-0">
-          {topCities.map((city) => (
-            <Link key={city.name} href={buildListingsSearchUrl(city.name, { city: city.name })} className="group relative h-[300px] w-[calc(100vw-3rem)] min-w-[calc(100vw-3rem)] flex-shrink-0 snap-start cursor-pointer overflow-hidden rounded-2xl shadow-sm transition-shadow hover:shadow-md sm:w-[260px] sm:min-w-[260px] md:h-[320px]">
-              <img src={city.image || DEFAULT_TOP_CITIES[0].image} alt={city.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-              <div className="absolute bottom-6 left-6">
-                <h3 className="text-xl font-bold text-white mb-1">{city.name}</h3>
-                <p className="text-xs text-white/80 font-medium">
-                  {city.propertyCount ?? city.plots} plots &bull; {city.price === 'Price on request' ? 'price on request' : `from ${city.price}`}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-      )}
-
-      {/* Trending Projects Section */}
-      <section className="px-6 py-9 md:py-20 lg:px-12 max-w-[1400px] mx-auto">
-        <div className="mb-5 md:mb-8">
-          <h2 className="text-3xl font-extrabold text-text mb-2">Trending Projects</h2>
-          <p className="text-gray-500 font-medium">Most-viewed plot layouts this week</p>
-        </div>
-
-        {/* Listings Grid */}
-        <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0 md:pb-0">
-          {displayTrending.map((plot, index) => renderHomePropertyCard(plot, index))}
-        </div>
-      </section>
 
       {/* Trust Section */}
       <section className="bg-secondary text-white py-20 mt-20">
