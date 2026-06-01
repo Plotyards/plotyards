@@ -2,7 +2,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/a
 
 export default async function sitemap() {
   // Using a default generic production domain, can be updated later if needed
-  const baseUrl = 'https://plotyards.in';
+  const baseUrl = 'https://plotyards.com';
 
   let properties = [];
   let blogs = [];

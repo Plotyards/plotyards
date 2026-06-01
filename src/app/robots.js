@@ -5,6 +5,6 @@ export default function robots() {
       allow: '/',
       disallow: ['/admin', '/plotadmin', '/dashboard', '/favourites', '/history', '/api/'],
     },
-    sitemap: 'https://plotyards.in/sitemap.xml',
+    sitemap: 'https://plotyards.com/sitemap.xml',
   }
 }
