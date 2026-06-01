@@ -16,6 +16,9 @@ export const metadata = {
     default: 'Plotyards - Real Estate & Investment',
   },
   description: 'Find the best land, properties, and investment opportunities in India. Compare real estate vs stock market ROI.',
+  verification: {
+    google: 'FzpHHbDpsMat43QjvlkgkYReW7_WkiAOgd9cxuK5uFk',
+  },
 };
 
 import { Suspense } from 'react';
