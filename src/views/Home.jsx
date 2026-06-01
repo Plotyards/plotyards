@@ -538,7 +538,7 @@ const Home = () => {
             India's First <span className="block text-white">Plot Marketplace</span>
           </h1>
           <p className="text-lg md:text-xl text-white/90 max-w-2xl mb-10 font-medium leading-relaxed">
-            Buy, Sell & Discover <span className="text-green-400 bg-primary p-1font-bold">Verified Plots</span> Across India.
+            Buy, Sell & Discover <span className="text-white bg-primary p-1font-bold">Verified Plots</span> Across India.
           </p>
 
           {/* Search Container */}
