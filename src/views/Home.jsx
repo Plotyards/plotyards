@@ -839,38 +839,38 @@ const Home = () => {
               Why 38,000+ Buyers Trust Plotyards Every Month.
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-6 xl:gap-10">
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <ShieldCheck className="text-primary" size={20} />
-                  <h3 className="font-bold text-lg">Only Verified Listings</h3>
+                <div className="flex items-start gap-2 mb-3">
+                  <ShieldCheck className="text-primary shrink-0 mt-0.5" size={20} />
+                  <h3 className="font-bold text-lg leading-snug">Only Verified Listings</h3>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
                   Every plot is checked for approval, ownership and pricing before going live.
                 </p>
               </div>
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <ShieldCheck className="text-primary" size={20} />
-                  <h3 className="font-bold text-lg">Direct Associate Partner Contact</h3>
+                <div className="flex items-start gap-2 mb-3">
+                  <ShieldCheck className="text-primary shrink-0 mt-0.5" size={20} />
+                  <h3 className="font-bold text-lg leading-snug xl:whitespace-nowrap">Direct Associate Partner Contact</h3>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
                   Call or WhatsApp associate partners directly - no middlemen, no spam routing.
                 </p>
               </div>
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <ShieldCheck className="text-primary" size={20} />
-                  <h3 className="font-bold text-lg">Investment-Grade Filters</h3>
+                <div className="flex items-start gap-2 mb-3">
+                  <ShieldCheck className="text-primary shrink-0 mt-0.5" size={20} />
+                  <h3 className="font-bold text-lg leading-snug">Investment-Grade Filters</h3>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
                   Filter by approval, registry-readiness, zoning and per-sq-yd rate.
                 </p>
               </div>
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <ShieldCheck className="text-primary" size={20} />
-                  <h3 className="font-bold text-lg">Free Site Visit Help</h3>
+                <div className="flex items-start gap-2 mb-3">
+                  <ShieldCheck className="text-primary shrink-0 mt-0.5" size={20} />
+                  <h3 className="font-bold text-lg leading-snug">Free Site Visit Help</h3>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
                   We coordinate visits and document checks with the associate partner on your behalf.
