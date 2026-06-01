@@ -237,6 +237,18 @@ const Navbar = () => {
                   <Link onClick={closeMenu} href="/help-center" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
                     Help Center
                   </Link>
+                  {assistanceLinks.map((link) => (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={closeMenu}
+                      className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
                 </div>
               </div>
             )}

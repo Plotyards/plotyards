@@ -104,6 +104,10 @@ const Subscribe = () => {
         }
       });
 
+      checkout.on('payment.failed', (response) => {
+        reject(new Error(response.error?.description || 'Payment failed. Please try again.'));
+      });
+
       checkout.open();
     });
   };

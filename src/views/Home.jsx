@@ -35,9 +35,17 @@ const homeMoreLinks = [
   { href: '/refund-policy', label: 'Refund Policy', icon: CheckCircle2 }
 ];
 
+const heroSearchTabs = [
+  { label: 'Plots', type: 'Residential' },
+  { label: 'Farmland', type: 'Farm Land' },
+  { label: 'Industrial Land', query: 'Industrial Land' },
+  { label: 'Commercial Plots', type: 'Commercial' },
+  { label: 'New Projects', query: 'New Projects' }
+];
+
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeSearchTab, setActiveSearchTab] = useState('Plots / Land');
+  const [activeSearchTab, setActiveSearchTab] = useState('Plots');
   const [propertyType, setPropertyType] = useState('Residential');
   const [selectedState, setSelectedState] = useState('All India');
   const [isStateMenuOpen, setIsStateMenuOpen] = useState(false);
@@ -143,17 +151,16 @@ const Home = () => {
 
     const filters = {};
     const terms = [query];
+    const activeTab = heroSearchTabs.find((tab) => tab.label === activeSearchTab);
 
-    if (propertyType !== 'All') {
+    if (activeTab?.type) {
+      filters.type = activeTab.type;
+    } else if (propertyType !== 'All') {
       filters.type = propertyType;
     }
 
-    if (activeSearchTab === 'Commercial') {
-      filters.type = 'Commercial';
-    }
-
-    if (activeSearchTab === 'Rent' || activeSearchTab === 'New Projects') {
-      terms.push(activeSearchTab);
+    if (activeTab?.query) {
+      terms.push(activeTab.query);
     }
 
     if (selectedState !== 'All India') {
@@ -538,25 +545,21 @@ const Home = () => {
           <div className="w-full bg-white rounded-3xl p-6 shadow-2xl mb-8">
             {/* Tabs */}
             <div className="flex flex-wrap items-center gap-2 mb-5 border-b border-gray-100 pb-4">
-              {['Buy', 'Rent', 'Commercial', 'Plots / Land', 'New Projects'].map((tab) => (
+              {heroSearchTabs.map((tab) => (
                 <button 
-                  key={tab} 
+                  key={tab.label} 
                   type="button"
                   onClick={() => {
-                    setActiveSearchTab(tab);
-                    if (tab === 'Commercial') {
-                      setPropertyType('Commercial');
-                    } else if (tab === 'Plots / Land' && propertyType === 'Commercial') {
-                      setPropertyType('Residential');
-                    }
+                    setActiveSearchTab(tab.label);
+                    setPropertyType(tab.type || 'All');
                   }}
                   className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
-                    tab === activeSearchTab
+                    tab.label === activeSearchTab
                       ? 'bg-text text-white' 
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  {tab}
+                  {tab.label}
                 </button>
               ))}
             </div>
