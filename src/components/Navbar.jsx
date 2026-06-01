@@ -100,26 +100,7 @@ const Navbar = () => {
 
         {/* Center Section: Menu or Search Bar */}
         <div className="hidden lg:flex items-center justify-center flex-1 mx-8 transition-all duration-300">
-          {!showNavSearch ? (
-            <nav className="flex items-center gap-8">
-              {assistanceLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={closeMenu}
-                  className={`group relative text-sm font-extrabold tracking-wide transition-colors duration-300 ${
-                    showSolidNav
-                      ? 'text-text  hover:text-green-500 '
-                      : 'text-white/95 drop-shadow-[0_0_7px_rgba(255,255,255,0.35)] hover:text-amber-200 hover:drop-shadow-[0_0_10px_rgba(251,191,36,0.55)]'
-                  }`}
-                >
-                  <span className="relative z-10">{link.label}</span>
-                </a>
-              ))}
-            </nav>
-          ) : (
+          {showNavSearch && (
             <div className="flex items-center bg-surface rounded-full pl-4 pr-1 py-1 w-full max-w-lg border border-gray-200 shadow-sm animate-in fade-in zoom-in duration-300">
               <input 
                 type="text" 
