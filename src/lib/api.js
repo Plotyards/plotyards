@@ -50,18 +50,31 @@ export const apiRequest = async (path, options = {}) => {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    cache: 'no-store',
-    ...options,
-    headers,
-    body: options.body instanceof FormData ? options.body : options.body ? JSON.stringify(options.body) : undefined
-  });
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      cache: 'no-store',
+      ...options,
+      headers,
+      body: options.body instanceof FormData ? options.body : options.body ? JSON.stringify(options.body) : undefined
+    });
+  } catch (error) {
+    throw new Error(`Network/Connection Error: ${error.message}. Please check if the server is running or if there's a CORS issue.`);
+  }
 
   const contentType = response.headers.get('content-type') || '';
   const data = contentType.includes('application/json') ? await response.json() : {};
 
   if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong');
+    let errorMessage = data.message;
+    if (!errorMessage) {
+      if (response.status === 401 || response.status === 403) {
+        errorMessage = 'Backend authentication failed. Please verify your login session or premium subscription status.';
+      } else {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+    }
+    throw new Error(errorMessage);
   }
 
   return data;

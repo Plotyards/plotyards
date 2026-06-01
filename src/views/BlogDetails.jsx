@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-import { ArrowLeft, CalendarDays, Clock, UserRound } from 'lucide-react';
+import { ArrowLeft, CalendarDays, ChevronRight, Clock, Facebook, FileText, Instagram, Link as LinkIcon, UserRound, Youtube } from 'lucide-react';
 
 import { apiRequest } from '../lib/api';
 
@@ -125,11 +125,35 @@ const BlogDetails = () => {
               <span className="inline-flex items-center gap-2"><Clock size={16} /> {blog.readingTime || 1} min read</span>
             </div>
 
-            <div className="mt-8 grid gap-6 text-[15px] font-medium leading-8 text-text">
-              {paragraphs.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
+            <div className="mt-8 space-y-6 text-base font-medium leading-8 text-text/80 lg:text-lg lg:leading-9">
+              {paragraphs.map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
               ))}
             </div>
+
+            {blog.socialLinks?.length > 0 && (
+              <div className="mt-8 rounded-2xl bg-surface p-6">
+                <h3 className="mb-4 text-sm font-extrabold uppercase tracking-widest text-muted">Follow Author on Social Media</h3>
+                <div className="flex flex-wrap items-center gap-4">
+                  {blog.socialLinks.map((link, index) => {
+                    const Icon = link.platform === 'instagram' ? Instagram : link.platform === 'facebook' ? Facebook : link.platform === 'youtube' ? Youtube : LinkIcon;
+                    const hoverColor = link.platform === 'instagram' ? 'hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50' : link.platform === 'facebook' ? 'hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50' : link.platform === 'youtube' ? 'hover:text-red-600 hover:border-red-200 hover:bg-red-50' : 'hover:text-primary hover:border-primary/20 hover:bg-primary/5';
+                    return (
+                      <a
+                        key={index}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`inline-flex items-center gap-2 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-extrabold text-text shadow-sm transition-all ${hoverColor}`}
+                      >
+                        <Icon size={18} />
+                        {link.label || 'Link'}
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {blog.tags?.length > 0 && (
               <div className="mt-8 flex flex-wrap gap-2 border-t border-border pt-6">

@@ -25,7 +25,8 @@ const emptyBlogForm = {
   coverImage: '',
   content: '',
   status: 'published',
-  featured: false
+  featured: false,
+  socialLinks: []
 };
 
 const splitTags = (value) => String(value || '')
@@ -100,7 +101,8 @@ const BlogManager = ({
       coverImage: blog.coverImage || '',
       content: blog.content || '',
       status: blog.status || 'published',
-      featured: Boolean(blog.featured)
+      featured: Boolean(blog.featured),
+      socialLinks: blog.socialLinks || []
     });
     setTagDraft('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -192,6 +194,28 @@ const BlogManager = ({
     }
   };
 
+  const addSocialLink = () => {
+    setForm((current) => ({
+      ...current,
+      socialLinks: [...(current.socialLinks || []), { platform: 'instagram', url: '', label: '' }]
+    }));
+  };
+
+  const updateSocialLink = (index, field, value) => {
+    setForm((current) => {
+      const nextLinks = [...(current.socialLinks || [])];
+      nextLinks[index] = { ...nextLinks[index], [field]: value };
+      return { ...current, socialLinks: nextLinks };
+    });
+  };
+
+  const removeSocialLink = (index) => {
+    setForm((current) => ({
+      ...current,
+      socialLinks: (current.socialLinks || []).filter((_, i) => i !== index)
+    }));
+  };
+
   const uploadCoverImage = async (event) => {
     const file = event.target.files?.[0];
     event.target.value = '';
@@ -262,8 +286,33 @@ const BlogManager = ({
       )}
 
       {status && (
-        <div className={`rounded-xl px-4 py-3 text-sm font-bold ${isErrorStatus ? 'bg-rose-50 text-primary' : 'bg-emerald-50 text-emerald-700'}`}>
-          {status}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+          <div className="w-full max-w-md scale-100 animate-in fade-in zoom-in-95 rounded-2xl bg-white p-6 shadow-2xl duration-200">
+            <div className="flex flex-col items-center text-center">
+              {isErrorStatus ? (
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 text-primary">
+                  <XCircle size={28} />
+                </div>
+              ) : (
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                  <CheckCircle2 size={28} />
+                </div>
+              )}
+              <h3 className={`text-xl font-extrabold ${isErrorStatus ? 'text-primary' : 'text-emerald-700'}`}>
+                {isErrorStatus ? 'Action Failed' : 'Success'}
+              </h3>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-muted">
+                {status}
+              </p>
+              <button
+                type="button"
+                onClick={() => setStatus('')}
+                className="mt-6 w-full rounded-xl bg-gray-900 px-5 py-3 text-sm font-extrabold text-white transition-colors hover:bg-gray-800"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -419,6 +468,54 @@ const BlogManager = ({
             </div>
             <p className="text-xs font-semibold leading-5 text-muted">Use focused SEO tags like plot investment, RERA, land documents, or location names.</p>
           </div>
+        </div>
+
+        <div className="grid content-start gap-3 text-sm font-bold text-text">
+          <div className="flex items-center justify-between gap-3">
+            <span>Social Links</span>
+            <button type="button" onClick={addSocialLink} disabled={!canCreate || saving} className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-extrabold text-primary transition-colors hover:bg-primary/20">
+              <Plus size={14} /> Add Link
+            </button>
+          </div>
+          {form.socialLinks?.length > 0 ? (
+            <div className="grid gap-3 rounded-2xl border border-border bg-surface p-4">
+              {form.socialLinks.map((link, index) => (
+                <div key={index} className="flex flex-col gap-3 rounded-xl border border-border bg-white p-3 sm:flex-row sm:items-center">
+                  <DropdownSelect
+                    value={link.platform}
+                    onChange={(value) => updateSocialLink(index, 'platform', value)}
+                    options={[
+                      { value: 'instagram', label: 'Instagram' },
+                      { value: 'facebook', label: 'Facebook' },
+                      { value: 'youtube', label: 'YouTube' },
+                      { value: 'other', label: 'Other' }
+                    ]}
+                    disabled={!canCreate || saving}
+                    className="min-w-[140px] [&>button]:min-h-[42px] [&>button]:bg-surface [&>button]:shadow-none"
+                  />
+                  <input
+                    value={link.label}
+                    onChange={(e) => updateSocialLink(index, 'label', e.target.value)}
+                    disabled={!canCreate || saving}
+                    className="flex-1 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold text-text outline-none transition-colors focus:border-primary disabled:opacity-60"
+                    placeholder="Label (e.g. My Insta)"
+                  />
+                  <input
+                    value={link.url}
+                    onChange={(e) => updateSocialLink(index, 'url', e.target.value)}
+                    disabled={!canCreate || saving}
+                    className="flex-1 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold text-text outline-none transition-colors focus:border-primary disabled:opacity-60"
+                    placeholder="Profile URL"
+                  />
+                  <button type="button" onClick={() => removeSocialLink(index)} disabled={!canCreate || saving} className="rounded-lg p-2 text-rose-500 transition-colors hover:bg-rose-50" aria-label="Remove link">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs font-semibold leading-5 text-muted">Add your Instagram, Facebook, or YouTube links to show in this post.</p>
+          )}
         </div>
 
         <label className="grid gap-1 text-sm font-bold text-text">
