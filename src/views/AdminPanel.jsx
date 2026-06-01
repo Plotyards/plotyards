@@ -214,6 +214,23 @@ const AdminPanel = () => {
     )));
   };
 
+  const handleDeleteProperty = async (propertyId) => {
+    if (!window.confirm('Delete this property permanently?')) return;
+    await apiRequest(`/properties/${propertyId}`, { method: 'DELETE' });
+    setFeatureProperties((current) => current.filter((item) => item._id !== propertyId));
+  };
+
+  const handleMarkSold = async (propertyId) => {
+    if (!window.confirm('Mark this property as sold out?')) return;
+    const data = await apiRequest(`/properties/${propertyId}`, {
+      method: 'PATCH',
+      body: { status: 'sold' }
+    });
+    setFeatureProperties((current) => current.map((item) => (
+      item._id === propertyId ? data.property : item
+    )));
+  };
+
   const toggleBrokerActive = async (broker) => {
     const data = await apiRequest(`/admin/users/${broker._id}`, {
       method: 'PATCH',
@@ -228,7 +245,7 @@ const AdminPanel = () => {
   const navItems = [
     ['stats', BarChart3, 'Analytics'],
     ['manageBrokers', Users, 'Manage Associate Partners'],
-    ['features', Star, 'Feature Properties'],
+    ['properties', Building2, 'Manage Properties'],
     ['blogs', FileText, 'Blogs'],
     ['announcement', Megaphone, 'Announcement'],
     ['topCities', Building2, 'Top Cities']
@@ -466,11 +483,11 @@ const AdminPanel = () => {
                   />
                 </div>
               </div>
-            ) : activeTab === 'features' ? (
+            ) : activeTab === 'properties' ? (
               <div className="grid gap-5">
                 <div>
-                  <h2 className="text-2xl font-extrabold text-text">Feature Properties</h2>
-                  <p className="mt-2 text-sm font-medium text-muted">Mark properties as featured so they receive a highlighted badge on listings.</p>
+                  <h2 className="text-2xl font-extrabold text-text">Manage Properties</h2>
+                  <p className="mt-2 text-sm font-medium text-muted">Manage all properties, mark them as featured, sold out, edit details or delete them.</p>
                 </div>
                 <div className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
                   <div className="overflow-x-auto">
@@ -481,7 +498,7 @@ const AdminPanel = () => {
                           <th className="px-4 py-3">Location</th>
                           <th className="px-4 py-3">Price</th>
                           <th className="px-4 py-3">Status</th>
-                          <th className="px-4 py-3 text-right">Featured</th>
+                          <th className="px-4 py-3 text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-black/10">
@@ -503,14 +520,39 @@ const AdminPanel = () => {
                               </span>
                             </td>
                             <td className="px-4 py-4 text-right align-top">
-                              <button
-                                type="button"
-                                onClick={() => toggleFeatureProperty(property)}
-                                className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold shadow-sm transition-colors ${property.featured ? 'bg-amber-600 text-white hover:bg-amber-700' : 'border border-amber-200 bg-white text-amber-700 hover:bg-amber-50'}`}
-                              >
-                                <Star size={16} />
-                                {property.featured ? 'Featured' : 'Feature'}
-                              </button>
+                              <div className="flex flex-wrap justify-end gap-2">
+                                {property.status !== 'sold' && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleMarkSold(property._id)}
+                                    className="inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition-colors border border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
+                                  >
+                                    Mark Sold
+                                  </button>
+                                )}
+                                <a
+                                  href={`/post-property?edit=${property._id}`}
+                                  className="inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition-colors border border-blue-200 bg-white text-blue-700 hover:bg-blue-50"
+                                >
+                                  Edit
+                                </a>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleFeatureProperty(property)}
+                                  className={`inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition-colors ${property.featured ? 'bg-amber-600 text-white hover:bg-amber-700' : 'border border-amber-200 bg-white text-amber-700 hover:bg-amber-50'}`}
+                                >
+                                  <Star size={14} />
+                                  {property.featured ? 'Featured' : 'Feature'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteProperty(property._id)}
+                                  className="inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition-colors border border-rose-200 bg-white text-rose-700 hover:bg-rose-50"
+                                >
+                                  <Trash2 size={14} />
+                                  Delete
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
