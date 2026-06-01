@@ -663,7 +663,7 @@ const Home = () => {
             </div>
             <div className="flex items-center gap-2 font-medium text-sm">
               <CheckCircle2 size={18} />
-              <span>{statsLoaded ? `${stats.totalBrokers.toLocaleString('en-IN')} Trusted associate partners` : 'Loading Trusted associate partners'}</span>
+              <span>{statsLoaded ? `${stats.totalBrokers.toLocaleString('en-IN')} Trusted Associate Partners` : 'Loading Trusted associate partners'}</span>
             </div>
           </div>
         </div>
@@ -836,14 +836,14 @@ const Home = () => {
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
             <h2 className="text-4xl lg:text-5xl font-extrabold mb-12 leading-tight">
-              Why 38,000+ buyers trust Plotyards every month.
+              Why 38,000+ Buyers Trust Plotyards Every Month.
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ShieldCheck className="text-primary" size={20} />
-                  <h3 className="font-bold text-lg">Only verified listings</h3>
+                  <h3 className="font-bold text-lg">Only Verified Listings</h3>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
                   Every plot is checked for approval, ownership and pricing before going live.
@@ -852,7 +852,7 @@ const Home = () => {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ShieldCheck className="text-primary" size={20} />
-                  <h3 className="font-bold text-lg">Direct associate partner contact</h3>
+                  <h3 className="font-bold text-lg">Direct Associate Partner Contact</h3>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
                   Call or WhatsApp associate partners directly - no middlemen, no spam routing.
@@ -861,7 +861,7 @@ const Home = () => {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ShieldCheck className="text-primary" size={20} />
-                  <h3 className="font-bold text-lg">Investment-grade filters</h3>
+                  <h3 className="font-bold text-lg">Investment-grade Filters</h3>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
                   Filter by approval, registry-readiness, zoning and per-sq-yd rate.
@@ -870,7 +870,7 @@ const Home = () => {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ShieldCheck className="text-primary" size={20} />
-                  <h3 className="font-bold text-lg">Free site visit help</h3>
+                  <h3 className="font-bold text-lg">Free Site Visit Help</h3>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
                   We coordinate visits and document checks with the associate partner on your behalf.
