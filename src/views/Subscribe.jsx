@@ -42,13 +42,13 @@ const Subscribe = () => {
     price: 'Rs. 11,000',
     period: '3 months',
     highlights: [
-      'Post up to 9 active plot listings',
-      'Instant automatic associate partner approval',
-      'No admin approval delay or queue',
-      'Direct WhatsApp chat button & click analytics',
-      'Premium social media promotion packages',
-      '9 Reels promotions & verified badges',
-      '100 buyer leads guarantee'
+      '6 Premium Property Listings (2 Verified/Month)',
+      '6 Professional UGC Advertisement Reels (2/Month)',
+      '100 Buyer Enquiries Guarantee',
+      'Featured on PlotYards Marketplace',
+      'Reels Published on PlotYards Media Channels',
+      'Collaboration Post with Broker’s Instagram',
+      'Dedicated Promotion for Your Plot Inventory'
     ]
   };
 
