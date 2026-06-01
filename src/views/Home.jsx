@@ -555,8 +555,8 @@ const Home = () => {
                   }}
                   className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
                     tab.label === activeSearchTab
-                      ? 'bg-text text-white' 
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-primary text-white' 
+                      : 'text-gray-600 hover:bg-red-100'
                   }`}
                 >
                   {tab.label}
