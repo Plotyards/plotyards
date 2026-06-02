@@ -22,14 +22,14 @@ export async function PATCH(request) {
 async function handleProxy(request) {
   try {
     // request.nextUrl.pathname is e.g. '/api/blogs'
-    // We strip the leading '/api' to get '/blogs'
-    const path = request.nextUrl.pathname.replace(/^\/api/, '');
+    // We strip the leading '/api/' or '/api' to get '/blogs'
+    const path = request.nextUrl.pathname.replace(/^\/api\/?/, '/');
     const searchParams = request.nextUrl.searchParams.toString();
     const query = searchParams ? `?${searchParams}` : '';
     
     // Construct the backend URL
     const backendBase = 'https://api.plotyards.com/api';
-    const targetUrl = `${backendBase}/${path}${query}`;
+    const targetUrl = `${backendBase}${path === '/' ? '' : path}${query}`;
 
     // Forward headers (except host)
     const headers = new Headers();
