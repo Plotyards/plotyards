@@ -6,15 +6,15 @@ import { apiRequest } from '../lib/api';
 const pageContent = {
   about: {
     title: 'About Plotyards',
-    intro: 'Plotyards helps buyers, sellers, and associate partners work through plot and land decisions with clearer listings, cleaner communication, and fewer blind spots.',
+    intro: 'Plot Yards is India\'s first dedicated plot marketplace, built to simplify the discovery, marketing, and purchase of plots, land, and farmland across the country.',
     sections: [
       {
-        heading: 'What We Do',
-        body: 'We bring plot listings, associate partner details, location context, and buyer enquiries into one place so people can compare opportunities without chasing scattered information.'
+        heading: 'Connecting the Ecosystem',
+        body: 'The platform connects buyers, sellers, developers, and real estate professionals through a technology-driven ecosystem focused exclusively on land transactions. By offering verified listings, project visibility, lead generation, and digital marketing solutions, Plot Yards brings transparency and efficiency to one of India\'s most fragmented real estate segments.'
       },
       {
-        heading: 'Our Approach',
-        body: 'Land buying is a serious decision. We focus on practical listing details, direct contact, verification signals, and a calmer search experience that helps buyers ask better questions before they visit a site.'
+        heading: 'Our Vision',
+        body: 'With a vision to become India\'s most trusted land marketplace, Plot Yards is transforming how people buy, sell, and invest in plots.'
       }
     ]
   },
