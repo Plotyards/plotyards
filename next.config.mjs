@@ -28,26 +28,7 @@ const nextConfig = {
       }
     ],
   },
-  async rewrites() {
-    // Determine the target backend URL for API proxying
-    // We strip any trailing '/api' so we can cleanly append '/api/:path*'
-    let backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.plotyards.com';
-    backendUrl = backendUrl.replace(/\/api\/?$/, '');
-    
-    // Ensure it has a protocol and is not empty or a relative path
-    if (!backendUrl || backendUrl.startsWith('/')) {
-      backendUrl = 'https://api.plotyards.com';
-    } else if (!backendUrl.startsWith('http')) {
-      backendUrl = `https://${backendUrl}`;
-    }
 
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${backendUrl}/api/:path*`, // Proxy to Backend
-      },
-    ];
-  },
 };
 
 export default nextConfig;
