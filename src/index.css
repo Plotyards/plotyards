@@ -7,12 +7,22 @@
     @apply bg-background text-text font-sans antialiased;
   }
 
+  /* Global Button Capitalization */
+  button,
+  [role="button"],
+  a[class*="bg-primary"],
+  a[class*="bg-secondary"],
+  a[class*="bg-text"],
+  input[type="submit"],
+  input[type="button"] {
+    text-transform: capitalize !important;
+  }
+
   /* Global Custom Scrollbar */
   html {
     scrollbar-width: thin;
     scrollbar-color: #f80e11 #f4f7f8;
   }
-
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;

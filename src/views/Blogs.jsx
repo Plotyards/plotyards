@@ -82,6 +82,7 @@ const Blogs = () => {
                 Real estate insights
               </span>
               <h1 className="text-2xl font-extrabold tracking-tight text-text md:mt-5 md:text-4xl lg:text-5xl">Spotlight</h1>
+              <p className="mt-2 text-sm font-medium leading-7 text-muted">Real Estate Insights</p>
             </div>
             <form onSubmit={handleSearchSubmit} className="flex w-full lg:max-w-md gap-2">
               <label className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-surface px-4 focus-within:border-primary/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 transition-all">
