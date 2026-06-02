@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, MapPin, ChevronDown, CheckCircle2, ShieldCheck, Heart, Camera, Check, Star, Download, Paperclip, Scale, BookOpen, ArrowRight, Menu, TrendingUp, Sparkles } from 'lucide-react';
+import { Search, MapPin, ChevronDown, CheckCircle2, ShieldCheck, Heart, Camera, Check, Star, Download, Paperclip, Scale, BookOpen, ArrowRight, Menu, TrendingUp, Sparkles, Share2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -778,8 +778,7 @@ const Home = () => {
                 <BookOpen size={14} />
                 Latest insights
               </p>
-              <h2 className="mt-2 text-xl md:text-3xl font-extrabold text-text md:mt-4">Blogs & Articles For Smarter Property Decisions</h2>
-              <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-muted">Read buyer checklists, investment guides, and associate partner-written location insights.</p>
+              <h2 className="mt-2 text-xl md:text-3xl font-extrabold text-text md:mt-4">Spotlight</h2>
             </div>
             <div className="hidden md:flex md:flex-wrap items-center gap-2 ">
               <Link href="/blogs" className="inline-flex  w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-extrabold text-white transition-colors hover:bg-rose-600">
@@ -801,7 +800,12 @@ const Home = () => {
                     <div className="p-3">
                       <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-primary">{blog.category || 'Real Estate'}</span>
                       <h3 className="mt-3 line-clamp-2 text-sm font-extrabold leading-tight text-text">{blog.title}</h3>
-                      <p className="mt-3 text-[11px] font-bold text-muted">{blog.readingTime || 1} min read</p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <p className="text-[11px] font-bold text-muted">{blog.readingTime || 1} min read</p>
+                        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); if(navigator.share) { navigator.share({ title: blog.title, url: `${window.location.origin}/blogs/${blog.slug}` }); } else { navigator.clipboard.writeText(`${window.location.origin}/blogs/${blog.slug}`); alert('Link copied!'); } }} className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-surface text-muted transition-colors hover:bg-primary/10 hover:text-primary">
+                          <Share2 size={12} />
+                        </button>
+                      </div>
                     </div>
                   </Link>
                 ))}
@@ -822,7 +826,12 @@ const Home = () => {
                   <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-primary md:px-3 md:text-xs">{blog.category || 'Real Estate'}</span>
                   <h3 className="mt-3 line-clamp-2 text-sm font-extrabold leading-tight text-text group-hover:text-primary md:mt-4 md:text-xl">{blog.title}</h3>
                   <p className="mt-2 hidden text-sm font-medium leading-7 text-muted md:line-clamp-3">{blog.excerpt}</p>
-                  <p className="mt-3 text-[10px] font-bold text-muted md:mt-5 md:text-xs">{blog.readingTime || 1} min read</p>
+                  <div className="mt-3 flex items-center justify-between md:mt-5">
+                    <p className="text-[10px] font-bold text-muted md:text-xs">{blog.readingTime || 1} min read</p>
+                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); if(navigator.share) { navigator.share({ title: blog.title, url: `${window.location.origin}/blogs/${blog.slug}` }); } else { navigator.clipboard.writeText(`${window.location.origin}/blogs/${blog.slug}`); alert('Link copied!'); } }} className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-surface text-muted transition-colors hover:bg-primary/10 hover:text-primary">
+                      <Share2 size={14} />
+                    </button>
+                  </div>
                 </div>
                 </Link>
               ))}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-import { ArrowRight, BookOpen, CalendarDays, Search } from 'lucide-react';
+import { ArrowRight, BookOpen, CalendarDays, Search, Share2 } from 'lucide-react';
 
 import { apiRequest, buildQuery } from '../lib/api';
 
@@ -136,15 +136,27 @@ const Blogs = () => {
                     <span className="rounded-full bg-amber-50 px-3 py-1 text-amber-700">Featured</span>
                   </div>
                   <h2 className="mt-4 text-2xl font-extrabold leading-tight text-text group-hover:text-primary md:text-3xl">{featuredBlog.title}</h2>
+                </div>
+                <div className="flex flex-col justify-center p-5 md:p-6 lg:p-8">
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wide">
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-primary">{featuredBlog.category}</span>
+                    <span className="rounded-full bg-amber-50 px-3 py-1 text-amber-700">Featured</span>
+                  </div>
+                  <h2 className="mt-4 text-2xl font-extrabold leading-tight text-text group-hover:text-primary md:text-3xl">{featuredBlog.title}</h2>
                   <p className="mt-3 line-clamp-3 text-sm font-medium leading-7 text-muted md:mt-4">{featuredBlog.excerpt}</p>
                   <div className="mt-5 flex flex-wrap items-center gap-4 text-xs font-bold text-muted">
                     <span className="inline-flex items-center gap-1"><CalendarDays size={14} /> {formatDate(featuredBlog.publishedAt || featuredBlog.createdAt)}</span>
                     <span>{featuredBlog.readingTime || 1} min read</span>
                     <span>{featuredBlog.author?.name || 'Plotyards'}</span>
                   </div>
-                  <span className="mt-6 inline-flex w-fit items-center gap-2 text-sm font-extrabold text-primary">
-                    Read article <ArrowRight size={16} />
-                  </span>
+                  <div className="mt-6 flex items-center justify-between">
+                    <span className="inline-flex w-fit items-center gap-2 text-sm font-extrabold text-primary">
+                      Read article <ArrowRight size={16} />
+                    </span>
+                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); if(navigator.share) { navigator.share({ title: featuredBlog.title, url: `${window.location.origin}/blogs/${featuredBlog.slug}` }); } else { navigator.clipboard.writeText(`${window.location.origin}/blogs/${featuredBlog.slug}`); alert('Link copied!'); } }} className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-surface text-muted transition-colors hover:bg-primary/10 hover:text-primary">
+                      <Share2 size={16} />
+                    </button>
+                  </div>
                 </div>
               </Link>
             )}
@@ -158,7 +170,12 @@ const Blogs = () => {
                   <div className="p-3">
                     <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-primary">{blog.category}</span>
                     <h3 className="mt-3 line-clamp-2 text-sm font-extrabold leading-tight text-text">{blog.title}</h3>
-                    <p className="mt-3 text-[11px] font-bold text-muted">{blog.readingTime || 1} min read</p>
+                    <div className="mt-3 flex items-center justify-between">
+                      <p className="text-[11px] font-bold text-muted">{blog.readingTime || 1} min read</p>
+                      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); if(navigator.share) { navigator.share({ title: blog.title, url: `${window.location.origin}/blogs/${blog.slug}` }); } else { navigator.clipboard.writeText(`${window.location.origin}/blogs/${blog.slug}`); alert('Link copied!'); } }} className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-surface text-muted transition-colors hover:bg-primary/10 hover:text-primary">
+                        <Share2 size={12} />
+                      </button>
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -174,9 +191,14 @@ const Blogs = () => {
                     <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-primary">{blog.category}</span>
                     <h3 className="mt-4 text-xl font-extrabold leading-tight text-text group-hover:text-primary">{blog.title}</h3>
                     <p className="mt-3 line-clamp-3 text-sm font-medium leading-7 text-muted">{blog.excerpt}</p>
-                    <div className="mt-5 flex flex-wrap items-center gap-3 text-xs font-bold text-muted">
-                      <span>{formatDate(blog.publishedAt || blog.createdAt)}</span>
-                      <span>{blog.readingTime || 1} min read</span>
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-xs font-bold text-muted">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span>{formatDate(blog.publishedAt || blog.createdAt)}</span>
+                        <span>{blog.readingTime || 1} min read</span>
+                      </div>
+                      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); if(navigator.share) { navigator.share({ title: blog.title, url: `${window.location.origin}/blogs/${blog.slug}` }); } else { navigator.clipboard.writeText(`${window.location.origin}/blogs/${blog.slug}`); alert('Link copied!'); } }} className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-surface text-muted transition-colors hover:bg-primary/10 hover:text-primary">
+                        <Share2 size={14} />
+                      </button>
                     </div>
                   </div>
                 </Link>
