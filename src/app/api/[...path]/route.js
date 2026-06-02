@@ -31,10 +31,11 @@ async function handleProxy(request) {
     const backendBase = 'https://api.plotyards.com/api';
     const targetUrl = `${backendBase}${path === '/' ? '' : path}${query}`;
 
-    // Forward headers (except host)
+    // Forward safe headers
     const headers = new Headers();
+    const unsafeHeaders = ['host', 'connection', 'content-length', 'transfer-encoding', 'accept-encoding'];
     request.headers.forEach((value, key) => {
-      if (key.toLowerCase() !== 'host') {
+      if (!unsafeHeaders.includes(key.toLowerCase())) {
         headers.set(key, value);
       }
     });
@@ -58,7 +59,9 @@ async function handleProxy(request) {
     // Create new response
     const resHeaders = new Headers();
     response.headers.forEach((value, key) => {
-      resHeaders.set(key, value);
+      if (!unsafeHeaders.includes(key.toLowerCase())) {
+        resHeaders.set(key, value);
+      }
     });
 
     return new NextResponse(responseBody, {
