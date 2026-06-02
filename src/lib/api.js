@@ -1,17 +1,10 @@
 const normalizeApiBaseUrl = (url) => String(url || '').replace(/\/+$/, '');
 
 const getBaseUrl = () => {
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
-    return '/api';
-  }
-  const url = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
-  if (url && !url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('/')) {
-    return `https://${url}`;
-  }
-  return url;
+  return 'https://api.plotyards.com/api';
 };
 
-const API_BASE_URL = normalizeApiBaseUrl(getBaseUrl());
+const API_BASE_URL = getBaseUrl();
 
 export const getToken = () => {
   if (typeof window !== 'undefined') return localStorage.getItem('token');
@@ -43,12 +36,10 @@ export const getStoredUser = () => {
 };
 
 export const apiRequest = async (path, options = {}) => {
-  if (!API_BASE_URL) {
-    throw new Error('NEXT_PUBLIC_API_URL is required for production builds.');
-  }
+  // Determine if we should bypass ngrok warning (not used for plotyards.com, but keeping it for local test)
+  const shouldBypassNgrokWarning = String(API_BASE_URL).includes('.ngrok-free.');
 
   const token = getToken();
-  const shouldBypassNgrokWarning = API_BASE_URL.includes('.ngrok-free.');
   const headers = {
     ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
     ...(shouldBypassNgrokWarning ? { 'ngrok-skip-browser-warning': 'true' } : {}),
