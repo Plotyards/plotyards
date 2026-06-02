@@ -7,6 +7,11 @@
     @apply bg-background text-text font-sans antialiased;
   }
 
+  /* Global Heading Capitalization */
+  h1, h2, h3, h4, h5, h6 {
+    text-transform: capitalize !important;
+  }
+
   /* Global Button Capitalization */
   button,
   [role="button"],

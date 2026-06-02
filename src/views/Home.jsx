@@ -778,8 +778,8 @@ const Home = () => {
                 <BookOpen size={14} />
                 Latest insights
               </p>
-              <h2 className="mt-2 text-xl md:text-3xl font-extrabold text-text md:mt-4">Spotlight</h2>
-              <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-muted">Real Estate Insights</p>
+              <h2 className="mt-2 text-xl md:text-3xl font-extrabold text-text md:mt-4 capitalize">Spotlight</h2>
+              <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-muted">Success Stories, Investment Guides & Industry Updates</p>
             </div>
             <div className="hidden md:flex md:flex-wrap items-center gap-2 ">
               <Link href="/blogs" className="inline-flex  w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-extrabold text-white transition-colors hover:bg-rose-600">
