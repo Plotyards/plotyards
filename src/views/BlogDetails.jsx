@@ -4,8 +4,19 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-import { ArrowLeft, CalendarDays, ChevronRight, Clock, Facebook, FileText, Instagram, Link as LinkIcon, UserRound, Youtube } from 'lucide-react';
+import { ArrowLeft, CalendarDays, ChevronRight, Clock, FileText, Link as LinkIcon, UserRound } from 'lucide-react';
 
+const FacebookIcon = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+);
+
+const InstagramIcon = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+);
+
+const YoutubeIcon = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2.5 7.1C2.5 7.1 2.5 5 4.6 4.6 5.8 4.3 12 4.3 12 4.3s6.2 0 7.4.3c2.1.4 2.1 2.5 2.1 2.5s.3 2 .3 4.9-0.3 4.9-0.3 4.9c0 0 0 2.1-2.1 2.5-1.2.3-7.4.3-7.4.3s-6.2 0-7.4-0.3c-2.1-0.4-2.1-2.5-2.1-2.5S2.2 14.1 2.2 11.2 2.5 7.1 2.5 7.1z"></path><polygon points="9.75 15.02 15.5 11.25 9.75 7.48 9.75 15.02"></polygon></svg>
+);
 import { apiRequest } from '../lib/api';
 
 const formatDate = (value) => {
@@ -136,7 +147,7 @@ const BlogDetails = () => {
                 <h3 className="mb-4 text-sm font-extrabold uppercase tracking-widest text-muted">Follow Author on Social Media</h3>
                 <div className="flex flex-wrap items-center gap-4">
                   {blog.socialLinks.map((link, index) => {
-                    const Icon = link.platform === 'instagram' ? Instagram : link.platform === 'facebook' ? Facebook : link.platform === 'youtube' ? Youtube : LinkIcon;
+                    const Icon = link.platform === 'instagram' ? InstagramIcon : link.platform === 'facebook' ? FacebookIcon : link.platform === 'youtube' ? YoutubeIcon : LinkIcon;
                     const hoverColor = link.platform === 'instagram' ? 'hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50' : link.platform === 'facebook' ? 'hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50' : link.platform === 'youtube' ? 'hover:text-red-600 hover:border-red-200 hover:bg-red-50' : 'hover:text-primary hover:border-primary/20 hover:bg-primary/5';
                     return (
                       <a
