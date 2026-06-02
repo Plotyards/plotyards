@@ -11,7 +11,7 @@ const BLOG_CATEGORIES = [
   'Investment Guide',
   'Buyer Checklist',
   'Location Strategy',
-  'Associate Partner Marketing',
+  'Real Estate Professional',
   'Market Trends',
   'Legal & Documents',
   'Real Estate News'
