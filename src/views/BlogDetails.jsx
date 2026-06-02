@@ -142,7 +142,7 @@ const BlogDetails = () => {
               <span className="inline-flex items-center gap-2"><UserRound size={16} /> {blog.author?.name || 'Plotyards Editorial'}</span>
               <span className="inline-flex items-center gap-2"><CalendarDays size={16} /> {formatDate(blog.publishedAt || blog.createdAt)}</span>
               <span className="inline-flex items-center gap-2"><Clock size={16} /> {blog.readingTime || 1} min read</span>
-              <button onClick={() => { if(navigator.share) { navigator.share({ title: blog.title, url: window.location.href }); } else { navigator.clipboard.writeText(window.location.href); alert('Link copied!'); } }} className="ml-auto inline-flex items-center gap-2 rounded-lg bg-surface px-3 py-1.5 transition-colors hover:bg-primary/10 hover:text-primary">
+              <button onClick={() => { const shareUrl = encodeURI(window.location.href); if(navigator.share) { navigator.share({ title: blog.title, url: shareUrl }); } else { navigator.clipboard.writeText(shareUrl); alert('Link copied!'); } }} className="ml-auto inline-flex items-center gap-2 rounded-lg bg-surface px-3 py-1.5 transition-colors hover:bg-primary/10 hover:text-primary">
                 <Share2 size={16} /> Share
               </button>
             </div>
