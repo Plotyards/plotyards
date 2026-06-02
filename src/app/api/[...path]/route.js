@@ -3,25 +3,27 @@ import { NextResponse } from 'next/server';
 export const maxDuration = 60; // Increase timeout if needed
 export const dynamic = 'force-dynamic';
 
-export async function GET(request, { params }) {
-  return handleProxy(request, params.path);
+export async function GET(request) {
+  return handleProxy(request);
 }
-export async function POST(request, { params }) {
-  return handleProxy(request, params.path);
+export async function POST(request) {
+  return handleProxy(request);
 }
-export async function PUT(request, { params }) {
-  return handleProxy(request, params.path);
+export async function PUT(request) {
+  return handleProxy(request);
 }
-export async function DELETE(request, { params }) {
-  return handleProxy(request, params.path);
+export async function DELETE(request) {
+  return handleProxy(request);
 }
-export async function PATCH(request, { params }) {
-  return handleProxy(request, params.path);
+export async function PATCH(request) {
+  return handleProxy(request);
 }
 
-async function handleProxy(request, pathArray) {
+async function handleProxy(request) {
   try {
-    const path = pathArray ? pathArray.join('/') : '';
+    // request.nextUrl.pathname is e.g. '/api/blogs'
+    // We strip the leading '/api' to get '/blogs'
+    const path = request.nextUrl.pathname.replace(/^\/api/, '');
     const searchParams = request.nextUrl.searchParams.toString();
     const query = searchParams ? `?${searchParams}` : '';
     
