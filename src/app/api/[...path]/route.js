@@ -70,6 +70,6 @@ async function handleProxy(request) {
     });
   } catch (error) {
     console.error('API Proxy Error:', error);
-    return NextResponse.json({ error: 'Internal Server Proxy Error' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Internal Server Proxy Error', stack: error.stack }, { status: 500 });
   }
 }
