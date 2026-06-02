@@ -84,7 +84,7 @@ const BlogDetails = () => {
           <div className="rounded-2xl border border-border bg-white p-8 text-center">
             <p className="text-lg font-extrabold text-text">Article not found</p>
             <p className="mt-2 text-sm font-medium text-muted">{error || 'This article may have been removed.'}</p>
-            <Link href="/blogs" className="mt-5 inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-extrabold text-white">Back to blogs</Link>
+            <Link href="/blogs" className="mt-5 inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-extrabold text-white capitalize">Back to blogs</Link>
           </div>
         </div>
       </div>

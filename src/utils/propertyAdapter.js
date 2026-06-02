@@ -63,7 +63,7 @@ export const adaptProperty = (property) => {
     corridor: property.corridor || property.location?.address || property.location?.state || 'Growth corridor',
     price: typeof property.price === 'string'
       ? property.price
-      : property.price?.label || `Rs. ${(priceValue / 100000).toFixed(2)} L`,
+      : property.price?.label || (priceValue >= 10000000 ? `Rs. ${(priceValue / 10000000).toFixed(2)} Cr` : `Rs. ${(priceValue / 100000).toFixed(2)} L`),
     priceValue,
     rate: property.rate || (sizeValue ? `Rs. ${Math.round(priceValue / sizeValue).toLocaleString('en-IN')} / sq.yd` : 'Price on request'),
     size: typeof property.size === 'string'
