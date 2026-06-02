@@ -534,8 +534,8 @@ const Dashboard = () => {
               ) : activeTab === 'blogs' ? (
                 <BlogManager
                   canCreate={!subscriptionLoading && activePlan === 'premium'}
-                  lockedMessage="Blogs and articles are available only for Premium Associate Partners. Upgrade to Premium to publish SEO articles, location guides, and property investment content."
-                  title="Associate Partner Blogs & Articles"
+                  lockedMessage="Spotlight is available only for Premium Associate Partners. Upgrade to Premium to publish SEO articles, location guides, and property investment content."
+                  title="Associate Partner Spotlight"
                   description="Premium Associate Partners can publish buyer guides and property investment articles on Plotyards."
                 />
               ) : activeTab === 'leads' ? (

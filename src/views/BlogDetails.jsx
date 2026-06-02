@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-import { ArrowLeft, CalendarDays, ChevronRight, Clock, FileText, Link as LinkIcon, UserRound } from 'lucide-react';
+import { ArrowLeft, CalendarDays, ChevronRight, Clock, FileText, Link as LinkIcon, UserRound, Share2 } from 'lucide-react';
 
 const FacebookIcon = ({ size = 24, className = "" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
@@ -134,6 +134,9 @@ const BlogDetails = () => {
               <span className="inline-flex items-center gap-2"><UserRound size={16} /> {blog.author?.name || 'Plotyards Editorial'}</span>
               <span className="inline-flex items-center gap-2"><CalendarDays size={16} /> {formatDate(blog.publishedAt || blog.createdAt)}</span>
               <span className="inline-flex items-center gap-2"><Clock size={16} /> {blog.readingTime || 1} min read</span>
+              <button onClick={() => { if(navigator.share) { navigator.share({ title: blog.title, url: window.location.href }); } else { navigator.clipboard.writeText(window.location.href); alert('Link copied!'); } }} className="ml-auto inline-flex items-center gap-2 rounded-lg bg-surface px-3 py-1.5 transition-colors hover:bg-primary/10 hover:text-primary">
+                <Share2 size={16} /> Share
+              </button>
             </div>
 
             <div className="mt-8 space-y-6 text-base font-medium leading-8 text-text/80 lg:text-lg lg:leading-9">

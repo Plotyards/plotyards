@@ -42,9 +42,9 @@ const Subscribe = () => {
     price: 'Rs. 11,000',
     period: '3 months',
     highlights: [
-      '6 Premium Property Listings (2 Verified/Month)',
-      '6 Professional UGC Advertisement Reels (2/Month)',
-      '100 Buyer Enquiries Guarantee',
+      '6 Active Listings',
+      '6 UGC Ad Reels',
+      '100 Buyers Inquiries',
       'Featured on PlotYards Marketplace',
       'Reels Published on PlotYards Media Channels',
       'Collaboration Post with Broker’s Instagram',
