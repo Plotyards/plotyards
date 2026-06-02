@@ -1,7 +1,10 @@
 const normalizeApiBaseUrl = (url) => String(url || '').replace(/\/+$/, '');
 
 const getBaseUrl = () => {
-  const url = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000/api');
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+    return '/api';
+  }
+  const url = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
   if (url && !url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('/')) {
     return `https://${url}`;
   }
