@@ -18,8 +18,33 @@ const nextConfig = {
         port: '5000',
         pathname: '/**',
       },
-      // You can add more domains if images come from elsewhere (e.g. AWS S3, Cloudinary)
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      }
     ],
+  },
+  async rewrites() {
+    // Determine the target backend URL for API proxying
+    // We strip any trailing '/api' so we can cleanly append '/api/:path*'
+    let backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    backendUrl = backendUrl.replace(/\/api\/?$/, '');
+    
+    // Ensure it has a protocol
+    if (backendUrl && !backendUrl.startsWith('http')) {
+      backendUrl = `https://${backendUrl}`;
+    }
+
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${backendUrl}/api/:path*`, // Proxy to Backend
+      },
+    ];
   },
 };
 

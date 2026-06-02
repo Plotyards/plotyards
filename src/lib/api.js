@@ -1,8 +1,14 @@
 const normalizeApiBaseUrl = (url) => String(url || '').replace(/\/+$/, '');
 
-const API_BASE_URL = normalizeApiBaseUrl(
-  process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000/api')
-);
+const getBaseUrl = () => {
+  const url = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000/api');
+  if (url && !url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('/')) {
+    return `https://${url}`;
+  }
+  return url;
+};
+
+const API_BASE_URL = normalizeApiBaseUrl(getBaseUrl());
 
 export const getToken = () => {
   if (typeof window !== 'undefined') return localStorage.getItem('token');

@@ -303,7 +303,7 @@ const Dashboard = () => {
       period: '3 months',
       accent: 'border-primary bg-white ring-2 ring-primary/10',
       cta: 'Pay with Razorpay',
-      highlights: ['9 active listings', '9 reels promotion', '100 leads guarantee', 'Auto associate partner approval'],
+      highlights: ['6 Active Listings', '6 UGC Ad Reels', '100 Buyers Inquiries', 'Auto associate partner approval'],
       icon: CreditCard
     }
   ];
