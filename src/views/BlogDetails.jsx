@@ -67,6 +67,14 @@ const BlogDetails = () => {
     };
   }, [slug]);
 
+  useEffect(() => {
+    if (blog) {
+      document.title = `${blog.title} | Plotyards`;
+    } else if (error) {
+      document.title = 'Article Not Found | Plotyards';
+    }
+  }, [blog, error]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-surface pt-32 pb-16">
@@ -114,9 +122,9 @@ const BlogDetails = () => {
     <div className="min-h-screen bg-surface pt-28 pb-16">
       
       <div className="container mx-auto max-w-5xl px-6 lg:px-12">
-        <Link href="/blogs" className="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-extrabold text-text shadow-sm transition-colors hover:border-primary hover:text-primary">
+        <Link href="/blogs" className="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-extrabold text-text shadow-sm transition-colors hover:border-primary hover:text-primary capitalize">
           <ArrowLeft size={16} />
-          Back to blogs
+          Back To Blogs
         </Link>
 
         <article className="mt-6 overflow-hidden rounded-[2rem] border border-border bg-white shadow-sm">
