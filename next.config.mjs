@@ -28,7 +28,14 @@ const nextConfig = {
       }
     ],
   },
-
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://api.plotyards.com/api/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

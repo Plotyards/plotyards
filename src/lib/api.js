@@ -1,6 +1,9 @@
 const normalizeApiBaseUrl = (url) => String(url || '').replace(/\/+$/, '');
 
 const getBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    return '/api';
+  }
   return 'https://api.plotyards.com/api';
 };
 
