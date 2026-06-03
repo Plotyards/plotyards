@@ -32,7 +32,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://api.plotyards.com/api/:path*',
+        destination: 'http://187.127.175.192:5000/api/:path*',
       },
     ];
   },
