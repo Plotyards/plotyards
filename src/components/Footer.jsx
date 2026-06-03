@@ -80,7 +80,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-muted text-sm">
-            Copyright {new Date().getFullYear()} Plotyards. All rights reserved.
+            Copyright {new Date().getFullYear()} Plotyards. All Rights Reserved.
           </p>
           <div className="flex items-center gap-2 text-sm text-muted">
             <span>Built for Premium Investments</span>
