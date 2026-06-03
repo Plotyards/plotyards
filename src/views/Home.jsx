@@ -462,7 +462,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="relative w-full pt-3">
+        <div className="relative w-full">
           <div className="relative h-[190px] w-full overflow-hidden bg-secondary shadow-sm">
             <img src="/hero-bg.jpg" alt="Premium plots" className="h-full w-full object-cover object-bottom" />
             <div className="absolute inset-0 bg-gradient-to-b from-secondary/80 via-secondary/50 to-secondary/80 mix-blend-multiply"></div>
