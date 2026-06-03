@@ -346,7 +346,7 @@ const Listings = () => {
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') applySearchToUrl();
                 }}
-                placeholder="Search plots in Gurugram"
+                placeholder="Search Plots In Gurugram"
                 className="min-w-0 flex-1 bg-transparent text-sm font-bold text-text outline-none placeholder:text-muted"
               />
             </label>
@@ -454,7 +454,7 @@ const Listings = () => {
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') applySearchToUrl();
                 }}
-                placeholder="Search locality, project, or associate partner"
+                placeholder="Search Locality, Project, Or Associate Partner"
                 className="w-full bg-transparent text-sm font-semibold text-text outline-none placeholder:text-muted"
               />
             </label>

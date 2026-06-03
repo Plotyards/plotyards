@@ -487,7 +487,7 @@ const Home = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder='Search "plots for sale in Gurugram"'
+                placeholder='Search "Plots For Sale In Gurugram"'
                 className="min-w-0 flex-1 bg-transparent text-[15px] font-semibold text-text outline-none placeholder:text-muted"
               />
               <button type="submit" aria-label="Search plots" className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-primary">
@@ -511,7 +511,7 @@ const Home = () => {
             type="text"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder='Search "plots for sale in Gurugram"'
+            placeholder='Search "Plots For Sale In Gurugram"'
             className="min-w-0 flex-1 bg-transparent text-sm font-bold text-text outline-none placeholder:text-muted"
           />
           <button type="submit" aria-label="Search plots" className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-primary">
@@ -618,7 +618,7 @@ const Home = () => {
                       submitSearch();
                     }
                   }}
-                  placeholder="Search &quot;Shadnagar&quot;, &quot;Devanahalli&quot;, or any locality" 
+                  placeholder="Search &quot;Shadnagar&quot;, &quot;Devanahalli&quot;, Or Any Locality" 
                   className="bg-transparent border-none outline-none text-text w-full placeholder-gray-400 font-medium text-sm" 
                 />
               </div>
