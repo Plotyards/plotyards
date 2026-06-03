@@ -37,10 +37,10 @@ const homeMoreLinks = [
 
 const heroSearchTabs = [
   { label: 'Plots', type: 'Residential' },
-  { label: 'Farmland', type: 'Farm Land' },
+  { label: 'Farm Land', type: 'Farm Land' },
   { label: 'Industrial Land', query: 'Industrial Land' },
   { label: 'Commercial Plots', type: 'Commercial' },
-  { label: 'New Projects', query: 'New Projects' }
+  { label: 'New Launch', query: 'New Projects' }
 ];
 
 const Home = () => {
@@ -462,14 +462,14 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="relative px-2 pt-3">
-          <div className="relative h-[190px] overflow-hidden rounded-lg bg-secondary/10 shadow-sm">
+        <div className="relative w-full pt-3">
+          <div className="relative h-[190px] w-full overflow-hidden bg-secondary/10 shadow-sm">
             <img src="/hero-bg.jpg" alt="Premium plots" className="h-full w-full object-cover object-center" />
             <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/55 to-white/10"></div>
             <div className="absolute left-5 top-6 max-w-[85%]">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">New launch</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">New Launch</p>
               <h1 className="mt-2 text-[22px] font-black leading-tight text-text">India's First <span className="block text-primary">Plot Marketplace</span></h1>
-              <p className="mt-2 text-xs font-bold leading-5 text-muted">Buy, Sell & Discover <span className="text-green-600">Verified Plots</span> Across India.</p>
+              <p className="mt-2 text-xs font-bold leading-5 text-muted">Buy, Sell & Discover <span className="text-white bg-primary px-1.5 py-0.5 rounded font-bold">Verified Plots</span> Across India.</p>
             </div>
           </div>
 
