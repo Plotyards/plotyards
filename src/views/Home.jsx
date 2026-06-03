@@ -463,13 +463,14 @@ const Home = () => {
         </div>
 
         <div className="relative w-full pt-3">
-          <div className="relative h-[190px] w-full overflow-hidden bg-secondary/10 shadow-sm">
-            <img src="/hero-bg.jpg" alt="Premium plots" className="h-full w-full object-cover object-center" />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/55 to-white/10"></div>
-            <div className="absolute left-5 top-6 max-w-[85%]">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">New Launch</p>
-              <h1 className="mt-2 text-[22px] font-black leading-tight text-text">India's First <span className="block text-primary">Plot Marketplace</span></h1>
-              <p className="mt-2 text-xs font-bold leading-5 text-muted">Buy, Sell & Discover <span className="text-white bg-primary px-1.5 py-0.5 rounded font-bold">Verified Plots</span> Across India.</p>
+          <div className="relative h-[190px] w-full overflow-hidden bg-secondary shadow-sm">
+            <img src="/hero-bg.jpg" alt="Premium plots" className="h-full w-full object-cover object-bottom" />
+            <div className="absolute inset-0 bg-gradient-to-b from-secondary/80 via-secondary/50 to-secondary/80 mix-blend-multiply"></div>
+            <div className="absolute inset-0 bg-black/20"></div>
+            <div className="absolute left-5 top-6 max-w-[85%] z-10">
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-white/90">New Launch</p>
+              <h1 className="mt-2 text-[22px] font-black leading-tight text-white">India's First <span className="block text-white">Plot Marketplace</span></h1>
+              <p className="mt-2 text-xs font-bold leading-5 text-white/90">Buy, Sell & Discover <span className="text-white bg-primary px-1.5 py-0.5 rounded font-bold">Verified Plots</span> Across India.</p>
             </div>
           </div>
 
@@ -670,7 +671,7 @@ const Home = () => {
       </section>
 
       {/* Featured Plots Section */}
-      <section className="px-6 py-8 md:py-20 lg:px-12 max-w-[1400px] mx-auto">
+      <section className="px-6 py-8 md:py-10 lg:px-12 max-w-[1400px] mx-auto">
         {/* Category Icons Navigation */}
         <div className="mb-12 hidden overflow-x-auto no-scrollbar gap-8 border-b border-border pb-4 md:flex">
           {featuredCategories.map((cat) => (
@@ -734,7 +735,7 @@ const Home = () => {
 
       {/* Explore top cities */}
       {topCities.length > 0 && (
-      <section className="my-6 px-6 py-9 md:my-10 md:py-12 lg:px-12 max-w-[1400px] mx-auto bg-gray-50/50 rounded-[3rem]">
+      <section className="my-6 px-6 py-9 md:my-6 md:py-8 lg:px-12 max-w-[1400px] mx-auto bg-gray-50/50 rounded-[3rem]">
         <div className="mb-8">
           <h2 className="text-3xl font-extrabold text-text mb-2">Explore Plots In Top Cities</h2>
           <p className="text-gray-500 font-medium">Where investors are putting their money in 2026</p>
@@ -758,7 +759,7 @@ const Home = () => {
       )}
 
       {/* Trending Projects Section */}
-      <section className="px-6 py-9 md:py-20 lg:px-12 max-w-[1400px] mx-auto">
+      <section className="px-6 py-9 md:py-10 lg:px-12 max-w-[1400px] mx-auto">
         <div className="mb-5 md:mb-8">
           <h2 className="text-3xl font-extrabold text-text mb-2">Trending Projects</h2>
           <p className="text-gray-500 font-medium">Most-viewed plot layouts this week</p>
@@ -771,7 +772,7 @@ const Home = () => {
       </section>
 
       {latestBlogs.length > 0 && (
-        <section className="px-6 py-6 md:py-14 lg:px-12 max-w-[1400px] mx-auto">
+        <section className="px-6 py-6 md:py-10 lg:px-12 max-w-[1400px] mx-auto">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-primary">
@@ -842,7 +843,7 @@ const Home = () => {
       )}
 
       {/* Trust Section */}
-      <section className="bg-secondary text-white py-20 mt-20">
+      <section className="bg-secondary text-white py-12 mt-12">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
             <h2 className="text-4xl lg:text-5xl font-extrabold mb-12 leading-tight">

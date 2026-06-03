@@ -64,14 +64,14 @@ const MobileBottomNav = () => {
                 aria-current={isActive ? 'page' : undefined}
                 className={`group flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 text-[11px] font-extrabold transition-colors ${
                   isActive ? 'text-primary' : 'text-gray-500 hover:text-text'
-                } ${item.isPrimary ? '-mt-4 text-text' : ''}`}
+                }`}
               >
                 <span className={`flex items-center justify-center transition-all ${
                   item.isPrimary
-                    ? 'h-12 w-12 rounded-full bg-primary text-white shadow-lg shadow-primary/25 ring-4 ring-white'
+                    ? 'h-9 w-9 rounded-2xl bg-primary text-white shadow-md shadow-primary/25'
                     : `h-9 w-9 rounded-2xl ${isActive ? 'bg-primary/10 text-primary' : 'text-gray-500 group-hover:bg-gray-100'}`
                 }`}>
-                  <Icon size={item.isPrimary ? 25 : 22} strokeWidth={isActive ? 2.6 : 2.1} fill={isActive && !item.isPrimary ? 'currentColor' : 'none'} />
+                  <Icon size={22} strokeWidth={isActive ? 2.6 : 2.1} fill={isActive && !item.isPrimary ? 'currentColor' : 'none'} />
                 </span>
                 <span className="truncate leading-none">{item.label}</span>
               </Link>
