@@ -73,7 +73,7 @@ const MobileBottomNav = () => {
                 }`}>
                   <Icon size={item.isPrimary ? 24 : 22} strokeWidth={isActive ? 2.6 : 2.1} fill={isActive && !item.isPrimary ? 'currentColor' : 'none'} />
                 </span>
-                <span className="truncate leading-none">{item.label}</span>
+                {!item.isPrimary && <span className="truncate leading-none">{item.label}</span>}
               </Link>
             );
           })}

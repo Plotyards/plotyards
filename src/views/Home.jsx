@@ -772,7 +772,7 @@ const Home = () => {
       </section>
 
       {latestBlogs.length > 0 && (
-        <section className="px-6 py-6 md:py-10 lg:px-12 max-w-[1400px] mx-auto">
+        <section className="hidden md:block px-6 py-6 md:py-10 lg:px-12 max-w-[1400px] mx-auto">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-primary">
