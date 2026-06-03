@@ -71,7 +71,7 @@ const MobileBottomNav = () => {
                     ? 'h-10 w-10 rounded-2xl bg-primary text-white shadow-md shadow-primary/25'
                     : `h-9 w-9 rounded-2xl ${isActive ? 'bg-primary/10 text-primary' : 'text-gray-500 group-hover:bg-gray-100'}`
                 }`}>
-                  <Icon size={item.isPrimary ? 24 : 22} strokeWidth={isActive ? 2.6 : 2.1} fill={isActive && !item.isPrimary ? 'currentColor' : 'none'} />
+                  <Icon size={item.isPrimary ? 28 : 22} strokeWidth={isActive ? 2.6 : 2.1} fill={isActive && !item.isPrimary ? 'currentColor' : 'none'} />
                 </span>
                 {!item.isPrimary && <span className="truncate leading-none">{item.label}</span>}
               </Link>
