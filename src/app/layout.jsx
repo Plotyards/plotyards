@@ -13,7 +13,7 @@ import ScrollToTop from '../components/ScrollToTop';
 export const metadata = {
   title: {
     template: '%s | Plotyards',
-    default: 'Plotyards - Real Estate & Investment',
+    default: "Plotyards - India's First Plot Marketplace",
   },
   description: 'Find the best land, properties, and investment opportunities in India. Compare real estate vs stock market ROI.',
   verification: {
@@ -25,8 +25,8 @@ import { Suspense } from 'react';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-background text-text flex flex-col antialiased">
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning className="min-h-screen bg-background text-text flex flex-col antialiased">
         <Providers>
           <Suspense fallback={null}>
             <ScrollToTop />
