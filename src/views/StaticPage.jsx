@@ -6,17 +6,8 @@ import { apiRequest } from '../lib/api';
 const pageContent = {
   about: {
     title: 'About Plotyards',
-    intro: 'Plot Yards is India\'s first dedicated plot marketplace, built to simplify the discovery, marketing, and purchase of plots, land, and farmland across the country.',
-    sections: [
-      {
-        heading: 'Connecting the Ecosystem',
-        body: 'The platform connects buyers, sellers, developers, and real estate professionals through a technology-driven ecosystem focused exclusively on land transactions. By offering verified listings, project visibility, lead generation, and digital marketing solutions, Plot Yards brings transparency and efficiency to one of India\'s most fragmented real estate segments.'
-      },
-      {
-        heading: 'Our Vision',
-        body: 'With a vision to become India\'s most trusted land marketplace, Plot Yards is transforming how people buy, sell, and invest in plots.'
-      }
-    ]
+    intro: 'Plotyards is India\'s first dedicated plot marketplace, built to simplify the discovery, marketing, and purchase of plots, land, and farmland across the country.\n\nThe platform connects buyers, sellers, developers, and real estate professionals through a technology-driven ecosystem focused exclusively on land transactions. By offering verified listings, project visibility, lead generation, and digital marketing solutions, Plotyards brings transparency and efficiency to one of India\'s most fragmented real estate segments.\n\nWith a vision to become India\'s most trusted land marketplace, Plotyards is transforming how people buy, sell, and invest in plots.',
+    sections: []
   },
   privacy: {
     title: 'Privacy Policy - Plotyards',
@@ -205,7 +196,7 @@ const StaticPage = ({ type }) => {
         <div className="rounded-[2rem] border border-border bg-white p-8 shadow-sm">
           <h1 className="text-3xl font-extrabold text-text">{isContact ? 'Contact Plotyards' : content.title}</h1>
           {!isContact && content.updated && <p className="mt-2 text-xs font-bold uppercase tracking-wide text-primary">{content.updated}</p>}
-          <p className="mt-4 text-sm font-medium leading-7 text-muted">
+          <p className="mt-4 text-sm font-medium leading-7 text-muted whitespace-pre-wrap">
             {isContact ? 'Tell us what you need. We can help with listings, associate partner onboarding, visits, approvals, and account questions.' : content.intro}
           </p>
 

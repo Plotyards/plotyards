@@ -9,8 +9,8 @@ import { useAuth } from '../context/auth';
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/listings', label: 'Explore', icon: Search },
-  { href: '/post-property', label: 'Sell/Rent', icon: PlusSquare, isPrimary: true },
-  { href: '/blogs', label: 'Articles', icon: Lightbulb }
+  { href: '/post-property', label: 'Post Property', icon: PlusSquare, isPrimary: true },
+  { href: '/blogs', label: 'Spotlight', icon: Lightbulb }
 ];
 
 const MobileBottomNav = () => {
