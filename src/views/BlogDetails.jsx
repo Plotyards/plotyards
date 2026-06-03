@@ -59,7 +59,7 @@ const BlogDetails = () => {
     };
 
     loadBlog();
-    const interval = setInterval(loadBlog, 3000);
+    const interval = setInterval(loadBlog, 30000);
     
     return () => {
       cancelled = true;

@@ -184,6 +184,143 @@ const Listings = () => {
         if (isMounted) {
           setRemoteProperties([]);
           setUsingFallback(true);
+
+  useEffect(() => {
+  const requestedPage = Number(searchParams.get('page') || 1);
+  const currentPage = Number.isFinite(requestedPage) && requestedPage > 0 ? Math.floor(requestedPage) : 1;
+
+  const urlFilters = useMemo(() => {
+    const filters = {};
+    listingFilterKeys.forEach((key) => {
+      const value = searchParams.get(key);
+      if (value) {
+        filters[key] = value;
+      }
+    });
+    return filters;
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!user) return undefined;
+
+    let cancelled = false;
+
+    apiRequest('/favourites')
+      .then((data) => {
+        if (!cancelled) {
+          setFavoriteIds(new Set(data.favourites.map((item) => String(item.property._id || item.property.id))));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFavoriteIds(new Set());
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const dbHasProperties = stats.totalProperties > 0 || remoteProperties.length > 0;
+  const canShowDemoListings = statsLoaded && !loading && !usingFallback && stats.totalProperties === 0 && remoteProperties.length === 0;
+  const visibleListingsSource = useMemo(() => {
+    if (dbHasProperties) return remoteProperties;
+    if (canShowDemoListings) return propertyListings;
+    return [];
+  }, [dbHasProperties, remoteProperties, canShowDemoListings]);
+
+  const sortedListings = useMemo(() => {
+    const source = advancedPropertySearch(visibleListingsSource, query, urlFilters);
+    const list = [...source];
+    const featuredFirst = (a, b) => (
+      Number(Boolean(b.featured)) - Number(Boolean(a.featured))
+      || Number(Boolean(b.approved)) - Number(Boolean(a.approved))
+    );
+
+    if (sortBy === 'price-low') {
+      return list.sort((a, b) => featuredFirst(a, b) || (a.priceValue || 0) - (b.priceValue || 0));
+    }
+
+    if (sortBy === 'price-high') {
+      return list.sort((a, b) => featuredFirst(a, b) || (b.priceValue || 0) - (a.priceValue || 0));
+    }
+
+    return list.sort((a, b) => (
+      featuredFirst(a, b)
+      || (b.viewsCount || 0) - (a.viewsCount || 0)
+      || (b.priceValue || 0) - (a.priceValue || 0)
+    ));
+  }, [query, sortBy, urlFilters, visibleListingsSource]);
+
+  const pageCount = Math.max(1, Math.ceil(sortedListings.length / LISTINGS_PAGE_SIZE));
+  const safePage = Math.min(currentPage, pageCount);
+  const pageStart = (safePage - 1) * LISTINGS_PAGE_SIZE;
+  const paginatedListings = sortedListings.slice(pageStart, pageStart + LISTINGS_PAGE_SIZE);
+  const visibleStart = sortedListings.length > 0 ? pageStart + 1 : 0;
+  const visibleEnd = pageStart + paginatedListings.length;
+  const paginationItems = useMemo(() => {
+    const pages = pageCount <= 7
+      ? Array.from({ length: pageCount }, (_, index) => index + 1)
+      : [...new Set([1, safePage - 1, safePage, safePage + 1, pageCount].filter((page) => page >= 1 && page <= pageCount))]
+        .sort((a, b) => a - b);
+
+    return pages.reduce((items, page, index) => {
+      if (index > 0 && page - pages[index - 1] > 1) {
+        items.push(`gap-${pages[index - 1]}-${page}`);
+      }
+      items.push(page);
+      return items;
+    }, []);
+  }, [pageCount, safePage]);
+
+  const suggestedProperties = useMemo(() => {
+    const source = visibleListingsSource.length ? visibleListingsSource : propertyListings;
+    const featured = source.filter((p) => p.featured);
+    return (featured.length ? featured : source).slice(0, 5);
+  }, [visibleListingsSource]);
+
+  const cityFilterOptions = useMemo(() => {
+    const source = dbHasProperties ? remoteProperties : canShowDemoListings ? propertyListings : [];
+    const cityNames = [...new Set(source.map((property) => property.city).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    return [{ value: '', label: 'All cities' }, ...cityNames.map((city) => ({ value: city, label: city }))];
+  }, [remoteProperties, dbHasProperties, canShowDemoListings]);
+
+  const activeFilterBadges = useMemo(() => ([
+    urlFilters.city && `City: ${urlFilters.city}`,
+    urlFilters.type && `Type: ${urlFilters.type}`,
+    urlFilters.minPrice && `Min Rs ${Number(urlFilters.minPrice).toLocaleString('en-IN')}`,
+    urlFilters.maxPrice && `Max Rs ${Number(urlFilters.maxPrice).toLocaleString('en-IN')}`,
+    urlFilters.approvedOnly === 'true' && 'Approved only'
+  ].filter(Boolean)), [urlFilters]);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    // Only set loading true on initial mount or filter change, not on background polls
+    setLoading(true);
+
+    const loadProperties = async () => {
+      try {
+        const data = await apiRequest(`/properties${buildQuery({
+          limit: 500,
+          city: urlFilters.city,
+          propertyType: urlFilters.type ? propertyTypeToApiValue(urlFilters.type) : undefined,
+          approvedOnly: urlFilters.approvedOnly,
+          minPrice: urlFilters.minPrice,
+          maxPrice: urlFilters.maxPrice,
+          minSize: urlFilters.minSize,
+          maxSize: urlFilters.maxSize
+        })}`);
+        
+        if (isMounted) {
+          setRemoteProperties(adaptProperties(data.properties));
+          setUsingFallback(false);
+        }
+      } catch {
+        if (isMounted) {
+          setRemoteProperties([]);
+          setUsingFallback(true);
         }
       } finally {
         if (isMounted) setLoading(false);
@@ -191,13 +328,13 @@ const Listings = () => {
     };
 
     loadProperties();
-    const interval = setInterval(loadProperties, 3000);
+    const interval = setInterval(loadProperties, 30000);
 
     return () => {
       isMounted = false;
       clearInterval(interval);
     };
-  }, [urlFilters]); // 'query' is handled client-side in useMemo sortedListings, API query takes urlFilters
+  }, [urlFilters]);
 
   useEffect(() => {
     let isMounted = true;
@@ -209,15 +346,14 @@ const Listings = () => {
               totalProperties: data.totalProperties,
               totalBrokers: data.totalBrokers
             });
+            setStatsLoaded(true);
           }
-        })
-        .catch(() => {})
-        .finally(() => isMounted && setStatsLoaded(true));
+        });
     };
 
     loadStats();
-    const interval = setInterval(loadStats, 3000);
-    
+    const interval = setInterval(loadStats, 30000);
+
     return () => {
       isMounted = false;
       clearInterval(interval);

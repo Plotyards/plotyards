@@ -254,8 +254,8 @@ const Home = () => {
     };
 
     fetchAllData();
-    // Poll every 3 seconds for seamless real-time updates
-    const interval = setInterval(fetchAllData, 3000);
+    // Poll every 30 seconds for seamless real-time updates
+    const interval = setInterval(fetchAllData, 30000);
 
     return () => {
       isMounted = false;

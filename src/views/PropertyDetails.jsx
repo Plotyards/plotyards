@@ -285,7 +285,7 @@ const PropertyDetails = () => {
     };
 
     loadProperty();
-    const interval = setInterval(loadProperty, 3000);
+    const interval = setInterval(loadProperty, 30000);
 
     return () => {
       isMounted = false;
