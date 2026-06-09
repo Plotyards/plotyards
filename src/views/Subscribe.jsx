@@ -208,8 +208,7 @@ const Subscribe = () => {
             </div>
           </div>
           
-          {!hasActivePlan && (
-            <div className="mt-4 flex items-center justify-between border-y border-gray-100 py-4">
+          <div className="mt-4 flex items-center justify-between border-y border-gray-100 py-4">
               <span className="text-sm font-bold text-text">Package Quantity</span>
               <div className="flex items-center gap-3 bg-gray-50 p-1 rounded-xl border border-gray-100">
                 <button
@@ -228,12 +227,11 @@ const Subscribe = () => {
                 </button>
               </div>
             </div>
-          )}
 
           {hasActivePlan && (
             <div className="mt-4 border-y border-primary/20 bg-primary/5 p-4 rounded-xl">
               <p className="text-sm font-extrabold text-primary flex items-center gap-2">
-                <Plus size={16} /> Add another 6 listings to the existing plan
+                <Plus size={16} /> Add another {6 * quantity} listings to the existing plan
               </p>
               <p className="mt-1 text-xs font-semibold text-muted">
                 Validity will be extended by 3 months from your current expiry date.
