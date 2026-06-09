@@ -26,7 +26,11 @@ const Login = () => {
 
     try {
       const user = await login(form);
-      redirectUser(user);
+      if (user?.role === 'admin') {
+        navigate.push('/plotadmin');
+      } else {
+        navigate.push('/dashboard');
+      }
     } catch (err) {
       if (err.fieldErrors) {
         const fields = {};
