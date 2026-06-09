@@ -29,10 +29,11 @@ const nextConfig = {
     ],
   },
   async rewrites() {
+    const isProd = process.env.NODE_ENV === 'production';
     return [
       {
         source: '/api/:path*',
-        destination: 'http://187.127.175.192:5000/api/:path*',
+        destination: isProd ? 'http://187.127.175.192/api/:path*' : 'http://localhost:5000/api/:path*',
       },
     ];
   },

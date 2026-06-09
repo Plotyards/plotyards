@@ -17,6 +17,8 @@ const Register = () => {
     address: ''
   });
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [popup, setPopup] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useRouter();
   const { register } = useAuth();
@@ -24,6 +26,8 @@ const Register = () => {
   const handleRegister = async (event) => {
     event.preventDefault();
     setError('');
+    setFieldErrors({});
+    setPopup(null);
     setLoading(true);
 
     try {
@@ -44,7 +48,17 @@ const Register = () => {
 
       navigate.push(user.role === 'broker' ? '/subscribe' : '/');
     } catch (err) {
-      setError(err.message);
+      if (err.fieldErrors) {
+        const fields = {};
+        err.fieldErrors.forEach(e => { fields[e.field || e.param] = e.message || e.msg });
+        setFieldErrors(fields);
+        setError('Please check the highlighted fields and try again.');
+      } else {
+        setError(err.message);
+        if (err.message.toLowerCase().includes('already') || err.message.toLowerCase().includes('exists')) {
+          setPopup({ type: 'error', message: err.message });
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -68,7 +82,7 @@ const Register = () => {
             </p>
           </div>
 
-          {error && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-bold text-primary">{error}</p>}
+          {error && !popup && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-bold text-primary">{error}</p>}
 
           <div className="grid grid-cols-2 gap-2 rounded-2xl bg-gray-50 p-1">
             {[
@@ -93,18 +107,26 @@ const Register = () => {
           <div>
             <label className="block text-sm font-bold text-text mb-1">Full Name</label>
             <input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium" placeholder="John Doe" required />
+            {fieldErrors.name && <p className="mt-1 text-xs text-primary font-bold">{fieldErrors.name}</p>}
           </div>
           <div>
             <label className="block text-sm font-bold text-text mb-1">Email</label>
             <input value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} type="email" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium" placeholder="invest@example.com" required />
+            {fieldErrors.email && <p className="mt-1 text-xs text-primary font-bold">{fieldErrors.email}</p>}
           </div>
           <div>
             <label className="block text-sm font-bold text-text mb-1">Mobile Number</label>
             <input value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} type="tel" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium" placeholder="+91 98765 43210" required />
+            {fieldErrors.phone && <p className="mt-1 text-xs text-primary font-bold">{fieldErrors.phone}</p>}
           </div>
           <div>
             <label className="block text-sm font-bold text-text mb-1">Password</label>
-            <input value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} type="password" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium" placeholder="Password" minLength={8} required />
+            <input value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} type="password" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium" placeholder="Minimum 8 characters" minLength={8} required />
+            {fieldErrors.password ? (
+              <p className="mt-1 text-xs text-primary font-bold">{fieldErrors.password}</p>
+            ) : (
+              <p className="mt-1 text-xs text-gray-400 font-medium">Minimum 8 characters required</p>
+            )}
           </div>
 
           {accountType === 'broker' && (
@@ -132,6 +154,24 @@ const Register = () => {
           </div>
         </form>
       </div>
+
+      {popup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200 text-center">
+            <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${popup.type === 'error' ? 'bg-rose-100 text-primary' : 'bg-green-100 text-green-600'}`}>
+              <span className="text-2xl font-bold">!</span>
+            </div>
+            <h3 className="mb-2 text-xl font-extrabold text-text">{popup.type === 'error' ? 'Oops!' : 'Success'}</h3>
+            <p className="mb-6 text-sm font-medium text-gray-500">{popup.message}</p>
+            <button
+              onClick={() => setPopup(null)}
+              className="w-full rounded-xl bg-gray-900 py-3 text-sm font-bold text-white transition-colors hover:bg-black"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

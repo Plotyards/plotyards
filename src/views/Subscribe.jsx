@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CheckCircle2, CreditCard, ShieldCheck, TrendingUp, XCircle } from 'lucide-react';
+import { CheckCircle2, CreditCard, ShieldCheck, TrendingUp, XCircle, Plus, Minus } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 
@@ -31,20 +31,22 @@ const loadRazorpayCheckout = () => new Promise((resolve) => {
 });
 
 const Subscribe = () => {
-  const { user, updateMe, refreshMe } = useAuth();
+  const { user, loading: authLoading, updateMe, refreshMe } = useAuth();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
+  const [popup, setPopup] = useState(null);
+  const [quantity, setQuantity] = useState(1);
   const navigate = useRouter();
 
   const premiumPlan = {
     id: 'premium',
     name: 'Premium Associate Partner Plan',
-    price: 'Rs. 11,000',
+    price: `Rs. ${(11000 * quantity).toLocaleString('en-IN')}`,
     period: '3 months',
     highlights: [
-      '6 Active Listings',
-      '6 UGC Ad Reels',
-      '100 Buyers Inquiries',
+      `${6 * quantity} Active Listings`,
+      `${6 * quantity} UGC Ad Reels`,
+      `${100 * quantity} Buyers Inquiries`,
       'Featured on PlotYards Marketplace',
       'Reels Published on PlotYards Media Channels',
       'Collaboration Post with Broker’s Instagram',
@@ -52,12 +54,27 @@ const Subscribe = () => {
     ]
   };
 
+  const [mounted, setMounted] = useState(false);
+  
   useEffect(() => {
-    // If buyer is not logged in, redirect to login
+    setMounted(true);
+  }, []);
+
+  const hasActivePlan = mounted && user?.brokerProfile?.subscriptionPlan && user?.brokerProfile?.subscriptionPlan !== 'free';
+
+  useEffect(() => {
+    if (hasActivePlan) {
+      setQuantity(1);
+    }
+  }, [hasActivePlan]);
+
+  useEffect(() => {
+    // Wait for auth to finish loading before checking
+    if (authLoading) return;
     if (!user) {
       navigate.push('/login?from=/subscribe');
     }
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   const openRazorpayCheckout = async (subscriptionData) => {
     const isLoaded = await loadRazorpayCheckout();
@@ -113,26 +130,37 @@ const Subscribe = () => {
   };
 
   const handleSubscribe = async () => {
+    if (!user) {
+      navigate.push('/login?from=/subscribe');
+      return;
+    }
+
     try {
       setLoading(true);
+      setLoading(true);
       setStatus('');
+      setPopup(null);
       const data = await apiRequest('/service/subscriptions', { 
         method: 'POST', 
-        body: { plan: 'premium' } 
+        body: { plan: 'premium', quantity } 
       });
 
       if (data.payment?.provider === 'razorpay' && data.payment?.order?.id) {
-        setStatus('Opening Razorpay checkout...');
         const verified = await openRazorpayCheckout(data);
         await refreshMe();
-        navigate.push('/dashboard?tab=overview');
+        setPopup({ type: 'success', title: 'Premium Activated', message: verified.message || 'Premium plan activated successfully.' });
         return;
       }
 
       await refreshMe();
       navigate.push('/dashboard?tab=overview');
     } catch (error) {
-      setStatus(error.message || 'Unable to start subscription payment.');
+      const msg = error.message || '';
+      if (msg.toLowerCase().includes('authentication') || msg.toLowerCase().includes('not authorized') || msg.toLowerCase().includes('log in')) {
+        navigate.push('/login?from=/subscribe');
+        return;
+      }
+      setPopup({ type: 'error', title: 'Payment Failed', message: msg || 'Unable to start subscription payment.' });
     } finally {
       setLoading(false);
     }
@@ -141,7 +169,6 @@ const Subscribe = () => {
   const handleContinueAsUser = async () => {
     try {
       setLoading(true);
-      setStatus('Switching account to buyer...');
       await updateMe({ downgradeToUser: true });
       navigate.push('/');
     } catch (error) {
@@ -168,24 +195,53 @@ const Subscribe = () => {
           </p>
         </div>
 
-        {status && (
-          <p className={`rounded-xl p-3 text-sm font-bold mb-5 z-10 ${status.toLowerCase().includes('unable') || status.toLowerCase().includes('cancelled') ? 'bg-rose-50 text-primary' : 'bg-green-50 text-green-700'}`}>
-            {status}
-          </p>
-        )}
-
         <div className="flex flex-col rounded-2xl border border-primary/20 bg-white p-6 shadow-sm relative z-10 ring-4 ring-primary/[0.03]">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="text-lg font-extrabold text-text">{premiumPlan.name}</h3>
-              <div className="mt-4 flex items-end gap-2">
-                <p className="text-4xl font-extrabold text-text">{premiumPlan.price}</p>
-                <p className="pb-1 text-sm font-bold text-muted">/ {premiumPlan.period}</p>
+              <div className="mt-4 flex flex-col gap-1">
+                <div className="flex items-end gap-2">
+                  <p className="text-4xl font-extrabold text-text">{premiumPlan.price}</p>
+                  <p className="pb-1 text-sm font-bold text-muted">/ {premiumPlan.period}</p>
+                </div>
               </div>
             </div>
           </div>
+          
+          {!hasActivePlan && (
+            <div className="mt-4 flex items-center justify-between border-y border-gray-100 py-4">
+              <span className="text-sm font-bold text-text">Package Quantity</span>
+              <div className="flex items-center gap-3 bg-gray-50 p-1 rounded-xl border border-gray-100">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-gray-600 hover:text-primary hover:bg-rose-50 border border-gray-200 transition-colors"
+                  disabled={quantity <= 1}
+                >
+                  <Minus size={16} />
+                </button>
+                <span className="w-6 text-center font-extrabold text-lg">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-gray-600 hover:text-primary hover:bg-rose-50 border border-gray-200 transition-colors"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+            </div>
+          )}
 
-          <div className="mt-6 space-y-3">
+          {hasActivePlan && (
+            <div className="mt-4 border-y border-primary/20 bg-primary/5 p-4 rounded-xl">
+              <p className="text-sm font-extrabold text-primary flex items-center gap-2">
+                <Plus size={16} /> Add another 6 listings to the existing plan
+              </p>
+              <p className="mt-1 text-xs font-semibold text-muted">
+                Validity will be extended by 3 months from your current expiry date.
+              </p>
+            </div>
+          )}
+
+          <div className="mt-5 space-y-3">
             {premiumPlan.highlights.map((item) => (
               <p key={item} className="flex items-start gap-2 text-xs font-bold text-muted leading-tight">
                 <CheckCircle2 size={15} className="text-emerald-600 mt-0.5 flex-shrink-0" />
@@ -209,7 +265,7 @@ const Subscribe = () => {
             disabled={loading}
             className="mt-6 w-full bg-primary hover:bg-rose-600 disabled:opacity-60 text-white font-bold py-3.5 rounded-xl transition-colors shadow-md flex items-center justify-center gap-2"
           >
-            {loading ? 'Processing...' : 'Subscribe with Razorpay'}
+            {loading ? 'Processing...' : hasActivePlan ? 'Upgrade Plan' : 'Subscribe with Razorpay'}
           </button>
           
           <p className="mt-3 text-center text-[10px] font-semibold text-muted">
@@ -232,6 +288,29 @@ const Subscribe = () => {
           </button>
         </p>
       </div>
+
+      {popup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200 text-center">
+            <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${popup.type === 'error' ? 'bg-rose-100 text-primary' : 'bg-green-100 text-green-600'}`}>
+              <span className="text-2xl font-bold">!</span>
+            </div>
+            <h3 className="mb-2 text-xl font-extrabold text-text">{popup.title || (popup.type === 'error' ? 'Oops!' : 'Success')}</h3>
+            <p className="mb-6 text-sm font-medium text-gray-500">{popup.message}</p>
+            <button
+              onClick={() => {
+                setPopup(null);
+                if (popup.type === 'success') {
+                  navigate.push('/dashboard?tab=overview');
+                }
+              }}
+              className="w-full rounded-xl bg-gray-900 py-3 text-sm font-bold text-white transition-colors hover:bg-black"
+            >
+              {popup.type === 'success' ? 'Continue to Dashboard' : 'Close'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

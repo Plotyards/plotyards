@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle } from 'lucide-react';
+import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle, Plus, Minus } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 import { adaptProperty, adaptProperties } from '../utils/propertyAdapter';
@@ -84,7 +84,7 @@ const Dashboard = () => {
   const [inquiries, setInquiries] = useState([]);
   const [favourites, setFavourites] = useState([]);
   const [historyItems, setHistoryItems] = useState([]);
-  const [subscriptionStatus, setSubscriptionStatus] = useState('');
+  const [popup, setPopup] = useState(null);
   const [currentSubscription, setCurrentSubscription] = useState(null);
   const [currentPlan, setCurrentPlan] = useState(normalizePlan(user?.brokerProfile?.subscriptionPlan));
   const [subscriptionLoading, setSubscriptionLoading] = useState(isBroker);
@@ -92,6 +92,8 @@ const Dashboard = () => {
   const [loadingUserData, setLoadingUserData] = useState(isUser);
   const [brokerRequestStatus, setBrokerRequestStatus] = useState('');
   const [brokerRequesting, setBrokerRequesting] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [subscriptionHistory, setSubscriptionHistory] = useState([]);
 
   useEffect(() => {
     if (isBroker) {
@@ -107,10 +109,12 @@ const Dashboard = () => {
         .then((data) => {
           setCurrentSubscription(data.subscription);
           setCurrentPlan(normalizePlan(data.plan));
+          setSubscriptionHistory(data.history || []);
         })
         .catch(() => {
           setCurrentSubscription(null);
           setCurrentPlan(normalizePlan(user?.brokerProfile?.subscriptionPlan));
+          setSubscriptionHistory([]);
         })
         .finally(() => setSubscriptionLoading(false));
       return;
@@ -163,7 +167,7 @@ const Dashboard = () => {
         amount: payment.amount,
         currency: payment.currency,
         name: 'Plotyards',
-        description: 'Premium Plan - 3 months',
+        description: `Premium Plan - 3 months (Quantity: ${currentSubscription?.quantity || 1})`,
         order_id: payment.order.id,
         prefill: {
           name: user?.name || '',
@@ -206,19 +210,17 @@ const Dashboard = () => {
     if (shouldRefreshUser) {
       await refreshMe();
     }
-    setSubscriptionStatus(message);
+    setPopup({ type: 'success', title: 'Plan Updated', message });
     setActiveTab('overview');
   };
 
   const createSubscription = async (plan) => {
     try {
       setSubscriptionUpdating(plan);
-      setSubscriptionStatus('');
-      const data = await apiRequest('/service/subscriptions', { method: 'POST', body: { plan } });
+      const data = await apiRequest('/service/subscriptions', { method: 'POST', body: { plan, quantity } });
 
       if (data.payment?.provider === 'razorpay' && data.payment?.order?.id) {
         setCurrentSubscription(data.subscription);
-        setSubscriptionStatus('Opening Razorpay checkout...');
         const verified = await openRazorpayCheckout(data);
         setCurrentSubscription(verified.subscription);
         setCurrentPlan(normalizePlan(verified.plan));
@@ -230,7 +232,15 @@ const Dashboard = () => {
       setCurrentPlan(normalizePlan(data.plan || plan));
       await finishSubscriptionSelection(data.payment?.message || `${data.plan || plan} plan activated.`, Boolean(data.user));
     } catch (error) {
-      setSubscriptionStatus(error.message || 'Unable to update subscription.');
+      setPopup({ type: 'error', title: 'Action Failed', message: error.message || 'Unable to update subscription.' });
+      // Refetch the original subscription state since payment failed
+      try {
+        const resetData = await apiRequest('/service/subscriptions/me');
+        setCurrentSubscription(resetData.subscription);
+        setCurrentPlan(normalizePlan(resetData.plan));
+      } catch (err) {
+        console.error('Failed to reset subscription state', err);
+      }
     } finally {
       setSubscriptionUpdating('');
     }
@@ -299,11 +309,11 @@ const Dashboard = () => {
     {
       id: 'premium',
       name: 'Premium Plan',
-      price: 'Rs. 11,000',
+      price: `Rs. ${(11000 * quantity).toLocaleString('en-IN')}`,
       period: '3 months',
       accent: 'border-primary bg-white ring-2 ring-primary/10',
       cta: 'Pay with Razorpay',
-      highlights: ['6 Active Listings', '6 UGC Ad Reels', '100 Buyers Inquiries', 'Auto associate partner approval'],
+      highlights: [`${6 * quantity} Active Listings`, `${6 * quantity} UGC Ad Reels`, `${100 * quantity} Buyers Inquiries`, 'Auto associate partner approval'],
       icon: CreditCard
     }
   ];
@@ -387,27 +397,55 @@ const Dashboard = () => {
                     <div className="grid grid-cols-3 gap-3 rounded-2xl border border-border bg-white p-4 shadow-sm">
                       <div>
                         <HomeIcon size={18} className="text-primary" />
-                        <p className="mt-2 text-xl font-extrabold text-text">{activePlan === 'premium' ? 9 : 0}</p>
+                        <p className="mt-2 text-xl font-extrabold text-text">{activePlan === 'premium' ? 6 * (currentSubscription?.quantity || 1) : 0}</p>
                         <p className="text-xs font-bold text-muted">Listings</p>
                       </div>
                       <div>
                         <Video size={18} className="text-secondary" />
-                        <p className="mt-2 text-xl font-extrabold text-text">{activePlan === 'premium' ? 9 : 0}</p>
+                        <p className="mt-2 text-xl font-extrabold text-text">{activePlan === 'premium' ? 6 * (currentSubscription?.quantity || 1) : 0}</p>
                         <p className="text-xs font-bold text-muted">Reels</p>
                       </div>
                       <div>
                         <Users size={18} className="text-emerald-600" />
-                        <p className="mt-2 text-xl font-extrabold text-text">{activePlan === 'premium' ? 100 : 0}</p>
+                        <p className="mt-2 text-xl font-extrabold text-text">{activePlan === 'premium' ? 100 * (currentSubscription?.quantity || 1) : 0}</p>
                         <p className="text-xs font-bold text-muted">Leads</p>
                       </div>
                     </div>
-                  </div>
 
-                  {subscriptionStatus && (
-                    <p className={`rounded-xl p-3 text-sm font-bold ${subscriptionStatus.toLowerCase().includes('unable') || subscriptionStatus.toLowerCase().includes('required') || subscriptionStatus.toLowerCase().includes('cancelled') ? 'bg-rose-50 text-primary' : 'bg-green-50 text-green-700'}`}>
-                      {subscriptionStatus}
-                    </p>
-                  )}
+                    {subscriptionHistory.length > 0 && (
+                      <div className="rounded-2xl border border-border bg-white p-5 shadow-sm lg:col-span-2">
+                        <p className="text-xs font-extrabold uppercase tracking-wide text-muted mb-4">Subscription & Payment History</p>
+                        <div className="space-y-4">
+                          {subscriptionHistory.map((sub, index) => {
+                            const previousQuantity = index > 0 ? (subscriptionHistory[index - 1].quantity || 1) : 0;
+                            const addedQuantity = Math.max(1, (sub.quantity || 1) - previousQuantity);
+                            return (
+                              <div key={sub._id || index} className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border last:border-0 pb-4 last:pb-0">
+                                <div>
+                                  <p className="font-bold text-text">
+                                    {index > 0 ? 'Plan Upgraded/Renewed' : 'Plan Activated'}
+                                  </p>
+                                  <p className="text-xs font-semibold text-muted">
+                                    Purchased on {formatDate(sub.createdAt)}
+                                  </p>
+                                </div>
+                                <div className="mt-2 sm:mt-0 text-left sm:text-right">
+                                  <p className="text-sm font-extrabold text-primary">
+                                    + {6 * addedQuantity} Listings Added
+                                  </p>
+                                  {sub.expiresAt && (
+                                    <p className="text-xs font-bold text-muted">
+                                      Valid until {formatDate(sub.expiresAt)}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   <div className="flex justify-center w-full">
                     {subscriptionPlans.map((plan) => {
@@ -435,7 +473,42 @@ const Dashboard = () => {
                             )}
                           </div>
 
+                          {plan.id === 'premium' && !isActivePlan && (
+                            <div className="mt-4 flex items-center justify-between border-y border-gray-100 py-4">
+                              <span className="text-sm font-bold text-text">Package Quantity</span>
+                              <div className="flex items-center gap-3 bg-gray-50 p-1 rounded-xl border border-gray-100">
+                                <button
+                                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-gray-600 hover:text-primary hover:bg-rose-50 border border-gray-200 transition-colors"
+                                  disabled={quantity <= 1 || isUpdating}
+                                >
+                                  <Minus size={16} />
+                                </button>
+                                <span className="w-6 text-center font-extrabold text-lg">{quantity}</span>
+                                <button
+                                  onClick={() => setQuantity(quantity + 1)}
+                                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-gray-600 hover:text-primary hover:bg-rose-50 border border-gray-200 transition-colors"
+                                  disabled={isUpdating}
+                                >
+                                  <Plus size={16} />
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {plan.id === 'premium' && isActivePlan && (
+                            <div className="mt-4 border-y border-primary/20 bg-primary/5 p-4 rounded-xl">
+                              <p className="text-sm font-extrabold text-primary flex items-center gap-2">
+                                <Plus size={16} /> Add another 6 listings to the existing plan
+                              </p>
+                              <p className="mt-1 text-xs font-semibold text-muted">
+                                Validity will be extended by 3 months from your current expiry date.
+                              </p>
+                            </div>
+                          )}
+
                           <div className="mt-6 grid gap-3">
+
                             {plan.highlights.map((item) => (
                               <p key={item} className="flex items-center gap-2 text-sm font-bold text-muted">
                                 <CheckCircle2 size={16} className="text-emerald-600" />
@@ -455,11 +528,11 @@ const Dashboard = () => {
                           )}
 
                           <button
-                            onClick={() => handlePlanSelect(plan, isActivePlan)}
+                            onClick={() => createSubscription(plan.id)}
                             disabled={isUpdating}
-                            className={`mt-6 w-full rounded-xl py-3 font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${isActivePlan ? 'bg-gray-100 text-muted hover:bg-gray-200' : 'bg-primary text-white hover:bg-rose-600'}`}
+                            className={`mt-6 w-full rounded-xl py-3 font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-70 bg-primary text-white hover:bg-rose-600`}
                           >
-                            {isUpdating ? 'Processing...' : isActivePlan ? 'Continue to Dashboard' : plan.cta}
+                            {isUpdating ? 'Processing...' : isActivePlan ? 'Upgrade Plan with Razorpay' : plan.cta}
                           </button>
                           {plan.id === 'premium' && (
                             <p className="mt-3 text-center text-xs font-semibold text-muted">
@@ -640,31 +713,6 @@ const Dashboard = () => {
                       <p className="mt-1 text-xs font-medium text-muted">New property inquiries will appear here with buyer and listing details.</p>
                     </div>
                   )}
-
-                  <div className="hidden">
-                  <h2 className="text-2xl font-extrabold text-text mb-5">Leads</h2>
-                  {inquiries.map((lead) => (
-                    <div key={lead._id} className="border-t border-border py-4 first:border-t-0">
-                      <p className="font-bold text-text">{lead.name} - {lead.phone}</p>
-                      {lead.property && (
-                        <Link
-                          href={`/property/${lead.property._id}`}
-                          className="mt-1 block text-sm font-bold text-primary hover:text-rose-600"
-                        >
-                          {lead.property.title}
-                        </Link>
-                      )}
-                      {lead.property?.location && (
-                        <p className="text-xs font-semibold text-muted">
-                          {[lead.property.location.locality, lead.property.location.city].filter(Boolean).join(', ')}
-                          {lead.property.price?.label ? ` - ${lead.property.price.label}` : ''}
-                        </p>
-                      )}
-                      <p className="text-sm text-muted">{lead.message || 'Interested in property'}</p>
-                    </div>
-                  ))}
-                  {!inquiries.length && <p className="text-sm font-bold text-muted">No leads yet.</p>}
-                </div>
                 </div>
               ) : (
                 <div className="space-y-8">
@@ -774,6 +822,24 @@ const Dashboard = () => {
           </main>
         </div>
       </div>
+
+      {popup && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200 text-center">
+            <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${popup.type === 'error' ? 'bg-rose-100 text-primary' : 'bg-green-100 text-green-600'}`}>
+              <span className="text-2xl font-bold">!</span>
+            </div>
+            <h3 className="mb-2 text-xl font-extrabold text-text">{popup.title || (popup.type === 'error' ? 'Oops!' : 'Success')}</h3>
+            <p className="mb-6 text-sm font-medium text-gray-500">{popup.message}</p>
+            <button
+              onClick={() => setPopup(null)}
+              className="w-full rounded-xl bg-gray-900 py-3 text-sm font-bold text-white transition-colors hover:bg-black"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

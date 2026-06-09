@@ -4,7 +4,7 @@ const getBaseUrl = () => {
   if (typeof window !== 'undefined') {
     return '/api';
   }
-  return 'https://api.plotyards.com/api';
+  return process.env.NODE_ENV === 'production' ? 'http://187.127.175.192/api' : 'http://localhost:5000/api';
 };
 
 const API_BASE_URL = getBaseUrl();
@@ -70,14 +70,28 @@ export const apiRequest = async (path, options = {}) => {
 
   if (!response.ok) {
     let errorMessage = data.message;
+
+    // Include field-level validation errors from express-validator
+    if (Array.isArray(data.errors) && data.errors.length > 0) {
+      const fieldErrors = data.errors
+        .map((e) => e.message || e.msg)
+        .filter(Boolean)
+        .join('. ');
+      errorMessage = fieldErrors || errorMessage;
+    }
+
     if (!errorMessage) {
       if (response.status === 401 || response.status === 403) {
-        errorMessage = 'Backend authentication failed. Please verify your login session or premium subscription status.';
+        errorMessage = 'Authentication failed. Please log in again.';
       } else {
         errorMessage = `Request failed with status ${response.status}`;
       }
     }
-    throw new Error(errorMessage);
+    const err = new Error(errorMessage);
+    if (Array.isArray(data.errors)) {
+      err.fieldErrors = data.errors;
+    }
+    throw err;
   }
 
   return data;

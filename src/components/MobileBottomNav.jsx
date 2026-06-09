@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Home, Lightbulb, Loader2, PlusSquare, Search, User, X } from 'lucide-react';
@@ -17,6 +17,12 @@ const MobileBottomNav = () => {
   const pathname = usePathname() || '/';
   const navigate = useRouter();
   const { user, login, logout } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [loginForm, setLoginForm] = useState({ identifier: '', password: '' });
@@ -84,12 +90,12 @@ const MobileBottomNav = () => {
             className={`group flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 text-[11px] font-extrabold transition-colors ${
               isProfileActive ? 'text-primary' : 'text-gray-500 hover:text-text'
             }`}
-            aria-label={user ? 'Open dashboard' : 'Open login and sign up'}
+            aria-label={(mounted && user) ? 'Open dashboard' : 'Open login and sign up'}
           >
             <span className={`flex h-9 w-9 items-center justify-center rounded-2xl transition-all ${
               isProfileActive ? 'bg-primary/10 text-primary' : 'text-gray-500 group-hover:bg-gray-100'
             }`}>
-              {user ? (
+              {(mounted && user) ? (
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-xs font-extrabold uppercase text-white">
                   {user.name?.charAt(0) || 'B'}
                 </span>

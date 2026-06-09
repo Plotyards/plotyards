@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { useAuth } from '../context/auth';
@@ -36,7 +36,13 @@ const ProtectedRoute = ({ children, roles = [], loginPath = '/login', requireAdm
     }
   }, [loading, loginPath, pathname, requireAdminEntry, roles, router, user]);
 
-  if (loading) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-surface pt-32 text-center text-sm font-bold text-muted">
         Loading...

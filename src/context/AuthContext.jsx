@@ -53,6 +53,24 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
+  const sendOtp = async (phone) => {
+    const data = await apiRequest('/auth/send-otp', {
+      method: 'POST',
+      body: { phone }
+    });
+    return data;
+  };
+
+  const verifyOtp = async (phone, otp, payload = {}) => {
+    const data = await apiRequest('/auth/verify-otp', {
+      method: 'POST',
+      body: { phone, otp, ...payload }
+    });
+    setSession(data);
+    setUser(data.user);
+    return data.user;
+  };
+
   const updateMe = async (payload) => {
     const data = await apiRequest('/auth/me', {
       method: 'PATCH',
@@ -84,6 +102,8 @@ export const AuthProvider = ({ children }) => {
     isAdmin: user?.role === 'admin' || user?.isAdmin,
     login,
     register,
+    sendOtp,
+    verifyOtp,
     updateMe,
     refreshMe,
     logout
