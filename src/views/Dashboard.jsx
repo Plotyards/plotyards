@@ -545,7 +545,7 @@ const Dashboard = () => {
 
                           <button
                             onClick={() => createSubscription(plan.id)}
-                            disabled={isUpdating || (plan.id === 'free' && activePlan === 'premium') || isActivePlan}
+                            disabled={isUpdating || (plan.id === 'free' && activePlan !== '')}
                             className={`mt-8 w-full font-extrabold py-4 rounded-[1.5rem] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 ${plan.id === 'premium' ? 'bg-primary text-white shadow-[6px_6px_12px_rgba(248,14,17,0.3),-6px_-6px_12px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.2)]' : 'bg-[#f0f4f8] text-gray-700 shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.1),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]'}`}
                           >
                             {isUpdating ? 'Processing...' : (isActivePlan && plan.id === 'premium' ? 'Upgrade Plan with Razorpay' : isActivePlan ? 'Current Plan' : plan.cta)}
