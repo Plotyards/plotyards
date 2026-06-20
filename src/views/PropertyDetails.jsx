@@ -199,7 +199,8 @@ const PropertyDetails = () => {
         console.error('Failed to log inquiry:', err);
       }
     }
-    window.open(`https://wa.me/${activeBroker.whatsapp}`, '_blank');
+    const message = encodeURIComponent(`Hi, I am interested in your property "${property.title}" listed on Plotyards.`);
+    window.open(`https://wa.me/${activeBroker.whatsapp}?text=${message}`, '_blank');
   };
 
   const handleShare = async () => {

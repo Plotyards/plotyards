@@ -312,7 +312,8 @@ const Home = () => {
                 event.preventDefault();
                 event.stopPropagation();
                 const num = plot.broker?.whatsapp?.replace(/\D/g, '') || '918287697756';
-                window.open(`https://wa.me/${num}`, '_blank');
+                const message = encodeURIComponent(`Hi, I am interested in your property "${plot.title}" listed on Plotyards.`);
+                window.open(`https://wa.me/${num}?text=${message}`, '_blank');
               }}
               className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-gray-600 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-[#25D366]"
               title="Direct to WhatsApp"
