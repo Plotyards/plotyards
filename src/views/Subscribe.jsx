@@ -38,21 +38,40 @@ const Subscribe = () => {
   const [quantity, setQuantity] = useState(1);
   const navigate = useRouter();
 
-  const premiumPlan = {
-    id: 'premium',
-    name: 'Premium Associate Partner Plan',
-    price: `Rs. ${(11000 * quantity).toLocaleString('en-IN')}`,
-    period: '3 months',
-    highlights: [
-      `${6 * quantity} Active Listings`,
-      `${6 * quantity} UGC Ad Reels`,
-      `${100 * quantity} Buyers Inquiries`,
-      'Featured on PlotYards Marketplace',
-      'Reels Published on PlotYards Media Channels',
-      'Collaboration Post with Broker’s Instagram',
-      'Dedicated Promotion for Your Plot Inventory'
-    ]
-  };
+  const plans = [
+    {
+      id: 'free',
+      name: 'Trial Package',
+      price: 'Free',
+      period: '',
+      highlights: [
+        '2 Active Listings',
+        '2 UGC Ad Reels',
+        'Buyer Inquiries'
+      ],
+      description: 'Start with our free trial package to test the platform.',
+      buttonText: 'Start Free Trial',
+      isPremium: false
+    },
+    {
+      id: 'premium',
+      name: 'Premium Associate Partner Plan',
+      price: `Rs. ${(11000 * quantity).toLocaleString('en-IN')}`,
+      period: '3 months',
+      highlights: [
+        `${6 * quantity} Active Listings`,
+        `${6 * quantity} UGC Ad Reels`,
+        `${100 * quantity} Buyers Inquiries`,
+        'Featured on PlotYards Marketplace',
+        'Reels Published on PlotYards Media Channels',
+        'Collaboration Post with Broker’s Instagram',
+        'Dedicated Promotion for Your Plot Inventory'
+      ],
+      description: 'Instant automatic associate partner approval, verified badge status, and unlimited buyer leads.',
+      buttonText: 'Subscribe with Razorpay',
+      isPremium: true
+    }
+  ];
 
   const [mounted, setMounted] = useState(false);
   
@@ -129,7 +148,7 @@ const Subscribe = () => {
     });
   };
 
-  const handleSubscribe = async () => {
+  const handleSubscribe = async (planId) => {
     if (!user) {
       navigate.push('/login?from=/subscribe');
       return;
@@ -137,15 +156,14 @@ const Subscribe = () => {
 
     try {
       setLoading(true);
-      setLoading(true);
       setStatus('');
       setPopup(null);
       const data = await apiRequest('/service/subscriptions', { 
         method: 'POST', 
-        body: { plan: 'premium', quantity } 
+        body: { plan: planId, quantity: planId === 'free' ? 1 : quantity } 
       });
 
-      if (data.payment?.provider === 'razorpay' && data.payment?.order?.id) {
+      if (planId !== 'free' && data.payment?.provider === 'razorpay' && data.payment?.order?.id) {
         const verified = await openRazorpayCheckout(data);
         await refreshMe();
         setPopup({ type: 'success', title: 'Premium Activated', message: verified.message || 'Premium plan activated successfully.' });
@@ -153,7 +171,11 @@ const Subscribe = () => {
       }
 
       await refreshMe();
-      navigate.push('/dashboard?tab=overview');
+      if (planId === 'free') {
+          setPopup({ type: 'success', title: 'Trial Activated', message: 'Trial package activated successfully.' });
+      } else {
+          navigate.push('/dashboard?tab=overview');
+      }
     } catch (error) {
       const msg = error.message || '';
       if (msg.toLowerCase().includes('authentication') || msg.toLowerCase().includes('not authorized') || msg.toLowerCase().includes('log in')) {
@@ -180,8 +202,8 @@ const Subscribe = () => {
   };
 
   return (
-    <div className="min-h-screen pt-32 pb-16 flex flex-col items-center justify-center bg-surface px-6">
-      <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-card border border-gray-100 relative overflow-hidden flex flex-col">
+    <div className="min-h-screen pt-32 pb-16 flex flex-col items-center justify-center bg-[#f0f4f8] px-6">
+      <div className="w-full max-w-5xl bg-[#f0f4f8] p-10 rounded-[3rem] shadow-[12px_12px_24px_#d1d9e6,-12px_-12px_24px_#ffffff] border-4 border-white/50 relative overflow-hidden flex flex-col">
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-[50px]"></div>
         <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/10 rounded-full blur-[50px]"></div>
 
@@ -195,84 +217,106 @@ const Subscribe = () => {
           </p>
         </div>
 
-        <div className="flex flex-col rounded-2xl border border-primary/20 bg-white p-6 shadow-sm relative z-10 ring-4 ring-primary/[0.03]">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h3 className="text-lg font-extrabold text-text">{premiumPlan.name}</h3>
-              <div className="mt-4 flex flex-col gap-1">
-                <div className="flex items-end gap-2">
-                  <p className="text-4xl font-extrabold text-text">{premiumPlan.price}</p>
-                  <p className="pb-1 text-sm font-bold text-muted">/ {premiumPlan.period}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+          {plans.map((plan) => (
+            <div key={plan.id} className={`flex flex-col rounded-[2.5rem] p-8 transition-transform duration-300 hover:-translate-y-2 ${plan.isPremium ? 'bg-[#fef2f2] shadow-[inset_6px_6px_12px_rgba(248,14,17,0.08),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-4 border-white/60' : 'bg-[#f0f4f8] shadow-[inset_6px_6px_12px_rgba(0,0,0,0.06),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-4 border-white/60'}`}>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-extrabold text-text">{plan.name}</h3>
+                  <div className="mt-4 flex flex-col gap-1">
+                    <div className="flex items-end gap-2">
+                      <p className="text-4xl font-extrabold text-text">{plan.price}</p>
+                      {plan.period && <p className="pb-1 text-sm font-bold text-muted">/ {plan.period}</p>}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-          
-          <div className="mt-4 flex items-center justify-between border-y border-gray-100 py-4">
-              <span className="text-sm font-bold text-text">Package Quantity</span>
-              <div className="flex items-center gap-3 bg-gray-50 p-1 rounded-xl border border-gray-100">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-gray-600 hover:text-primary hover:bg-rose-50 border border-gray-200 transition-colors"
-                  disabled={quantity <= 1}
-                >
-                  <Minus size={16} />
-                </button>
-                <span className="w-6 text-center font-extrabold text-lg">{quantity}</span>
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-gray-600 hover:text-primary hover:bg-rose-50 border border-gray-200 transition-colors"
-                >
-                  <Plus size={16} />
-                </button>
+              
+              {plan.isPremium && (
+                  <div className="mt-4 flex items-center justify-between border-y border-gray-100 py-4">
+                      <span className="text-sm font-bold text-text">Package Quantity</span>
+                      <div className="flex items-center gap-3 bg-gray-50 p-1 rounded-xl border border-gray-100">
+                        <button
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-gray-600 hover:text-primary hover:bg-rose-50 border border-gray-200 transition-colors"
+                          disabled={quantity <= 1}
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <span className="w-6 text-center font-extrabold text-lg">{quantity}</span>
+                        <button
+                          onClick={() => setQuantity(quantity + 1)}
+                          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-gray-600 hover:text-primary hover:bg-rose-50 border border-gray-200 transition-colors"
+                        >
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                  </div>
+              )}
+
+              {plan.isPremium && hasActivePlan && (
+                <div className="mt-4 border-y border-primary/20 bg-primary/5 p-4 rounded-xl">
+                  <p className="text-sm font-extrabold text-primary flex items-center gap-2">
+                    <Plus size={16} /> Add another {6 * quantity} listings to the existing plan
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-muted">
+                    Validity will be extended by 3 months from your current expiry date.
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-5 space-y-3 flex-1">
+                {plan.highlights.map((item) => (
+                  <p key={item} className="flex items-start gap-2 text-xs font-bold text-muted leading-tight">
+                    <CheckCircle2 size={15} className="text-emerald-600 mt-0.5 flex-shrink-0" />
+                    <span>{item}</span>
+                  </p>
+                ))}
               </div>
+
+              {plan.isPremium && (
+                <div className="mt-5 rounded-xl border border-primary/15 bg-primary/5 p-3">
+                  <p className="flex items-center gap-1.5 text-xs font-extrabold text-primary">
+                    <TrendingUp size={14} />
+                    Premium promotion package
+                  </p>
+                  <p className="mt-1 text-[11px] font-semibold text-muted leading-normal">
+                    {plan.description}
+                  </p>
+                </div>
+              )}
+
+              {!plan.isPremium && (
+                <div className="mt-5 rounded-xl border border-gray-200 bg-gray-100 p-3">
+                  <p className="flex items-center gap-1.5 text-xs font-extrabold text-gray-700">
+                    <ShieldCheck size={14} />
+                    Trial package
+                  </p>
+                  <p className="mt-1 text-[11px] font-semibold text-muted leading-normal">
+                    {plan.description}
+                  </p>
+                </div>
+              )}
+
+              <button
+                onClick={() => handleSubscribe(plan.id)}
+                disabled={loading || (plan.id === 'free' && hasActivePlan)}
+                className={`mt-8 w-full font-extrabold py-4 rounded-[1.5rem] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 ${plan.isPremium ? 'bg-primary text-white shadow-[6px_6px_12px_rgba(248,14,17,0.3),-6px_-6px_12px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.2)]' : 'bg-[#f0f4f8] text-gray-700 shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.1),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]'}`}
+              >
+                {loading ? 'Processing...' : (plan.isPremium && hasActivePlan ? 'Upgrade Plan' : plan.buttonText)}
+              </button>
+              
+              {plan.isPremium && (
+                <p className="mt-3 text-center text-[10px] font-semibold text-muted">
+                  Payment is subject to our{' '}
+                  <Link href="/refund-policy" className="font-extrabold text-primary hover:text-rose-600">
+                    Refund Policy
+                  </Link>
+                  .
+                </p>
+              )}
             </div>
-
-          {hasActivePlan && (
-            <div className="mt-4 border-y border-primary/20 bg-primary/5 p-4 rounded-xl">
-              <p className="text-sm font-extrabold text-primary flex items-center gap-2">
-                <Plus size={16} /> Add another {6 * quantity} listings to the existing plan
-              </p>
-              <p className="mt-1 text-xs font-semibold text-muted">
-                Validity will be extended by 3 months from your current expiry date.
-              </p>
-            </div>
-          )}
-
-          <div className="mt-5 space-y-3">
-            {premiumPlan.highlights.map((item) => (
-              <p key={item} className="flex items-start gap-2 text-xs font-bold text-muted leading-tight">
-                <CheckCircle2 size={15} className="text-emerald-600 mt-0.5 flex-shrink-0" />
-                <span>{item}</span>
-              </p>
-            ))}
-          </div>
-
-          <div className="mt-5 rounded-xl border border-primary/15 bg-primary/5 p-3">
-            <p className="flex items-center gap-1.5 text-xs font-extrabold text-primary">
-              <TrendingUp size={14} />
-              Premium promotion package
-            </p>
-            <p className="mt-1 text-[11px] font-semibold text-muted leading-normal">
-              Instant automatic associate partner approval, verified badge status, and unlimited buyer leads.
-            </p>
-          </div>
-
-          <button
-            onClick={handleSubscribe}
-            disabled={loading}
-            className="mt-6 w-full bg-primary hover:bg-rose-600 disabled:opacity-60 text-white font-bold py-3.5 rounded-xl transition-colors shadow-md flex items-center justify-center gap-2"
-          >
-            {loading ? 'Processing...' : hasActivePlan ? 'Upgrade Plan' : 'Subscribe with Razorpay'}
-          </button>
-          
-          <p className="mt-3 text-center text-[10px] font-semibold text-muted">
-            Payment is subject to our{' '}
-            <Link href="/refund-policy" className="font-extrabold text-primary hover:text-rose-600">
-              Refund Policy
-            </Link>
-            .
-          </p>
+          ))}
         </div>
 
         <p className="mt-8 text-center text-sm font-medium text-gray-500 relative z-10 leading-normal">

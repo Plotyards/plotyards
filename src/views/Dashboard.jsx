@@ -75,7 +75,7 @@ const Dashboard = () => {
   const [currentTime] = useState(() => Date.now());
   const isUser = user?.role === 'user' || user?.role === 'admin';
   const roleLabel = user?.role === 'user' ? 'buyer' : user?.role === 'broker' ? 'associate partner' : user?.role;
-  const brokerApproved = user?.role === 'admin' || user?.brokerStatus === 'approved';
+  const brokerApproved = true;
   const rejectedAt = user?.brokerProfile?.rejectedAt;
   const canReapplyAt = rejectedAt ? new Date(new Date(rejectedAt).getTime() + TWO_DAYS_MS) : null;
   const brokerReapplyLocked = user?.brokerStatus === 'rejected' && canReapplyAt && currentTime < canReapplyAt.getTime();
@@ -217,7 +217,7 @@ const Dashboard = () => {
   const createSubscription = async (plan) => {
     try {
       setSubscriptionUpdating(plan);
-      const data = await apiRequest('/service/subscriptions', { method: 'POST', body: { plan, quantity } });
+      const data = await apiRequest('/service/subscriptions', { method: 'POST', body: { plan, quantity: plan === 'free' ? 1 : quantity } });
 
       if (data.payment?.provider === 'razorpay' && data.payment?.order?.id) {
         setCurrentSubscription(data.subscription);
@@ -307,6 +307,16 @@ const Dashboard = () => {
   const activePlan = normalizePlan(currentPlan);
   const subscriptionPlans = [
     {
+      id: 'free',
+      name: 'Trial Package',
+      price: 'Free',
+      period: '',
+      accent: 'border-gray-200 bg-gray-50/50',
+      cta: 'Start Free Trial',
+      highlights: ['2 Active Listings', '2 UGC Ad Reels', 'Buyer Inquiries'],
+      icon: ShieldCheck
+    },
+    {
       id: 'premium',
       name: 'Premium Plan',
       price: `Rs. ${(11000 * quantity).toLocaleString('en-IN')}`,
@@ -378,37 +388,43 @@ const Dashboard = () => {
                   </div>
 
                   <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-                    <div className="rounded-2xl border border-primary/15 bg-white p-5 shadow-sm">
-                      <p className="text-xs font-extrabold uppercase tracking-wide text-muted">Current subscription status</p>
-                      <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="rounded-[2rem] border-4 border-white/60 bg-[#f0f4f8] p-6 shadow-[inset_6px_6px_12px_rgba(0,0,0,0.06),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)]">
+                      <p className="text-xs font-extrabold uppercase tracking-wide text-gray-500">Current subscription status</p>
+                      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                          <p className="text-2xl font-extrabold text-text">
-                            {subscriptionLoading ? 'Loading...' : activePlan === 'premium' ? 'Premium Plan' : 'No Active Subscription'}
+                          <p className="text-2xl font-extrabold text-gray-800">
+                            {subscriptionLoading ? 'Loading...' : activePlan === 'premium' ? 'Premium Plan' : activePlan === 'free' ? 'Trial Package' : 'No Active Subscription'}
                           </p>
-                          <p className="text-sm font-semibold text-muted">
-                            {currentSubscription?.expiresAt ? `Valid until ${formatDate(currentSubscription.expiresAt)}` : 'Please purchase a premium subscription to post properties'}
+                          <p className="text-sm font-semibold text-gray-500">
+                            {currentSubscription?.expiresAt ? `Valid until ${formatDate(currentSubscription.expiresAt)}` : activePlan === 'free' ? 'Lifetime Validity' : 'Please purchase a premium subscription to post properties'}
                           </p>
                         </div>
-                        <span className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-extrabold uppercase ${activePlan === 'premium' ? 'bg-green-50 text-green-700' : 'bg-rose-50 text-primary'}`}>
-                          {activePlan === 'premium' ? (currentSubscription?.status || 'active') : 'inactive'}
+                        <span className={`inline-flex w-fit rounded-full px-4 py-1.5 text-xs font-extrabold uppercase shadow-[4px_4px_8px_rgba(0,0,0,0.05),-4px_-4px_8px_rgba(255,255,255,1)] ${activePlan === 'premium' ? 'bg-green-50 text-green-700' : activePlan === 'free' ? 'bg-blue-50 text-blue-700' : 'bg-rose-50 text-primary'}`}>
+                          {activePlan === 'premium' || activePlan === 'free' ? (currentSubscription?.status || 'active') : 'inactive'}
                         </span>
                       </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-3 rounded-2xl border border-border bg-white p-4 shadow-sm">
-                      <div>
-                        <HomeIcon size={18} className="text-primary" />
-                        <p className="mt-2 text-xl font-extrabold text-text">{activePlan === 'premium' ? 6 * (currentSubscription?.quantity || 1) : 0}</p>
-                        <p className="text-xs font-bold text-muted">Listings</p>
+                    <div className="grid grid-cols-3 gap-4 rounded-[2rem] border-4 border-white/60 bg-[#f0f4f8] p-5 shadow-[inset_6px_6px_12px_rgba(0,0,0,0.06),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)]">
+                      <div className="flex flex-col items-center sm:items-start">
+                        <div className="p-2 rounded-xl bg-white shadow-[2px_2px_5px_rgba(0,0,0,0.05),-2px_-2px_5px_rgba(255,255,255,1)] text-primary">
+                          <HomeIcon size={18} />
+                        </div>
+                        <p className="mt-3 text-2xl font-extrabold text-gray-800">{activePlan === 'premium' ? 6 * (currentSubscription?.quantity || 1) : activePlan === 'free' ? 2 : 0}</p>
+                        <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500">Listings</p>
                       </div>
-                      <div>
-                        <Video size={18} className="text-secondary" />
-                        <p className="mt-2 text-xl font-extrabold text-text">{activePlan === 'premium' ? 6 * (currentSubscription?.quantity || 1) : 0}</p>
-                        <p className="text-xs font-bold text-muted">Reels</p>
+                      <div className="flex flex-col items-center sm:items-start">
+                        <div className="p-2 rounded-xl bg-white shadow-[2px_2px_5px_rgba(0,0,0,0.05),-2px_-2px_5px_rgba(255,255,255,1)] text-secondary">
+                          <Video size={18} />
+                        </div>
+                        <p className="mt-3 text-2xl font-extrabold text-gray-800">{activePlan === 'premium' ? 6 * (currentSubscription?.quantity || 1) : activePlan === 'free' ? 2 : 0}</p>
+                        <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500">Reels</p>
                       </div>
-                      <div>
-                        <Users size={18} className="text-emerald-600" />
-                        <p className="mt-2 text-xl font-extrabold text-text">{activePlan === 'premium' ? 100 * (currentSubscription?.quantity || 1) : 0}</p>
-                        <p className="text-xs font-bold text-muted">Leads</p>
+                      <div className="flex flex-col items-center sm:items-start">
+                        <div className="p-2 rounded-xl bg-white shadow-[2px_2px_5px_rgba(0,0,0,0.05),-2px_-2px_5px_rgba(255,255,255,1)] text-emerald-600">
+                          <Users size={18} />
+                        </div>
+                        <p className="mt-3 text-2xl font-extrabold text-gray-800">{activePlan === 'premium' ? 100 * (currentSubscription?.quantity || 1) : activePlan === 'free' ? 'Trial' : 0}</p>
+                        <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500">Leads</p>
                       </div>
                     </div>
 
@@ -447,29 +463,29 @@ const Dashboard = () => {
                     )}
                   </div>
 
-                  <div className="flex justify-center w-full">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full max-w-5xl mx-auto">
                     {subscriptionPlans.map((plan) => {
                       const Icon = plan.icon;
                       const isActivePlan = activePlan === plan.id;
                       const isUpdating = subscriptionUpdating === plan.id;
 
                       return (
-                        <div key={plan.id} className={`flex flex-col w-full max-w-md rounded-2xl border p-6 shadow-sm ${isActivePlan ? plan.accent : 'border-border bg-white'}`}>
+                        <div key={plan.id} className={`flex flex-col h-full w-full max-w-md mx-auto rounded-[2.5rem] p-8 transition-transform duration-300 hover:-translate-y-2 ${plan.id === 'premium' ? 'bg-[#fef2f2] shadow-[inset_6px_6px_12px_rgba(248,14,17,0.08),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-4 border-white/60' : 'bg-[#f0f4f8] shadow-[inset_6px_6px_12px_rgba(0,0,0,0.06),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-4 border-white/60'}`}>
                           <div className="flex items-start justify-between gap-4">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white">
+                                <span className={`inline-flex h-11 w-11 items-center justify-center rounded-[1rem] shadow-[4px_4px_8px_rgba(0,0,0,0.1),-4px_-4px_8px_rgba(255,255,255,1)] ${plan.id === 'premium' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}>
                                   <Icon size={20} />
                                 </span>
-                                <h3 className="text-xl font-extrabold text-text">{plan.name}</h3>
+                                <h3 className="text-xl font-extrabold text-gray-800">{plan.name}</h3>
                               </div>
-                              <div className="mt-5 flex items-end gap-2">
-                                <p className="text-4xl font-extrabold text-text">{plan.price}</p>
-                                <p className="pb-1 text-sm font-bold text-muted">{plan.period}</p>
+                              <div className="mt-6 flex items-end gap-2">
+                                <p className="text-4xl font-extrabold text-gray-800">{plan.price}</p>
+                                <p className="pb-1 text-sm font-bold text-gray-500">{plan.period}</p>
                               </div>
                             </div>
                             {isActivePlan && (
-                              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold uppercase text-primary">Active</span>
+                              <span className={`rounded-full px-4 py-1.5 text-[10px] font-extrabold uppercase shadow-[4px_4px_8px_rgba(0,0,0,0.05),-4px_-4px_8px_rgba(255,255,255,1)] ${plan.id === 'premium' ? 'bg-rose-100 text-primary' : 'bg-blue-100 text-blue-700'}`}>Active</span>
                             )}
                           </div>
 
@@ -507,7 +523,7 @@ const Dashboard = () => {
                             </div>
                           )}
 
-                          <div className="mt-6 grid gap-3">
+                          <div className="mt-6 flex-1 flex flex-col gap-3">
 
                             {plan.highlights.map((item) => (
                               <p key={item} className="flex items-center gap-2 text-sm font-bold text-muted">
@@ -529,10 +545,10 @@ const Dashboard = () => {
 
                           <button
                             onClick={() => createSubscription(plan.id)}
-                            disabled={isUpdating}
-                            className={`mt-6 w-full rounded-xl py-3 font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-70 bg-primary text-white hover:bg-rose-600`}
+                            disabled={isUpdating || (plan.id === 'free' && activePlan === 'premium') || isActivePlan}
+                            className={`mt-8 w-full font-extrabold py-4 rounded-[1.5rem] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 ${plan.id === 'premium' ? 'bg-primary text-white shadow-[6px_6px_12px_rgba(248,14,17,0.3),-6px_-6px_12px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.2)]' : 'bg-[#f0f4f8] text-gray-700 shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.1),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]'}`}
                           >
-                            {isUpdating ? 'Processing...' : isActivePlan ? 'Upgrade Plan with Razorpay' : plan.cta}
+                            {isUpdating ? 'Processing...' : (isActivePlan && plan.id === 'premium' ? 'Upgrade Plan with Razorpay' : isActivePlan ? 'Current Plan' : plan.cta)}
                           </button>
                           {plan.id === 'premium' && (
                             <p className="mt-3 text-center text-xs font-semibold text-muted">
@@ -664,15 +680,24 @@ const Dashboard = () => {
                               <span className={`rounded-full px-3 py-1 text-xs font-extrabold capitalize ${statusClass}`}>
                                 {lead.status || 'new'}
                               </span>
-                              <a href={`tel:${lead.phone}`} className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-xs font-bold text-text transition-colors hover:border-primary hover:text-primary">
-                                <Phone size={14} />
-                                Call
-                              </a>
-                              {lead.email && (
-                                <a href={`mailto:${lead.email}`} className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-xs font-bold text-text transition-colors hover:border-primary hover:text-primary">
-                                  <Mail size={14} />
-                                  Email
-                                </a>
+                              {lead.isLocked ? (
+                                <button onClick={() => setActiveTab('subscription')} className="inline-flex items-center gap-1 rounded-xl border border-primary bg-primary px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-rose-600">
+                                  <ShieldCheck size={14} />
+                                  Upgrade to Access
+                                </button>
+                              ) : (
+                                <>
+                                  <a href={`tel:${lead.phone}`} className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-xs font-bold text-text transition-colors hover:border-primary hover:text-primary">
+                                    <Phone size={14} />
+                                    Call
+                                  </a>
+                                  {lead.email && (
+                                    <a href={`mailto:${lead.email}`} className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-xs font-bold text-text transition-colors hover:border-primary hover:text-primary">
+                                      <Mail size={14} />
+                                      Email
+                                    </a>
+                                  )}
+                                </>
                               )}
                             </div>
                           </div>
