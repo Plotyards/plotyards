@@ -206,12 +206,6 @@ const Navbar = () => {
                       Dashboard
                     </Link>
                   )}
-                  <Link onClick={closeMenu} href="/favourites" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
-                    Favourites
-                  </Link>
-                  <Link onClick={closeMenu} href="/history" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
-                    Previously Viewed
-                  </Link>
                 </div>
                 
                 <div className="p-2 border-t border-gray-100">

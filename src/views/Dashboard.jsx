@@ -299,7 +299,6 @@ const Dashboard = () => {
   ];
 
   const userStats = [
-    [Heart, 'Saved', favourites.length, 'from-primary/15 to-rose-50 text-primary'],
     [Clock, 'Viewed', historyItems.length, 'from-indigo-100 to-violet-50 text-indigo-700'],
     [Compass, 'Explore', 'Discover new listings', 'from-emerald-100 to-green-50 text-emerald-700']
   ];
@@ -342,7 +341,6 @@ const Dashboard = () => {
           ])
     : [
         ['overview', Users, 'Overview'],
-        ['saved', Heart, 'Saved'],
         ['history', Clock, 'History']
       ];
 
@@ -798,18 +796,6 @@ const Dashboard = () => {
                 <div className="rounded-[2rem] border border-border/80 bg-white p-6 shadow-lg shadow-gray-200/70 ring-1 ring-black/5">
                   {loadingUserData ? (
                     <p className="text-sm font-bold text-muted">Loading your dashboard...</p>
-                  ) : activeTab === 'saved' ? (
-                    <div className="space-y-5">
-                      <h2 className="text-2xl font-extrabold text-text">Saved Properties</h2>
-                      {favourites.length ? favourites.map((property) => (
-                        <div key={property.id} className="rounded-2xl border border-border p-4">
-                          <p className="font-bold text-text">{property.title}</p>
-                          <p className="text-sm text-muted">{property.location} - {property.price}</p>
-                        </div>
-                      )) : (
-                        <p className="text-sm font-bold text-muted">You haven't saved any properties yet.</p>
-                      )}
-                    </div>
                   ) : activeTab === 'history' ? (
                     <div className="space-y-5">
                       <h2 className="text-2xl font-extrabold text-text">Recently Viewed</h2>
@@ -830,10 +816,6 @@ const Dashboard = () => {
                         <Link href="/listings" className="mt-4 inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white">Browse listings</Link>
                       </div>
                       <div className="grid gap-4 lg:grid-cols-2">
-                        <Link href="/favourites" className="rounded-2xl border border-border/80 bg-white p-6 shadow-lg shadow-gray-200/70 ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-1 hover:border-primary hover:shadow-xl">
-                          <h3 className="font-bold text-text">Your saved properties</h3>
-                          <p className="mt-2 text-sm text-muted">{favourites.length} saved properties</p>
-                        </Link>
                         <Link href="/history" className="rounded-2xl border border-border/80 bg-white p-6 shadow-lg shadow-gray-200/70 ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-1 hover:border-primary hover:shadow-xl">
                           <h3 className="font-bold text-text">Recently viewed</h3>
                           <p className="mt-2 text-sm text-muted">{historyItems.length} recent views</p>

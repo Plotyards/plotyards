@@ -122,7 +122,7 @@ const MobileBottomNav = () => {
                   {user ? 'Account' : 'Welcome back'}
                 </h2>
                 <p className="mt-1 text-sm font-medium text-muted">
-                  {user ? 'Dashboard, saved plots, policies, and assistance links.' : authMode === 'login' ? 'Sign in to save plots and view enquiries.' : 'Join to shortlist verified plots and contact associate partners.'}
+                  {user ? 'Dashboard, policies, and assistance links.' : authMode === 'login' ? 'Sign in to access partner dashboard.' : 'Join to post properties and contact buyers.'}
                 </p>
               </div>
               <button type="button" onClick={closeAuth} aria-label="Close auth form" className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600">
