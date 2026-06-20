@@ -322,7 +322,7 @@ const PostProperty = () => {
           images,
           amenities: allAmenities,
           documentsVerified: form.documentsVerified || [],
-          reraApproved: form.reraApproved
+          reraApproved: form.propertyType === 'farmland' ? false : form.reraApproved
         }
       });
       setStatus(editId ? 'Your listing has been updated.' : 'Your property is now posted.');
@@ -534,7 +534,7 @@ const PostProperty = () => {
           <div className="border-t border-gray-100 pt-5">
             <label className="block text-sm font-bold text-text mb-3">Documents available for buyers</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-50 p-5 rounded-2xl border border-gray-100">
-              {DEFAULT_DOCUMENTS.map((doc) => {
+              {DEFAULT_DOCUMENTS.filter(doc => form.propertyType === 'farmland' ? doc !== 'RERA approval copy' : true).map((doc) => {
                 const isChecked = (form.documentsVerified || []).includes(doc);
                 return (
                   <label
@@ -557,10 +557,12 @@ const PostProperty = () => {
               })}
             </div>
           </div>
-          <label className="flex items-center gap-2 text-sm font-bold text-text">
-            <input type="checkbox" checked={form.reraApproved} onChange={(event) => updateField('reraApproved', event.target.checked)} className="accent-primary" />
-            RERA approved / registration available
-          </label>
+          {form.propertyType !== 'farmland' && (
+            <label className="flex items-center gap-2 text-sm font-bold text-text">
+              <input type="checkbox" checked={form.reraApproved} onChange={(event) => updateField('reraApproved', event.target.checked)} className="accent-primary" />
+              RERA approved / registration available
+            </label>
+          )}
           <button disabled={loading} className="w-full bg-primary hover:bg-rose-600 disabled:opacity-60 text-white font-bold py-4 rounded-xl mt-4">
             {loading ? 'Saving...' : editId ? 'Save Changes' : 'Post Property'}
           </button>
