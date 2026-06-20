@@ -157,8 +157,8 @@ const MobileBottomNav = () => {
               <>
                 <div className="mb-5 grid grid-cols-2 rounded-xl bg-gray-100 p-1">
                   {[
-                    ['login', 'Login'],
-                    ['signup', 'Sign up']
+                    ['login', 'Partner Login'],
+                    ['signup', 'Partner Signup']
                   ].map(([mode, label]) => (
                     <button
                       key={mode}

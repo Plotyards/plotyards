@@ -179,48 +179,27 @@ const PropertyDetails = () => {
     }
   };
 
-  const submitLead = async (event) => {
-    event?.preventDefault();
+  const handleDirectChat = async (e) => {
+    e.preventDefault();
 
-    if (!user) {
-      navigate.push('/login?from=' + encodeURIComponent(`/property/${id}`));
-      return;
-    }
-
-    const contactPhone = user.phone || lead.phone;
-
-    if (!contactPhone) {
-      setLeadStatus('Please add your mobile number before sending an inquiry.');
-      return;
-    }
-
-    if (!isMongoId(property.id)) {
-      setLeadStatus('Inquiry sent to associate partner (Demo).');
-      setHasSentInquiry(true);
-      setLead({ phone: '', message: '' });
-      return;
-    }
-
-    try {
-      await apiRequest('/inquiries', {
-        method: 'POST',
-        body: {
-          propertyId: property.id,
-          name: user.name,
-          phone: contactPhone,
-          email: user.email,
-          message: lead.message
-        }
-      });
-      setLeadStatus('Inquiry sent to associate partner.');
-      setHasSentInquiry(true);
-      setLead({ phone: '', message: '' });
-    } catch (err) {
-      if (err.message?.toLowerCase().includes('already sent')) {
-        setHasSentInquiry(true);
+    if (isMongoId(property.id)) {
+      try {
+        await apiRequest('/inquiries', {
+          method: 'POST',
+          body: {
+            propertyId: property.id,
+            name: user?.name || 'Guest Buyer',
+            phone: user?.phone || `Direct WhatsApp Click`,
+            email: user?.email || 'guest@plotyards.com',
+            message: 'User initiated direct chat via WhatsApp button',
+            isDirectChat: true
+          }
+        });
+      } catch (err) {
+        console.error('Failed to log inquiry:', err);
       }
-      setLeadStatus(err.message);
     }
+    window.open(`https://wa.me/${activeBroker.whatsapp}`, '_blank');
   };
 
   const handleShare = async () => {
@@ -638,80 +617,21 @@ const PropertyDetails = () => {
                 </div>
 
                 <div className="mt-5 grid gap-3">
-                  {user ? (
-                    <>
-                      <a
-                        href={`https://wa.me/${activeBroker.whatsapp}`}
-                        className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-sm font-extrabold text-white transition-colors hover:bg-[#1ebd5a]"
-                      >
-                        <MessageCircle size={18} />
-                        WhatsApp {activeBroker.phone}
-                      </a>
-                      <a
-                        href={`tel:+${activeBroker.callNumber}`}
-                        className="flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-white text-sm font-extrabold text-text transition-colors hover:border-primary hover:text-primary"
-                      >
-                        <Phone size={18} />
-                        Call {activeBroker.phone}
-                      </a>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => navigate.push('/login?from=' + encodeURIComponent(`/property/${id}`))}
-                        className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-sm font-extrabold text-white transition-colors hover:bg-[#1ebd5a]"
-                      >
-                        <MessageCircle size={18} />
-                        Login to WhatsApp Associate Partner
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => navigate.push('/login?from=' + encodeURIComponent(`/property/${id}`))}
-                        className="flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-white text-sm font-extrabold text-text transition-colors hover:border-primary hover:text-primary"
-                      >
-                        <Phone size={18} />
-                        Login to Call Associate Partner
-                      </button>
-                    </>
-                  )}
-                </div>
-                <div className="mt-5 border-t border-border pt-5">
-                  {leadStatus && <p className="mb-3 rounded-xl bg-surface p-3 text-xs font-bold text-text">{leadStatus}</p>}
-                  {inquiryAlreadySent ? (
-                    <div className="rounded-2xl bg-green-50 p-4 text-sm font-bold text-green-700">
-                      You have already sent an inquiry for this property.
-                    </div>
-                  ) : (
-                    <div className="grid gap-3">
-                      {user ? (
-                        <div className="rounded-2xl bg-surface p-4">
-                          <p className="text-sm font-extrabold text-text">Send your saved contact details</p>
-                          <p className="mt-1 text-xs font-semibold text-muted">
-                            {user.name} {user.phone ? `- ${user.phone}` : ''}
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="rounded-2xl bg-surface p-4">
-                          <p className="text-sm font-extrabold text-text">Login to send an inquiry</p>
-                          <p className="mt-1 text-xs font-semibold text-muted">Your saved name, mobile number, and email will be sent to the associate partner.</p>
-                        </div>
-                      )}
-                      {user && !user.phone && (
-                        <input value={lead.phone} onChange={(event) => setLead({ ...lead, phone: event.target.value })} className="rounded-xl border border-border bg-surface px-4 py-3 text-sm" placeholder="Mobile number" required />
-                      )}
-                      <textarea
-                        value={lead.message}
-                        onChange={(event) => setLead({ ...lead, message: event.target.value })}
-                        className="min-h-24 rounded-xl border border-border bg-surface px-4 py-3 text-sm disabled:opacity-60"
-                        placeholder={user ? "Optional message for the associate partner..." : "Please login to write an inquiry message..."}
-                        disabled={!user}
-                      />
-                      <button type="button" onClick={submitLead} className="rounded-xl bg-primary px-4 py-3 text-sm font-extrabold text-white">
-                        {user ? 'Send Inquiry with My Details' : 'Login to Send Inquiry'}
-                      </button>
-                    </div>
-                  )}
+                  <a
+                    href="#"
+                    onClick={handleDirectChat}
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-sm font-extrabold text-white transition-colors hover:bg-[#1ebd5a]"
+                  >
+                    <MessageCircle size={18} />
+                    Direct to Chat
+                  </a>
+                  <a
+                    href={`tel:+${activeBroker.callNumber}`}
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-white text-sm font-extrabold text-text transition-colors hover:border-primary hover:text-primary"
+                  >
+                    <Phone size={18} />
+                    Call Associate Partner
+                  </a>
                 </div>
               </div>
 
@@ -803,10 +723,10 @@ const PropertyDetails = () => {
             <p className="truncate text-sm font-extrabold text-text">{activeBroker.name}</p>
             <p className="text-xs font-semibold text-muted">{activeBroker.response}</p>
           </div>
-          {user ? (
             <>
               <a
-                href={`https://wa.me/${activeBroker.whatsapp}`}
+                href="#"
+                onClick={handleDirectChat}
                 className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-green-500/20"
                 aria-label="WhatsApp associate partner"
               >
@@ -820,15 +740,6 @@ const PropertyDetails = () => {
                 Call
               </a>
             </>
-          ) : (
-            <button
-              type="button"
-              onClick={() => navigate.push('/login?from=' + encodeURIComponent(`/property/${id}`))}
-              className="flex h-11 flex-shrink-0 items-center justify-center rounded-full bg-primary px-5 text-sm font-extrabold text-white shadow-lg shadow-primary/20"
-            >
-              Login to contact
-            </button>
-          )}
         </div>
       </div>
     </div>
