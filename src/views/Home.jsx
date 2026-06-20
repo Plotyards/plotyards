@@ -297,7 +297,7 @@ const Home = () => {
                 Featured
               </span>
             )}
-            {plot.approved ? (
+            {plot.approved && (!plot.type || !plot.type.toLowerCase().includes('farm')) ? (
               <span className="inline-flex items-center gap-1 rounded bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-text shadow-sm">
                 <CheckCircle2 size={12} className="text-green-500" />
                 RERA Approved

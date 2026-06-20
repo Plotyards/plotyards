@@ -607,7 +607,7 @@ const Listings = () => {
                           <span className="hidden md:inline">Featured</span>
                         </span>
                       )}
-                      {listing.approved ? (
+                      {listing.approved && (!listing.type || !listing.type.toLowerCase().includes('farm')) ? (
                         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-green-600 shadow-sm md:h-auto md:w-auto md:gap-1 md:rounded md:px-2 md:py-1 md:text-[10px] md:font-bold md:uppercase md:tracking-wider md:text-text">
                           <CheckCircle2 size={12} className="text-green-500" /> <span className="hidden md:inline">RERA Approved</span>
                         </span>
