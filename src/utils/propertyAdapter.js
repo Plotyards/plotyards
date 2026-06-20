@@ -40,6 +40,7 @@ export const adaptProperty = (property) => {
   const broker = property.broker
     ? {
         ...property.broker,
+        companyType: property.broker.brokerProfile?.companyType || 'broker',
         phone: property.broker.brokerProfile?.contactPhone || property.broker.phone,
         whatsapp: property.broker.brokerProfile?.contactPhone || property.broker.phone
       }

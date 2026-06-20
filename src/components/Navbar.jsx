@@ -22,7 +22,7 @@ const Navbar = () => {
   const showNavSearch = isScrolled && !hideSearchRoutes.some((route) => pathname.startsWith(route));
   const showSolidNav = !isHomePage || isScrolled;
   const canPostProperty = isAdmin || (isBroker && user?.brokerStatus === 'approved');
-  const roleLabel = user?.role === 'user' ? 'buyer' : user?.role === 'broker' ? 'associate partner' : user?.role;
+  const roleLabel = user?.role === 'user' ? 'buyer' : user?.role === 'broker' ? (user.brokerProfile?.companyType === 'developer' ? 'developer' : 'associate partner') : user?.role;
 
   const whatsappNumber = '918287697756';
   const assistanceLinks = [

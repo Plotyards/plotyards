@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/auth';
 
 const Register = () => {
-  const [accountType, setAccountType] = useState('user');
+  const [accountType, setAccountType] = useState('broker');
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -36,10 +36,11 @@ const Register = () => {
         email: form.email,
         phone: form.phone,
         password: form.password,
-        isBroker: accountType === 'broker',
-        brokerProfile: accountType === 'broker'
+        isBroker: accountType === 'broker' || accountType === 'developer',
+        brokerProfile: accountType === 'broker' || accountType === 'developer'
           ? {
               companyName: form.companyName,
+              companyType: accountType,
               contactPhone: form.phone,
               address: form.address
             }
@@ -78,7 +79,7 @@ const Register = () => {
             <p className="text-gray-500 font-medium text-sm">
               {accountType === 'broker'
                 ? 'Share your business details and start managing plot listings.'
-                : 'Create your Plotyards account'}
+                : 'Register as a developer and list your new projects.'}
             </p>
           </div>
 
@@ -86,8 +87,8 @@ const Register = () => {
 
           <div className="grid grid-cols-2 gap-2 rounded-2xl bg-gray-50 p-1">
             {[
-              ['user', 'Buyer'],
-              ['broker', 'Associate Partner']
+              ['broker', 'Associate Partner'],
+              ['developer', 'Developer']
             ].map(([value, label]) => (
               <button
                 key={value}
@@ -129,7 +130,7 @@ const Register = () => {
             )}
           </div>
 
-          {accountType === 'broker' && (
+          {(accountType === 'broker' || accountType === 'developer') && (
             <div className="grid gap-5 rounded-2xl border border-gray-100 bg-gray-50/70 p-4">
               <div>
                 <label className="block text-sm font-bold text-text mb-1">Company Name</label>
@@ -143,7 +144,7 @@ const Register = () => {
           )}
 
           <button disabled={loading} className="w-full bg-primary hover:bg-rose-600 disabled:opacity-60 text-white font-bold py-4 rounded-xl mt-2 transition-colors text-lg shadow-sm">
-            {loading ? 'Creating...' : accountType === 'broker' ? 'Register as Associate Partner' : 'Create Account'}
+            {loading ? 'Creating...' : accountType === 'broker' ? 'Register as Associate Partner' : 'Register as Developer'}
           </button>
 
           <div className="text-center mt-2 text-sm font-medium text-gray-500">

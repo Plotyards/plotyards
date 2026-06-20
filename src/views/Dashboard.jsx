@@ -74,7 +74,7 @@ const Dashboard = () => {
   const { user, isBroker, updateMe, refreshMe } = useAuth();
   const [currentTime] = useState(() => Date.now());
   const isUser = user?.role === 'user' || user?.role === 'admin';
-  const roleLabel = user?.role === 'user' ? 'buyer' : user?.role === 'broker' ? 'associate partner' : user?.role;
+  const roleLabel = user?.role === 'user' ? 'buyer' : user?.role === 'broker' ? (user.brokerProfile?.companyType === 'developer' ? 'developer' : 'associate partner') : user?.role;
   const brokerApproved = true;
   const rejectedAt = user?.brokerProfile?.rejectedAt;
   const canReapplyAt = rejectedAt ? new Date(new Date(rejectedAt).getTime() + TWO_DAYS_MS) : null;

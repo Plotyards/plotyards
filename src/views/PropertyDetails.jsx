@@ -446,7 +446,7 @@ const PropertyDetails = () => {
                   )}
                   <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text">
                     <ShieldCheck size={13} className="text-primary" />
-                    Associate Partner verified
+                    {activeBroker.companyType === 'developer' ? 'Developer Verified' : 'Associate Partner verified'}
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text lg:hidden">
                     <Camera size={13} />
@@ -597,7 +597,9 @@ const PropertyDetails = () => {
           <aside>
             <div className="space-y-5 md:sticky md:top-28">
               <div className="rounded-[1.5rem] border border-border bg-white p-4 shadow-card md:rounded-[2rem] md:p-6">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted">Associate Partner contact</p>
+                <p className="text-xs font-bold uppercase tracking-wide text-muted">
+                  {activeBroker.companyType === 'developer' ? 'Developer Contact' : 'Associate Partner Contact'}
+                </p>
                 <div className="mt-5 flex items-center gap-4">
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-xl font-extrabold text-white">
                     {activeBroker.name.charAt(0)}
