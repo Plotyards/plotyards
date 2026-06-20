@@ -15,8 +15,8 @@ import {
   ChevronRight,
   ClipboardCheck,
   Heart,
-  MapPin,
   MessageCircle,
+  MapPin,
   Phone,
   Route,
   Share2,
@@ -395,13 +395,11 @@ const PropertyDetails = () => {
               <Scale size={18} />
             </button>
             <button
-              onClick={toggleFavourite}
-              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border bg-white shadow-sm transition-colors ${
-                favoriteActive ? 'border-primary text-primary' : 'border-border text-muted hover:border-primary hover:text-primary'
-              }`}
-              title="Favourite"
+              onClick={handleDirectChat}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white shadow-sm transition-colors hover:border-[#25D366] hover:text-[#25D366] text-muted"
+              title="Direct to WhatsApp"
             >
-              <Heart size={18} fill={favoriteActive ? 'currentColor' : 'none'} />
+              <MessageCircle size={18} className="text-[#25D366]" />
             </button>
           </div>
         </div>

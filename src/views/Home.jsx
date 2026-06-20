@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, MapPin, ChevronDown, CheckCircle2, ShieldCheck, Heart, Camera, Check, Star, Download, Paperclip, Scale, BookOpen, ArrowRight, Menu, TrendingUp, Sparkles, Share2 } from 'lucide-react';
+import { Search, MapPin, ChevronDown, CheckCircle2, ShieldCheck, Heart, MessageCircle, Camera, Check, Star, Download, Paperclip, Scale, BookOpen, ArrowRight, Menu, TrendingUp, Sparkles, Share2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -311,11 +311,13 @@ const Home = () => {
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
+                const num = plot.broker?.whatsapp?.replace(/\D/g, '') || '918287697756';
+                window.open(`https://wa.me/${num}`, '_blank');
               }}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-gray-600 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-primary"
-              title="Favourite"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-gray-600 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-[#25D366]"
+              title="Direct to WhatsApp"
             >
-              <Heart size={16} />
+              <MessageCircle size={16} className="text-[#25D366]" />
             </button>
             <button
               type="button"

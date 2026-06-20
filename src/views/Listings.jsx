@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { ArrowUpDown, Camera, CheckCircle2, Filter, Heart, MapPin, RotateCcw, Search, Sparkles, TrendingUp, Scale } from 'lucide-react';
+import { ArrowUpDown, Camera, CheckCircle2, Filter, Heart, MessageCircle, MapPin, RotateCcw, Search, Sparkles, TrendingUp, Scale } from 'lucide-react';
 import { motion } from 'framer-motion';
 import DropdownSelect from '../components/DropdownSelect';
 import { propertyListings } from '../data/properties';
@@ -617,11 +617,16 @@ const Listings = () => {
                     {/* Action Buttons */}
                     <div className="absolute right-2 top-2 hidden flex-col gap-1.5 md:right-4 md:top-4 md:flex md:gap-2">
                       <button
-                        onClick={(e) => { e.stopPropagation(); toggleFavourite(String(listing.id)); }}
-                        className={`flex h-8 w-8 items-center justify-center rounded-full shadow-sm backdrop-blur transition-colors md:h-9 md:w-9 ${user && favoriteIds.has(String(listing.id)) ? 'bg-primary text-white border-none' : 'bg-white/90 text-gray-600 hover:text-primary hover:bg-white'}`}
-                        title="Favourite"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const num = listing.broker?.whatsapp?.replace(/\D/g, '') || '918287697756';
+                          window.open(`https://wa.me/${num}`, '_blank');
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-gray-600 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-[#25D366] md:h-9 md:w-9"
+                        title="Direct to WhatsApp"
                       >
-                        <Heart size={16} fill={user && favoriteIds.has(String(listing.id)) ? 'currentColor' : 'none'} />
+                        <MessageCircle size={16} className="text-[#25D366]" />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); toggleCompare(listing); }}
