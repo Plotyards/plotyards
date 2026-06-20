@@ -5,6 +5,7 @@ import { Activity, BarChart3, Building2, CheckCircle2, ChevronLeft, ChevronRight
 import { DEFAULT_TOP_CITIES } from '../data/topCities';
 import { apiRequest } from '../lib/api';
 import BlogManager from '../components/BlogManager';
+import { formatPhoneForDisplay } from '../utils/phoneUtils';
 
 const ADMIN_TABLE_PAGE_SIZE = 5;
 
@@ -367,7 +368,7 @@ const AdminPanel = () => {
                             <td className="px-4 py-4">
                               <p className="font-extrabold text-text">{broker.name}</p>
                               <p className="text-xs font-semibold text-muted">{broker.email || 'No email'}</p>
-                              <p className="text-xs font-semibold text-muted">{broker.phone || broker.brokerProfile?.contactPhone || 'No phone'}</p>
+                              <p className="text-xs font-semibold text-muted">{formatPhoneForDisplay(broker.phone || broker.brokerProfile?.contactPhone) || 'No phone'}</p>
                             </td>
                             <td className="px-4 py-4 font-semibold text-muted">{broker.brokerProfile?.companyName || 'N/A'}</td>
                             <td className="px-4 py-4 font-semibold text-muted">{formatAdminDate(broker.updatedAt || broker.createdAt)}</td>
@@ -428,7 +429,7 @@ const AdminPanel = () => {
                             <td className="px-4 py-4 align-top">
                               <p className="font-extrabold text-text">{broker.name}</p>
                               <p className="text-xs font-semibold text-muted">{broker.email || 'No email added'}</p>
-                              <p className="text-xs font-semibold text-muted">{broker.phone || 'No phone added'}</p>
+                              <p className="text-xs font-semibold text-muted">{formatPhoneForDisplay(broker.phone) || 'No phone added'}</p>
                             </td>
                             <td className="px-4 py-4 align-top font-semibold text-muted">
                               {broker.brokerProfile?.companyName || 'N/A'}

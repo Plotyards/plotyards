@@ -28,6 +28,7 @@ import { propertyListings } from '../data/properties';
 import { apiRequest } from '../lib/api';
 import { adaptProperties, adaptProperty } from '../utils/propertyAdapter';
 import { useAuth } from '../context/auth';
+import { formatPhoneForLink } from '../utils/phoneUtils';
 
 import EMICalculator from '../components/EMICalculator';
 import { useCompare } from '../context/CompareContext';
@@ -97,15 +98,14 @@ const PropertyDetails = () => {
   const activeBroker = useMemo(() => {
     const broker = property?.broker || defaultBroker;
     const phone = broker.brokerProfile?.contactPhone || broker.phone || '';
-    const numericPhone = String(phone || defaultBroker.phone).replace(/\D/g, '');
+
     return {
-      ...defaultBroker,
       ...broker,
       phone: phone || defaultBroker.phone,
-      whatsapp: String(broker.whatsapp || numericPhone || defaultBroker.whatsapp).replace(/\D/g, ''),
-      callNumber: numericPhone || String(defaultBroker.phone).replace(/\D/g, ''),
-      properties: broker.properties || defaultBroker.properties,
-      response: broker.response || defaultBroker.response
+      whatsapp: formatPhoneForLink(broker.whatsapp || phone || defaultBroker.whatsapp),
+      callNumber: formatPhoneForLink(phone || defaultBroker.phone),
+      companyName: broker.brokerProfile?.companyName || defaultBroker.companyName,
+      experience: broker.brokerProfile?.experience || defaultBroker.experience,
     };
   }, [property]);
 

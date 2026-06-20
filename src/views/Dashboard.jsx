@@ -8,6 +8,7 @@ import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, H
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 import { adaptProperty, adaptProperties } from '../utils/propertyAdapter';
+import { formatPhoneForLink, formatPhoneForDisplay } from '../utils/phoneUtils';
 import BlogManager from '../components/BlogManager';
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
@@ -661,7 +662,7 @@ const Dashboard = () => {
                                   <div className="mt-1 flex flex-wrap items-center gap-3 text-xs font-semibold text-muted">
                                     <span className="inline-flex items-center gap-1">
                                       <Phone size={13} />
-                                      {lead.phone}
+                                      {formatPhoneForDisplay(lead.phone)}
                                     </span>
                                     {lead.email && (
                                       <span className="inline-flex items-center gap-1">
@@ -685,7 +686,7 @@ const Dashboard = () => {
                                 </button>
                               ) : (
                                 <>
-                                  <a href={`tel:${lead.phone}`} className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-xs font-bold text-text transition-colors hover:border-primary hover:text-primary">
+                                  <a href={`tel:+${formatPhoneForLink(lead.phone)}`} className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-xs font-bold text-text transition-colors hover:border-primary hover:text-primary">
                                     <Phone size={14} />
                                     Call
                                   </a>
