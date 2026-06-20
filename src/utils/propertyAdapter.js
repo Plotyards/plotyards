@@ -65,10 +65,10 @@ export const adaptProperty = (property) => {
       ? property.price
       : property.price?.label || (priceValue >= 10000000 ? `Rs. ${(priceValue / 10000000).toFixed(2)} Cr` : `Rs. ${(priceValue / 100000).toFixed(2)} L`),
     priceValue,
-    rate: property.rate || (sizeValue ? `Rs. ${Math.round(priceValue / sizeValue).toLocaleString('en-IN')} / sq.yd` : 'Price on request'),
+    rate: property.rate || (sizeValue ? `Rs. ${Math.round(priceValue / sizeValue).toLocaleString('en-IN')} / Sq. Yrd` : 'Price on request'),
     size: typeof property.size === 'string'
       ? property.size
-      : `${sizeValue || 0} ${property.size?.unit || 'sqyd'}`,
+      : `${sizeValue || 0} ${property.size?.unit || 'Sq. Yrd'}`,
     sizeValue,
     propertyType: normalizePropertyType(rawType),
     type: getPropertyTypeLabel(rawType),

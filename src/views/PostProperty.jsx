@@ -312,11 +312,13 @@ const PostProperty = () => {
           },
           price: {
             amount: Number(form.price),
-            label: `Rs. ${(Number(form.price) / 100000).toFixed(2)} L`
+            label: Number(form.price) > 9999999 
+              ? `Rs. ${(Number(form.price) / 10000000).toFixed(2)} Cr` 
+              : `Rs. ${(Number(form.price) / 100000).toFixed(2)} L`
           },
           size: {
             value: Number(form.size),
-            unit: 'sqyd'
+            unit: 'Sq. Yrd'
           },
           roi: form.roi || '12%',
           images,
@@ -416,7 +418,7 @@ const PostProperty = () => {
               <input value={form.price} onChange={(event) => updateField('price', event.target.value)} type="number" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="4200000" required />
             </div>
             <div>
-              <label className="block text-sm font-bold text-text mb-1">Plot size (Sq.Yd)</label>
+              <label className="block text-sm font-bold text-text mb-1">Plot size (Sq. Yrd)</label>
               <input value={form.size} onChange={(event) => updateField('size', event.target.value)} type="number" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="300" required />
             </div>
             <div>
