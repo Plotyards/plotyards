@@ -203,6 +203,11 @@ const MobileBottomNav = () => {
                     placeholder="Password"
                     required
                   />
+                  <div className="flex justify-end -mt-2 -mb-1">
+                    <Link href="/forgot-password" onClick={closeAuth} className="text-[12px] text-primary hover:text-rose-600 font-bold transition-colors">
+                      Forgot Password?
+                    </Link>
+                  </div>
                   <button disabled={authLoading} className="mt-1 flex h-[52px] items-center justify-center rounded-xl bg-primary text-base font-extrabold text-white shadow-lg shadow-primary/20 disabled:opacity-60">
                     {authLoading ? <Loader2 className="animate-spin" size={20} /> : 'Login'}
                   </button>
