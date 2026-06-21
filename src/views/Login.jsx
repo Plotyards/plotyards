@@ -89,6 +89,11 @@ const Login = () => {
                 required
               />
               {fieldErrors.password && <p className="mt-1 text-xs text-primary font-bold">{fieldErrors.password}</p>}
+              <div className="flex justify-end mt-2">
+                <Link href="/forgot-password" className="text-xs text-primary hover:text-rose-600 font-bold transition-colors">
+                  Forgot Password?
+                </Link>
+              </div>
             </div>
             <button disabled={loading} className="w-full bg-primary hover:bg-rose-600 disabled:opacity-60 text-white font-bold py-4 rounded-xl mt-2 transition-colors text-lg shadow-sm">
               {loading ? 'Signing In...' : 'Sign In'}
