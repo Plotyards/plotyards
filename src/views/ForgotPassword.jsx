@@ -31,7 +31,11 @@ const ForgotPassword = () => {
 
       setStep(2);
     } catch (err) {
-      setError(err.message);
+      if (err.message.includes('Email does not exist')) {
+        setPopup({ type: 'error', message: 'This email does not exist. Please sign up to create an account.', action: 'signup' });
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -84,6 +88,8 @@ const ForgotPassword = () => {
   const handlePopupClose = () => {
     if (popup?.type === 'success') {
       navigate.push('/login');
+    } else if (popup?.action === 'signup') {
+      navigate.push('/signup');
     }
     setPopup(null);
   };
