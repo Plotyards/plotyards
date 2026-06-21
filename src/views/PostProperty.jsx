@@ -318,7 +318,7 @@ const PostProperty = () => {
           },
           size: {
             value: Number(form.size),
-            unit: 'Sq. Yrd'
+            unit: 'sqyd'
           },
           roi: form.roi || '12%',
           images,
