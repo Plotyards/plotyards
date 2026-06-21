@@ -10,6 +10,7 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [error, setError] = useState('');
   const [popup, setPopup] = useState(null);
@@ -36,8 +37,33 @@ const ForgotPassword = () => {
     }
   };
 
+  const handleVerifyOtp = async (event) => {
+    event.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      await apiRequest('/auth/verify-reset-otp', {
+        method: 'POST',
+        body: { email, otp }
+      });
+
+      setStep(3);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleResetPassword = async (event) => {
     event.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     setError('');
     setLoading(true);
 
@@ -72,7 +98,9 @@ const ForgotPassword = () => {
           <div className="text-center mb-1">
             <h2 className="text-3xl font-extrabold text-text mb-2">Forgot Password</h2>
             <p className="text-gray-500 font-medium text-sm">
-              {step === 1 ? 'Enter your email to receive a password reset OTP' : 'Enter the OTP sent to your email and your new password'}
+              {step === 1 && 'Enter your email to receive a password reset OTP'}
+              {step === 2 && 'Enter the OTP sent to your email'}
+              {step === 3 && 'Create a new secure password'}
             </p>
           </div>
 
@@ -95,8 +123,8 @@ const ForgotPassword = () => {
                 {loading ? 'Sending OTP...' : 'Send OTP'}
               </button>
             </form>
-          ) : (
-            <form onSubmit={handleResetPassword} className="flex flex-col gap-5">
+          ) : step === 2 ? (
+            <form onSubmit={handleVerifyOtp} className="flex flex-col gap-5">
               <div>
                 <label className="block text-sm font-bold text-text mb-1">OTP</label>
                 <input
@@ -109,6 +137,12 @@ const ForgotPassword = () => {
                   required
                 />
               </div>
+              <button disabled={loading} className="w-full bg-primary hover:bg-rose-600 disabled:opacity-60 text-white font-bold py-4 rounded-xl mt-2 transition-colors text-lg shadow-sm">
+                {loading ? 'Verifying...' : 'Verify OTP'}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleResetPassword} className="flex flex-col gap-5">
               <div>
                 <label className="block text-sm font-bold text-text mb-1">New Password</label>
                 <input
@@ -117,6 +151,18 @@ const ForgotPassword = () => {
                   type="password"
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium"
                   placeholder="New Password"
+                  minLength={8}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-text mb-1">Confirm Password</label>
+                <input
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  type="password"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium"
+                  placeholder="Confirm Password"
                   minLength={8}
                   required
                 />
