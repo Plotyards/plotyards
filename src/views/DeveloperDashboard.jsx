@@ -209,9 +209,9 @@ const DeveloperDashboard = () => {
                   <div className="bg-black/10 rounded-2xl p-6 backdrop-blur-sm border border-black/10">
                     <p className="font-bold text-lg mb-4">Included Features:</p>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 font-bold">
-                      <li className="flex items-center gap-2"><CheckCircle2 size={18} /> 10 Premium Project Listings</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 size={18} /> 20 Professional Reel Ads</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 size={18} /> 1 Exclusive Podcast Feature</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 size={18} /> {10 * (subscription?.quantity || 1)} Premium Project Listings</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 size={18} /> {20 * (subscription?.quantity || 1)} Professional Reel Ads</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 size={18} /> {1 * (subscription?.quantity || 1)} Exclusive Developer Podcast{subscription?.quantity > 1 ? 's' : ''}</li>
                       <li className="flex items-center gap-2"><CheckCircle2 size={18} /> Professional Drone Footage</li>
                     </ul>
                   </div>

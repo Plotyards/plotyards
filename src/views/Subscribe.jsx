@@ -61,9 +61,9 @@ const Subscribe = () => {
       price: `Rs. ${(100000 * quantity).toLocaleString('en-IN')}`,
       period: '4 months',
       highlights: [
-        '1 Exclusive Developer Podcast',
-        '20 Professional Reel Advertisements',
-        '10 Premium Project Listings',
+        `${1 * quantity} Exclusive Developer Podcast${1 * quantity > 1 ? 's' : ''}`,
+        `${20 * quantity} Professional Reel Advertisements`,
+        `${10 * quantity} Premium Project Listings`,
         'Professional Drone Footage',
         'Developer Brand Promotion',
         'Channel Partner Activation',
