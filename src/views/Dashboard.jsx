@@ -470,7 +470,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="mt-2 sm:mt-0 text-left sm:text-right">
                                   <p className="text-sm font-extrabold text-primary">
-                                    + {6 * addedQuantity} Listings Added
+                                    + {(activePlan === 'developer_premium' ? 10 : 6) * addedQuantity} Listings Added
                                   </p>
                                   {sub.expiresAt && (
                                     <p className="text-xs font-bold text-muted">
