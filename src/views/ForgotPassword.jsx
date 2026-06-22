@@ -60,6 +60,23 @@ const ForgotPassword = () => {
     }
   };
 
+  const handleResendOtp = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      await apiRequest('/auth/forgot-password', {
+        method: 'POST',
+        body: { email }
+      });
+      setPopup({ type: 'success', message: 'OTP has been resent to your email.' });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleResetPassword = async (event) => {
     event.preventDefault();
     
@@ -146,6 +163,17 @@ const ForgotPassword = () => {
               <button disabled={loading} className="w-full bg-primary hover:bg-rose-600 disabled:opacity-60 text-white font-bold py-4 rounded-xl mt-2 transition-colors text-lg shadow-sm">
                 {loading ? 'Verifying...' : 'Verify OTP'}
               </button>
+              
+              <div className="text-center mt-2">
+                <button 
+                  type="button" 
+                  onClick={handleResendOtp}
+                  disabled={loading}
+                  className="text-sm font-bold text-primary hover:text-rose-600 disabled:opacity-50 transition-colors"
+                >
+                  Didn't receive it? Resend OTP
+                </button>
+              </div>
             </form>
           ) : (
             <form onSubmit={handleResetPassword} className="flex flex-col gap-5">
