@@ -38,7 +38,7 @@ const Subscribe = () => {
   const [quantity, setQuantity] = useState(1);
   const navigate = useRouter();
 
-  const isDeveloper = user?.role === 'developer';
+  const isDeveloper = user?.role === 'developer' || user?.brokerProfile?.companyType === 'developer';
 
   const plans = [
     {

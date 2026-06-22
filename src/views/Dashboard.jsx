@@ -346,7 +346,7 @@ const Dashboard = () => {
         ['history', Clock, 'History']
       ];
 
-  const isDeveloper = user?.role === 'developer';
+  const isDeveloper = user?.role === 'developer' || user?.brokerProfile?.companyType === 'developer';
 
   if (isDeveloper) {
     return <DeveloperDashboard />;
