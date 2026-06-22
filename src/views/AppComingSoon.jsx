@@ -103,7 +103,7 @@ const AppComingSoon = () => {
                   </div>
                   <div>
                     <div className="text-[10px] font-extrabold uppercase tracking-wide text-slate-500">Property Status</div>
-                    <div className="text-sm font-extrabold text-slate-900">RERA Verified</div>
+                    <div className="text-sm font-extrabold text-slate-900">Verified</div>
                   </div>
                 </div>
               </div>

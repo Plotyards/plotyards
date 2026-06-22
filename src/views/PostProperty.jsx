@@ -562,7 +562,7 @@ const PostProperty = () => {
           {form.propertyType !== 'farmland' && (
             <label className="flex items-center gap-2 text-sm font-bold text-text">
               <input type="checkbox" checked={form.reraApproved} onChange={(event) => updateField('reraApproved', event.target.checked)} className="accent-primary" />
-              RERA approved / registration available
+              Verified / registration available
             </label>
           )}
           <button disabled={loading} className="w-full bg-primary hover:bg-rose-600 disabled:opacity-60 text-white font-bold py-4 rounded-xl mt-4">
