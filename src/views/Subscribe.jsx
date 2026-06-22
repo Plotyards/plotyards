@@ -38,6 +38,8 @@ const Subscribe = () => {
   const [quantity, setQuantity] = useState(1);
   const navigate = useRouter();
 
+  const isDeveloper = user?.role === 'developer';
+
   const plans = [
     {
       id: 'free',
@@ -53,7 +55,24 @@ const Subscribe = () => {
       buttonText: 'Start Free Trial',
       isPremium: false
     },
-    {
+    ...(isDeveloper ? [{
+      id: 'developer_premium',
+      name: 'Developer Growth Package',
+      price: `Rs. ${(100000 * quantity).toLocaleString('en-IN')}`,
+      period: '4 months',
+      highlights: [
+        '1 Exclusive Developer Podcast',
+        '20 Professional Reel Advertisements',
+        '10 Premium Project Listings',
+        'Professional Drone Footage',
+        'Developer Brand Promotion',
+        'Channel Partner Activation',
+        'Buyer Inquiry Generation'
+      ],
+      description: 'Exclusive maximalism package for developers to boost sales and branding with premium content.',
+      buttonText: 'Subscribe with Razorpay',
+      isPremium: true
+    }] : [{
       id: 'premium',
       name: 'Premium Associate Partner Plan',
       price: `Rs. ${(11000 * quantity).toLocaleString('en-IN')}`,
@@ -70,8 +89,9 @@ const Subscribe = () => {
       description: 'Instant automatic associate partner approval, verified badge status, and unlimited buyer leads.',
       buttonText: 'Subscribe with Razorpay',
       isPremium: true
-    }
+    }])
   ];
+  // Replaced above
 
   const [mounted, setMounted] = useState(false);
   
@@ -109,7 +129,7 @@ const Subscribe = () => {
         amount: payment.amount,
         currency: payment.currency,
         name: 'Plotyards',
-        description: 'Premium Associate Partner Subscription',
+        description: isDeveloper ? 'Developer Growth Package Subscription' : 'Premium Associate Partner Subscription',
         order_id: payment.order.id,
         prefill: {
           name: user?.name || '',
@@ -211,7 +231,7 @@ const Subscribe = () => {
           <div className="mx-auto w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-3">
             <ShieldCheck size={26} />
           </div>
-          <h2 className="text-2xl font-extrabold text-text leading-tight">Associate Partner Subscription</h2>
+          <h2 className="text-2xl font-extrabold text-text leading-tight">{isDeveloper ? 'Developer Premium Subscription' : 'Associate Partner Subscription'}</h2>
           <p className="mt-2 text-sm font-semibold text-muted">
             Subscribe to list plots and receive direct buyer leads.
           </p>

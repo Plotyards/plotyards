@@ -136,6 +136,10 @@ const Home = () => {
         ? 'Demo listings are visible because the live database is empty.'
         : 'Live listings will appear here after associate partners post properties.';
 
+  const developerProperties = hasLiveDatabase
+    ? realProperties.filter((p) => p.isDeveloperListing).slice(0, 5)
+    : canShowDemoProperties ? propertyListings.slice(0, 3) : [];
+
   const handleSeeAllClick = () => {
     const category = featuredCategories.find((item) => item.name === activeFeaturedCategory) || {};
     const query = category.query || '';
@@ -773,6 +777,33 @@ const Home = () => {
           {displayTrending.map((plot, index) => renderHomePropertyCard(plot, index))}
         </div>
       </section>
+
+      {/* Developer Exclusive Golden Section */}
+      {developerProperties.length > 0 && (
+        <section className="relative overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#000000] px-6 py-12 md:py-16 lg:px-12 max-w-[1400px] mx-auto rounded-[3rem] border border-[#d4af37]/30 shadow-[0_0_40px_rgba(212,175,55,0.15)] my-8">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#d4af37]/10 rounded-full blur-[80px]"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#ffdf00]/10 rounded-full blur-[80px]"></div>
+          
+          <div className="relative z-10 mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <p className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/50 bg-[#d4af37]/10 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-[#d4af37]">
+                <Sparkles size={14} />
+                Premium Collection
+              </p>
+              <h2 className="mt-3 text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] via-[#ffdf00] to-[#d4af37] md:text-4xl">
+                Developer's Exclusive
+              </h2>
+              <p className="mt-2 text-gray-400 font-medium max-w-2xl">
+                Direct-from-developer premium projects with verified credentials and guaranteed highest ROI.
+              </p>
+            </div>
+          </div>
+
+          <div className="-mx-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0 md:pb-0 relative z-10">
+            {developerProperties.map((plot, index) => renderHomePropertyCard(plot, index))}
+          </div>
+        </section>
+      )}
 
       {latestBlogs.length > 0 && (
         <section className="hidden md:block px-6 py-6 md:py-10 lg:px-12 max-w-[1400px] mx-auto">

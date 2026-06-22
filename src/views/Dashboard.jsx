@@ -10,6 +10,7 @@ import { useAuth } from '../context/auth';
 import { adaptProperty, adaptProperties } from '../utils/propertyAdapter';
 import { formatPhoneForLink, formatPhoneForDisplay } from '../utils/phoneUtils';
 import BlogManager from '../components/BlogManager';
+import DeveloperDashboard from './DeveloperDashboard';
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 const RAZORPAY_CHECKOUT_URL = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -344,6 +345,12 @@ const Dashboard = () => {
         ['overview', Users, 'Overview'],
         ['history', Clock, 'History']
       ];
+
+  const isDeveloper = user?.role === 'developer';
+
+  if (isDeveloper) {
+    return <DeveloperDashboard />;
+  }
 
   return (
     <div className="min-h-screen pt-28 pb-12 bg-surface font-sans">
