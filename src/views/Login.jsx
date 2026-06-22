@@ -6,8 +6,11 @@ import { useRouter } from 'next/navigation';
 
 import { useAuth } from '../context/auth';
 
+import { Eye, EyeOff } from 'lucide-react';
+
 const Login = () => {
   const [form, setForm] = useState({ identifier: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
 
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
@@ -80,14 +83,23 @@ const Login = () => {
             </div>
             <div>
               <label className="block text-sm font-bold text-text mb-1">Password</label>
-              <input
-                value={form.password}
-                onChange={(event) => setForm({ ...form, password: event.target.value })}
-                type="password"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium"
-                placeholder="Password"
-                required
-              />
+              <div className="relative">
+                <input
+                  value={form.password}
+                  onChange={(event) => setForm({ ...form, password: event.target.value })}
+                  type={showPassword ? "text" : "password"}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-12 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium"
+                  placeholder="Password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
               {fieldErrors.password && <p className="mt-1 text-xs text-primary font-bold">{fieldErrors.password}</p>}
               <div className="flex justify-end mt-2">
                 <Link href="/forgot-password" className="text-xs text-primary hover:text-rose-600 font-bold transition-colors">

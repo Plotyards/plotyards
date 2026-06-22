@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { useState } from 'react';
 import { useAuth } from '../context/auth';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Register = () => {
   const [accountType, setAccountType] = useState('broker');
@@ -12,7 +13,9 @@ const Register = () => {
     name: '',
     email: '',
     phone: '',
+    phone: '',
     password: '',
+    confirmPassword: '',
     companyName: '',
     address: ''
   });
@@ -20,14 +23,25 @@ const Register = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [popup, setPopup] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useRouter();
   const { register } = useAuth();
+  
+  // Import icons at the top in next replacement chunk
+
 
   const handleRegister = async (event) => {
     event.preventDefault();
     setError('');
     setFieldErrors({});
     setPopup(null);
+    
+    if (form.password !== form.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -122,12 +136,34 @@ const Register = () => {
           </div>
           <div>
             <label className="block text-sm font-bold text-text mb-1">Password</label>
-            <input value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} type="password" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium" placeholder="Minimum 8 characters" minLength={8} required />
+            <div className="relative">
+              <input value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} type={showPassword ? "text" : "password"} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-12 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium" placeholder="Minimum 8 characters" minLength={8} required />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
             {fieldErrors.password ? (
               <p className="mt-1 text-xs text-primary font-bold">{fieldErrors.password}</p>
             ) : (
               <p className="mt-1 text-xs text-gray-400 font-medium">Minimum 8 characters required</p>
             )}
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-text mb-1">Confirm Password</label>
+            <div className="relative">
+              <input value={form.confirmPassword} onChange={(event) => setForm({ ...form, confirmPassword: event.target.value })} type={showConfirmPassword ? "text" : "password"} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-12 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium" placeholder="Confirm your password" minLength={8} required />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
 
           {(accountType === 'broker' || accountType === 'developer') && (
