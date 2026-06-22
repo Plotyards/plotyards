@@ -15,7 +15,7 @@ import DeveloperDashboard from './DeveloperDashboard';
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 const RAZORPAY_CHECKOUT_URL = 'https://checkout.razorpay.com/v1/checkout.js';
 
-const normalizePlan = (plan) => (['premium', 'pro', 'elite'].includes(plan) ? 'premium' : 'free');
+const normalizePlan = (plan) => (['premium', 'pro', 'elite', 'developer_premium'].includes(plan) ? plan : 'free');
 
 const planFeatureRows = [
   ['Listings', '6', '9'],
@@ -306,6 +306,9 @@ const Dashboard = () => {
   ];
 
   const activePlan = normalizePlan(currentPlan);
+  const isPremiumActive = activePlan === 'premium' || activePlan === 'developer_premium';
+  const isDeveloper = user?.role === 'developer' || user?.brokerProfile?.companyType === 'developer';
+
   const subscriptionPlans = [
     {
       id: 'free',
@@ -315,9 +318,28 @@ const Dashboard = () => {
       accent: 'border-gray-200 bg-gray-50/50',
       cta: 'Start Free Trial',
       highlights: ['2 Active Listings', '2 UGC Ad Reels', 'Buyer Inquiries'],
-      icon: ShieldCheck
+      icon: ShieldCheck,
+      isPremium: false
     },
-    {
+    ...(isDeveloper ? [{
+      id: 'developer_premium',
+      name: 'Developer Growth Package',
+      price: `Rs. ${(100000 * quantity).toLocaleString('en-IN')}`,
+      period: '4 months',
+      accent: 'border-primary bg-white ring-2 ring-primary/10',
+      cta: 'Pay with Razorpay',
+      highlights: [
+        `${1 * quantity} Exclusive Developer Podcast${1 * quantity > 1 ? 's' : ''}`,
+        `${20 * quantity} Professional Reel Advertisements`,
+        `${10 * quantity} Premium Project Listings`,
+        'Professional Drone Footage',
+        'Developer Brand Promotion',
+        'Channel Partner Activation',
+        'Buyer Inquiry Generation'
+      ],
+      icon: CreditCard,
+      isPremium: true
+    }] : [{
       id: 'premium',
       name: 'Premium Plan',
       price: `Rs. ${(11000 * quantity).toLocaleString('en-IN')}`,
@@ -325,8 +347,9 @@ const Dashboard = () => {
       accent: 'border-primary bg-white ring-2 ring-primary/10',
       cta: 'Pay with Razorpay',
       highlights: [`${6 * quantity} Active Listings`, `${6 * quantity} UGC Ad Reels`, `${100 * quantity} Buyers Inquiries`, 'Auto associate partner approval'],
-      icon: CreditCard
-    }
+      icon: CreditCard,
+      isPremium: true
+    }])
   ];
 
   const navItems = isBroker
@@ -345,12 +368,6 @@ const Dashboard = () => {
         ['overview', Users, 'Overview'],
         ['history', Clock, 'History']
       ];
-
-  const isDeveloper = user?.role === 'developer' || user?.brokerProfile?.companyType === 'developer';
-
-  if (isDeveloper) {
-    return <DeveloperDashboard />;
-  }
 
   return (
     <div className="min-h-screen pt-28 pb-12 bg-surface font-sans">
@@ -389,7 +406,7 @@ const Dashboard = () => {
                     </div>
                     <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-xs font-extrabold uppercase text-primary">
                       <ShieldCheck size={15} />
-                      {subscriptionLoading ? 'Checking plan' : activePlan === 'premium' ? 'Premium Plan Active' : 'Subscription Required'}
+                      {subscriptionLoading ? 'Checking plan' : isPremiumActive ? 'Premium Plan Active' : 'Subscription Required'}
                     </span>
                   </div>
 
@@ -399,14 +416,14 @@ const Dashboard = () => {
                       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <p className="text-2xl font-extrabold text-gray-800">
-                            {subscriptionLoading ? 'Loading...' : activePlan === 'premium' ? 'Premium Plan' : activePlan === 'free' ? 'Trial Package' : 'No Active Subscription'}
+                            {subscriptionLoading ? 'Loading...' : isPremiumActive ? (activePlan === 'developer_premium' ? 'Developer Package' : 'Premium Plan') : activePlan === 'free' ? 'Trial Package' : 'No Active Subscription'}
                           </p>
                           <p className="text-sm font-semibold text-gray-500">
                             {currentSubscription?.expiresAt ? `Valid until ${formatDate(currentSubscription.expiresAt)}` : activePlan === 'free' ? 'Lifetime Validity' : 'Please purchase a premium subscription to post properties'}
                           </p>
                         </div>
-                        <span className={`inline-flex w-fit rounded-full px-4 py-1.5 text-xs font-extrabold uppercase shadow-[4px_4px_8px_rgba(0,0,0,0.05),-4px_-4px_8px_rgba(255,255,255,1)] ${activePlan === 'premium' ? 'bg-green-50 text-green-700' : activePlan === 'free' ? 'bg-blue-50 text-blue-700' : 'bg-rose-50 text-primary'}`}>
-                          {activePlan === 'premium' || activePlan === 'free' ? (currentSubscription?.status || 'active') : 'inactive'}
+                        <span className={`inline-flex w-fit rounded-full px-4 py-1.5 text-xs font-extrabold uppercase shadow-[4px_4px_8px_rgba(0,0,0,0.05),-4px_-4px_8px_rgba(255,255,255,1)] ${isPremiumActive ? 'bg-green-50 text-green-700' : activePlan === 'free' ? 'bg-blue-50 text-blue-700' : 'bg-rose-50 text-primary'}`}>
+                          {isPremiumActive || activePlan === 'free' ? (currentSubscription?.status || 'active') : 'inactive'}
                         </span>
                       </div>
                     </div>
@@ -415,21 +432,21 @@ const Dashboard = () => {
                         <div className="p-2 rounded-xl bg-white shadow-[2px_2px_5px_rgba(0,0,0,0.05),-2px_-2px_5px_rgba(255,255,255,1)] text-primary">
                           <HomeIcon size={18} />
                         </div>
-                        <p className="mt-3 text-2xl font-extrabold text-gray-800">{activePlan === 'premium' ? 6 * (currentSubscription?.quantity || 1) : activePlan === 'free' ? 2 : 0}</p>
+                        <p className="mt-3 text-2xl font-extrabold text-gray-800">{isPremiumActive ? (activePlan === 'developer_premium' ? 10 : 6) * (currentSubscription?.quantity || 1) : activePlan === 'free' ? 2 : 0}</p>
                         <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500">Listings</p>
                       </div>
                       <div className="flex flex-col items-center sm:items-start">
                         <div className="p-2 rounded-xl bg-white shadow-[2px_2px_5px_rgba(0,0,0,0.05),-2px_-2px_5px_rgba(255,255,255,1)] text-secondary">
                           <Video size={18} />
                         </div>
-                        <p className="mt-3 text-2xl font-extrabold text-gray-800">{activePlan === 'premium' ? 6 * (currentSubscription?.quantity || 1) : activePlan === 'free' ? 2 : 0}</p>
+                        <p className="mt-3 text-2xl font-extrabold text-gray-800">{isPremiumActive ? (activePlan === 'developer_premium' ? 20 : 6) * (currentSubscription?.quantity || 1) : activePlan === 'free' ? 2 : 0}</p>
                         <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500">Reels</p>
                       </div>
                       <div className="flex flex-col items-center sm:items-start">
                         <div className="p-2 rounded-xl bg-white shadow-[2px_2px_5px_rgba(0,0,0,0.05),-2px_-2px_5px_rgba(255,255,255,1)] text-emerald-600">
                           <Users size={18} />
                         </div>
-                        <p className="mt-3 text-2xl font-extrabold text-gray-800">{activePlan === 'premium' ? 100 * (currentSubscription?.quantity || 1) : activePlan === 'free' ? 'Trial' : 0}</p>
+                        <p className="mt-3 text-2xl font-extrabold text-gray-800">{isPremiumActive ? 100 * (currentSubscription?.quantity || 1) : activePlan === 'free' ? 'Trial' : 0}</p>
                         <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500">Leads</p>
                       </div>
                     </div>
@@ -476,11 +493,11 @@ const Dashboard = () => {
                       const isUpdating = subscriptionUpdating === plan.id;
 
                       return (
-                        <div key={plan.id} className={`flex flex-col h-full w-full max-w-md mx-auto rounded-[2.5rem] p-8 transition-transform duration-300 hover:-translate-y-2 ${plan.id === 'premium' ? 'bg-[#fef2f2] shadow-[inset_6px_6px_12px_rgba(248,14,17,0.08),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-4 border-white/60' : 'bg-[#f0f4f8] shadow-[inset_6px_6px_12px_rgba(0,0,0,0.06),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-4 border-white/60'}`}>
+                        <div key={plan.id} className={`flex flex-col h-full w-full max-w-md mx-auto rounded-[2.5rem] p-8 transition-transform duration-300 hover:-translate-y-2 ${plan.isPremium ? 'bg-[#fef2f2] shadow-[inset_6px_6px_12px_rgba(248,14,17,0.08),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-4 border-white/60' : 'bg-[#f0f4f8] shadow-[inset_6px_6px_12px_rgba(0,0,0,0.06),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-4 border-white/60'}`}>
                           <div className="flex items-start justify-between gap-4">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className={`inline-flex h-11 w-11 items-center justify-center rounded-[1rem] shadow-[4px_4px_8px_rgba(0,0,0,0.1),-4px_-4px_8px_rgba(255,255,255,1)] ${plan.id === 'premium' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}>
+                                <span className={`inline-flex h-11 w-11 items-center justify-center rounded-[1rem] shadow-[4px_4px_8px_rgba(0,0,0,0.1),-4px_-4px_8px_rgba(255,255,255,1)] ${plan.isPremium ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}>
                                   <Icon size={20} />
                                 </span>
                                 <h3 className="text-xl font-extrabold text-gray-800">{plan.name}</h3>
@@ -491,11 +508,11 @@ const Dashboard = () => {
                               </div>
                             </div>
                             {isActivePlan && (
-                              <span className={`rounded-full px-4 py-1.5 text-[10px] font-extrabold uppercase shadow-[4px_4px_8px_rgba(0,0,0,0.05),-4px_-4px_8px_rgba(255,255,255,1)] ${plan.id === 'premium' ? 'bg-rose-100 text-primary' : 'bg-blue-100 text-blue-700'}`}>Active</span>
+                              <span className={`rounded-full px-4 py-1.5 text-[10px] font-extrabold uppercase shadow-[4px_4px_8px_rgba(0,0,0,0.05),-4px_-4px_8px_rgba(255,255,255,1)] ${plan.isPremium ? 'bg-rose-100 text-primary' : 'bg-blue-100 text-blue-700'}`}>Active</span>
                             )}
                           </div>
 
-                          {plan.id === 'premium' && (
+                          {plan.isPremium && (
                             <div className="mt-4 flex items-center justify-between border-y border-gray-100 py-4">
                               <span className="text-sm font-bold text-text">Package Quantity</span>
                               <div className="flex items-center gap-3 bg-gray-50 p-1 rounded-xl border border-gray-100">
@@ -518,13 +535,13 @@ const Dashboard = () => {
                             </div>
                           )}
 
-                          {plan.id === 'premium' && isActivePlan && (
+                          {plan.isPremium && isActivePlan && (
                             <div className="mt-4 border-y border-primary/20 bg-primary/5 p-4 rounded-xl">
                               <p className="text-sm font-extrabold text-primary flex items-center gap-2">
-                                <Plus size={16} /> Add another {6 * quantity} listings to the existing plan
+                                <Plus size={16} /> Add another {plan.id === 'developer_premium' ? 10 : 6} listings to the existing plan
                               </p>
                               <p className="mt-1 text-xs font-semibold text-muted">
-                                Validity will be extended by 3 months from your current expiry date.
+                                Validity will be extended by {plan.id === 'developer_premium' ? 4 : 3} months from your current expiry date.
                               </p>
                             </div>
                           )}
@@ -539,7 +556,7 @@ const Dashboard = () => {
                             ))}
                           </div>
 
-                          {plan.id === 'premium' && (
+                          {plan.isPremium && (
                             <div className="mt-5 rounded-xl border border-primary/15 bg-primary/5 p-4">
                               <p className="flex items-center gap-2 text-sm font-extrabold text-primary">
                                 <TrendingUp size={16} />
@@ -552,11 +569,11 @@ const Dashboard = () => {
                           <button
                             onClick={() => createSubscription(plan.id)}
                             disabled={isUpdating || (plan.id === 'free' && activePlan !== '')}
-                            className={`mt-8 w-full font-extrabold py-4 rounded-[1.5rem] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 ${plan.id === 'premium' ? 'bg-primary text-white shadow-[6px_6px_12px_rgba(248,14,17,0.3),-6px_-6px_12px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.2)]' : 'bg-[#f0f4f8] text-gray-700 shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.1),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]'}`}
+                            className={`mt-8 w-full font-extrabold py-4 rounded-[1.5rem] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 ${plan.isPremium ? 'bg-primary text-white shadow-[6px_6px_12px_rgba(248,14,17,0.3),-6px_-6px_12px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.2)]' : 'bg-[#f0f4f8] text-gray-700 shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.1),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]'}`}
                           >
-                            {isUpdating ? 'Processing...' : (isActivePlan && plan.id === 'premium' ? 'Upgrade Plan with Razorpay' : isActivePlan ? 'Current Plan' : plan.cta)}
+                            {isUpdating ? 'Processing...' : (isActivePlan && plan.isPremium ? 'Upgrade Plan with Razorpay' : isActivePlan ? 'Current Plan' : plan.cta)}
                           </button>
-                          {plan.id === 'premium' && (
+                          {plan.isPremium && (
                             <p className="mt-3 text-center text-xs font-semibold text-muted">
                               Payment is subject to our{' '}
                               <Link href="/refund-policy" className="font-extrabold text-primary hover:text-rose-600">
@@ -628,10 +645,10 @@ const Dashboard = () => {
                 </div>
               ) : activeTab === 'blogs' ? (
                 <BlogManager
-                  canCreate={!subscriptionLoading && activePlan === 'premium'}
-                  lockedMessage="Spotlight is available only for Premium Associate Partners. Upgrade to Premium to publish SEO articles, location guides, and property investment content."
-                  title="Associate Partner Spotlight"
-                  description="Premium Associate Partners can publish buyer guides and property investment articles on Plotyards."
+                  canCreate={!subscriptionLoading && isPremiumActive}
+                  lockedMessage="Spotlight is available only for Premium Associate Partners and Developers. Upgrade to Premium to publish SEO articles, location guides, and property investment content."
+                  title="Spotlight"
+                  description="Premium accounts can publish buyer guides and property investment articles on Plotyards."
                 />
               ) : activeTab === 'leads' ? (
                 <div className="space-y-5">
