@@ -1,3 +1,4 @@
+import Script from 'next/script';
 import '../index.css';
 import '../App.css';
 import { Providers } from './Providers';
@@ -26,6 +27,21 @@ import { Suspense } from 'react';
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-85YQ1GN7EM" />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-85YQ1GN7EM');
+            `,
+          }}
+        />
+      </head>
       <body suppressHydrationWarning className="min-h-screen bg-background text-text flex flex-col antialiased">
         <Providers>
           <Suspense fallback={null}>
