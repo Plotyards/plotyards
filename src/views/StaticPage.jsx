@@ -97,12 +97,12 @@ const pageContent = {
   },
   refund: {
     title: 'Refund Policy - Plotyards',
-    intro: 'This Refund Policy explains how refunds, cancellations, and payment issues are handled for paid associate partner subscriptions and promotional services on Plotyards.',
-    updated: 'Last updated: May 23, 2026',
+    intro: 'This Refund Policy explains how refunds, cancellations, and payment issues are handled for paid associate partner and developer subscriptions, as well as promotional services on Plotyards.',
+    updated: 'Last updated: June 24, 2026',
     sections: [
       {
-        heading: '1. Associate Partner Subscription Payments',
-        body: 'Premium Plan payments, including the Rs. 5,100 plan for 3 months, are generally non-refundable once the plan is activated, associate partner approval is granted, or promotional work such as featured visibility, reels, leads support, or social promotion has started.'
+        heading: '1. Subscription Payments',
+        body: 'Premium Plan payments, including the Premium Associate Partner Plan (Rs. 11,000 for 3 months) and the Developer Growth Package (Rs. 100,000 for 4 months), are generally non-refundable once the plan is activated, associate partner or developer approval is granted, or promotional work such as featured visibility, podcast production, reels, leads support, or social promotion has started.'
       },
       {
         heading: '2. Duplicate or Failed Payments',
