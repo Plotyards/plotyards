@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Home, Lightbulb, Loader2, PlusSquare, Search, User, X } from 'lucide-react';
-import { useAuth } from '../context/auth';
-
+import { useAuth } from '../context/AuthContext';
+import VerifyDocumentModal from './VerifyDocumentModal';
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/listings', label: 'Explore', icon: Search },
@@ -18,7 +18,7 @@ const MobileBottomNav = () => {
   const navigate = useRouter();
   const { user, login, logout } = useAuth();
   const [mounted, setMounted] = useState(false);
-
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -223,17 +223,21 @@ const MobileBottomNav = () => {
               </>
             )}
 
-            <div className="mt-5 grid grid-cols-2 gap-2 border-t border-gray-100 pt-5">
-              <a href="https://wa.me/918287697756?text=Hi%20i%20want%20to%20talk%20about%20Legal%20assistance" target="_blank" rel="noreferrer" className="rounded-xl bg-gray-50 px-2 py-3 text-center text-[12px] font-extrabold text-text transition-colors hover:bg-gray-100">
-                Legal Assistance
-              </a>
-              <a href="https://wa.me/918287697756?text=Hi%20i%20want%20to%20talk%20about%20Loan%20assistance" target="_blank" rel="noreferrer" className="rounded-xl bg-gray-50 px-2 py-3 text-center text-[12px] font-extrabold text-text transition-colors hover:bg-gray-100">
-                Loan Assistance
-              </a>
+            <div className="mt-5 border-t border-gray-100 pt-5">
+              <button
+                onClick={() => {
+                  closeAuth();
+                  setIsVerifyModalOpen(true);
+                }}
+                className="w-full rounded-xl bg-gray-50 px-2 py-3 text-center text-sm font-extrabold text-text transition-colors hover:bg-gray-100"
+              >
+                Verify Property Documents
+              </button>
             </div>
           </div>
         </div>
       )}
+      <VerifyDocumentModal isOpen={isVerifyModalOpen} onClose={() => setIsVerifyModalOpen(false)} />
     </>
   );
 };

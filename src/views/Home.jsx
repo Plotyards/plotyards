@@ -13,21 +13,15 @@ import { adaptProperties } from '../utils/propertyAdapter';
 
 import { propertyListings } from '../data/properties';
 import { useCompare } from '../context/CompareContext';
+import VerifyDocumentModal from '../components/VerifyDocumentModal';
 
 const whatsappNumber = '918287697756';
 
 const homeMoreLinks = [
   {
-    href: `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hi i want to talk about Legal assistance')}`,
-    label: 'Legal Assistance',
-    external: true,
-    icon: Scale
-  },
-  {
-    href: `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hi i want to talk about Loan assistance')}`,
-    label: 'Loan Assistance',
-    external: true,
-    icon: TrendingUp
+    action: 'verify-document',
+    label: 'Verify Property Documents',
+    icon: CheckCircle2
   },
   { href: '/help-center', label: 'Help Center', icon: BookOpen },
   { href: '/privacy', label: 'Privacy Policy', icon: ShieldCheck },
@@ -45,6 +39,7 @@ const heroSearchTabs = [
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [activeSearchTab, setActiveSearchTab] = useState('Plots');
   const [propertyType, setPropertyType] = useState('Residential');
   const [selectedState, setSelectedState] = useState('All India');
@@ -443,8 +438,17 @@ const Home = () => {
                         index < 2 ? 'text-primary hover:bg-primary/10' : 'text-text hover:bg-surface'
                       }`;
                       const iconClassName = `flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${
-                        index < 2 ? 'bg-primary/10 text-primary' : 'bg-surface text-muted'
+                        index < 1 ? 'bg-primary/10 text-primary' : 'bg-surface text-muted'
                       }`;
+
+                      if (link.action === 'verify-document') {
+                        return (
+                          <button key={link.label} onClick={() => { setIsMoreMenuOpen(false); setIsVerifyModalOpen(true); }} className={`w-full text-left ${className}`}>
+                            <span className={iconClassName}><Icon size={16} /></span>
+                            <span className="min-w-0 flex-1 truncate">{link.label}</span>
+                          </button>
+                        );
+                      }
 
                       if (link.external) {
                         return (
@@ -955,6 +959,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+      <VerifyDocumentModal isOpen={isVerifyModalOpen} onClose={() => setIsVerifyModalOpen(false)} />
     </div>
   );
 };

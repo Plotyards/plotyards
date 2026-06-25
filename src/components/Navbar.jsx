@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 import { Menu, User, Search, X } from 'lucide-react';
-import { useAuth } from '../context/auth';
+import { useAuth } from '../context/AuthContext';
+import VerifyDocumentModal from './VerifyDocumentModal';
 import { isAdminSearchQuery, openAdminEntry } from '../utils/adminAccess';
 
 const Navbar = () => {
@@ -24,17 +25,7 @@ const Navbar = () => {
   const canPostProperty = isAdmin || (isBroker && user?.brokerStatus === 'approved');
   const roleLabel = user?.role === 'user' ? 'buyer' : user?.role === 'broker' ? (user.brokerProfile?.companyType === 'developer' ? 'developer' : 'associate partner') : user?.role;
 
-  const whatsappNumber = '918287697756';
-  const assistanceLinks = [
-    {
-      href: `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hi i want to talk about Legal assistance')}`,
-      label: 'Legal Assistance'
-    },
-    {
-      href: `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hi i want to talk about Loan assistance')}`,
-      label: 'Loan Assistance'
-    }
-  ];
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
 
   const closeMenu = () => setIsMenuOpen(false);
 
@@ -212,24 +203,22 @@ const Navbar = () => {
                   <Link onClick={closeMenu} href="/help-center" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
                     Help Center
                   </Link>
-                  {assistanceLinks.map((link) => (
-                    <a
-                      key={link.label}
-                      href={link.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      onClick={closeMenu}
-                      className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors"
-                    >
-                      {link.label}
-                    </a>
-                  ))}
+                  <button
+                    onClick={() => {
+                      closeMenu();
+                      setIsVerifyModalOpen(true);
+                    }}
+                    className="w-full text-left block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors"
+                  >
+                    Verify Property Documents
+                  </button>
                 </div>
               </div>
             )}
           </div>
         </div>
       </div>
+      <VerifyDocumentModal isOpen={isVerifyModalOpen} onClose={() => setIsVerifyModalOpen(false)} />
     </header>
   );
 };
