@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 import { Menu, User, Search, X } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/auth';
 import VerifyDocumentModal from './VerifyDocumentModal';
 import { isAdminSearchQuery, openAdminEntry } from '../utils/adminAccess';
 
