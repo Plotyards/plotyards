@@ -10,6 +10,7 @@ import CompareWidget from '../components/CompareWidget';
 import CompareModal from '../components/CompareModal';
 import MobileBottomNav from '../components/MobileBottomNav';
 import ScrollToTop from '../components/ScrollToTop';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata = {
   title: {
@@ -72,6 +73,7 @@ export default function RootLayout({ children }) {
             <MobileBottomNav />
           </Suspense>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
