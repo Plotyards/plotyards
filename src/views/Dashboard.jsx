@@ -768,6 +768,32 @@ const Dashboard = () => {
                     </div>
                   )}
                 </div>
+              ) : activeTab === 'settings' ? (
+                <div className="grid gap-6">
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <h2 className="text-2xl font-extrabold text-gray-900">Account Settings</h2>
+                      <p className="mt-1 text-sm text-gray-500 font-medium">Manage your account preferences and data</p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 sm:p-8 mt-4">
+                    <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-bold text-rose-900">Danger Zone</h3>
+                        <p className="mt-1 text-sm text-rose-700 max-w-lg font-medium">
+                          Permanently delete your account, including all your listings, leads, and personal data. This action cannot be undone.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setIsDeleteModalOpen(true)}
+                        className="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-rose-700 shadow-sm"
+                      >
+                        Delete My Account
+                      </button>
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <div className="space-y-8">
                   <div>
