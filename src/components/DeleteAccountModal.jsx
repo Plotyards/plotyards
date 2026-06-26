@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { AlertTriangle, X, Loader2 } from 'lucide-react';
 import { apiRequest } from '../lib/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/auth';
 
 export default function DeleteAccountModal({ isOpen, onClose }) {
   const { logout } = useAuth();
