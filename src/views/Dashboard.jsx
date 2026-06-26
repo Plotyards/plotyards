@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle, Plus, Minus } from 'lucide-react';
+import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle, Plus, Minus, Settings } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 import { adaptProperty, adaptProperties } from '../utils/propertyAdapter';
 import { formatPhoneForLink, formatPhoneForDisplay } from '../utils/phoneUtils';
 import BlogManager from '../components/BlogManager';
 import DeveloperDashboard from './DeveloperDashboard';
+import DeleteAccountModal from '../components/DeleteAccountModal';
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 const RAZORPAY_CHECKOUT_URL = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -95,6 +96,8 @@ const Dashboard = () => {
   const [brokerRequestStatus, setBrokerRequestStatus] = useState('');
   const [brokerRequesting, setBrokerRequesting] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [subscriptionProcessing, setSubscriptionProcessing] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [subscriptionHistory, setSubscriptionHistory] = useState([]);
 
   useEffect(() => {
@@ -359,14 +362,17 @@ const Dashboard = () => {
             ['leads', Inbox, 'Leads'],
             ['listings', HomeIcon, 'My Listings'],
             ['blogs', FileText, 'Blogs'],
-            ['subscription', CreditCard, 'Subscription']
+            ['subscription', CreditCard, 'Subscription'],
+            ['settings', Settings, 'Settings']
           ]
         : [
-            ['subscription', CreditCard, 'Subscription']
+            ['subscription', CreditCard, 'Subscription'],
+            ['settings', Settings, 'Settings']
           ])
     : [
         ['overview', Users, 'Overview'],
-        ['history', Clock, 'History']
+        ['history', Clock, 'History'],
+        ['settings', Settings, 'Settings']
       ];
 
   return (
@@ -833,6 +839,32 @@ const Dashboard = () => {
                         <p className="text-sm font-bold text-muted">No recent history yet.</p>
                       )}
                     </div>
+                  ) : activeTab === 'settings' ? (
+                    <div className="grid gap-6">
+                      <div className="flex items-end justify-between">
+                        <div>
+                          <h2 className="text-2xl font-extrabold text-gray-900">Account Settings</h2>
+                          <p className="mt-1 text-sm text-gray-500 font-medium">Manage your account preferences and data</p>
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 sm:p-8 mt-4">
+                        <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between">
+                          <div>
+                            <h3 className="text-lg font-bold text-rose-900">Danger Zone</h3>
+                            <p className="mt-1 text-sm text-rose-700 max-w-lg font-medium">
+                              Permanently delete your account, including all your listings, leads, and personal data. This action cannot be undone.
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setIsDeleteModalOpen(true)}
+                            className="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-rose-700 shadow-sm"
+                          >
+                            Delete My Account
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   ) : (
                     <div className="space-y-6">
                       <div className="rounded-2xl border border-border bg-surface p-8">
@@ -854,6 +886,11 @@ const Dashboard = () => {
           </main>
         </div>
       </div>
+
+      <DeleteAccountModal 
+        isOpen={isDeleteModalOpen} 
+        onClose={() => setIsDeleteModalOpen(false)} 
+      />
 
       {popup && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
