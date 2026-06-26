@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BarChart3, Clock, Compass, CreditCard, FileText, Home as HomeIcon, Inbox, MapPin, MessageCircle, Phone, Sparkles, TrendingUp, Users, Video, Plus, ShieldCheck, Mail, CheckCircle2 } from 'lucide-react';
+import { BarChart3, Clock, Compass, CreditCard, FileText, Home as HomeIcon, Inbox, MapPin, MessageCircle, Phone, Sparkles, TrendingUp, Users, Video, Plus, ShieldCheck, Mail, CheckCircle2, Settings } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 import { adaptProperties, adaptProperty } from '../utils/propertyAdapter';
 import { formatPhoneForDisplay, formatPhoneForLink } from '../utils/phoneUtils';
+import DeleteAccountModal from '../components/DeleteAccountModal';
 
 const DeveloperDashboard = () => {
   const navigate = useRouter();
@@ -16,6 +17,7 @@ const DeveloperDashboard = () => {
   const [properties, setProperties] = useState([]);
   const [inquiries, setInquiries] = useState([]);
   const [subscription, setSubscription] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   
   useEffect(() => {
     apiRequest('/properties/mine')
@@ -41,7 +43,8 @@ const DeveloperDashboard = () => {
     ['leads', Inbox, 'Buyer Leads'],
     ['listings', HomeIcon, 'Project Listings'],
     ['services', Sparkles, 'Premium Services'],
-    ['subscription', CreditCard, 'Subscription']
+    ['subscription', CreditCard, 'Subscription'],
+    ['settings', Settings, 'Settings']
   ];
 
   return (
@@ -219,9 +222,36 @@ const DeveloperDashboard = () => {
               </div>
             )}
 
+            {activeTab === 'settings' && (
+              <div className="space-y-6">
+                <h2 className="text-4xl font-black uppercase text-white mb-8">Account Settings</h2>
+                <div className="bg-[#111] p-10 rounded-[3rem] border border-red-900/30 shadow-[0_0_40px_rgba(220,38,38,0.1)]">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    <div>
+                      <h3 className="text-2xl font-black text-red-500 mb-2">Danger Zone</h3>
+                      <p className="text-gray-400 font-bold max-w-xl text-sm">
+                        Permanently delete your developer account, including all your project listings, leads, and personal data. This action cannot be undone.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setIsDeleteModalOpen(true)}
+                      className="shrink-0 inline-flex items-center justify-center rounded-xl bg-red-600/20 border border-red-600/50 px-8 py-4 text-sm font-black text-red-500 uppercase tracking-wider transition-colors hover:bg-red-600 hover:text-white"
+                    >
+                      Delete My Account
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </main>
         </div>
       </div>
+
+      <DeleteAccountModal 
+        isOpen={isDeleteModalOpen} 
+        onClose={() => setIsDeleteModalOpen(false)} 
+      />
     </div>
   );
 };
