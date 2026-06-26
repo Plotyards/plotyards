@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Activity, BarChart3, Building2, CheckCircle2, ChevronLeft, ChevronRight, FileText, Image, Inbox, Megaphone, Plus, Search, ShieldCheck, Sparkles, Star, Trash2, Upload, Users, XCircle } from 'lucide-react';
+import { Activity, BarChart3, Building2, CheckCircle2, ChevronLeft, ChevronRight, FileText, Image, Inbox, Megaphone, Plus, Search, ShieldCheck, Sparkles, Star, Trash2, Upload, Users, XCircle, Download } from 'lucide-react';
 import { DEFAULT_TOP_CITIES } from '../data/topCities';
 import { apiRequest } from '../lib/api';
 import BlogManager from '../components/BlogManager';
@@ -243,6 +243,43 @@ const AdminPanel = () => {
     )));
   };
 
+  const exportBrokersToCSV = () => {
+    if (!filteredBrokers.length) return;
+    
+    // Headers
+    const headers = ['Name', 'Email', 'Phone', 'Company Name', 'Company Type', 'RERA ID', 'Status', 'Account Status', 'Registered At'];
+    
+    // Rows
+    const rows = filteredBrokers.map(broker => [
+      broker.name || '',
+      broker.email || '',
+      broker.phone || broker.brokerProfile?.contactPhone || '',
+      broker.brokerProfile?.companyName || '',
+      broker.brokerProfile?.companyType || '',
+      broker.brokerProfile?.reraId || '',
+      broker.brokerStatus || 'approved',
+      broker.isActive ? 'Enabled' : 'Disabled',
+      new Date(broker.createdAt).toLocaleString()
+    ]);
+    
+    // Create CSV content
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+    
+    // Download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `brokers_list_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const navItems = [
     ['stats', BarChart3, 'Analytics'],
     ['manageBrokers', Users, 'Manage Associate Partners'],
@@ -398,9 +435,17 @@ const AdminPanel = () => {
               </div>
             ) : activeTab === 'manageBrokers' ? (
               <div className="grid gap-5">
-                <div>
-                  <h2 className="text-2xl font-extrabold text-text">Manage Associate Partners</h2>
-                  <p className="mt-2 text-sm font-medium text-muted">Search associate partners by name, email, phone, or company.</p>
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                  <div>
+                    <h2 className="text-2xl font-extrabold text-text">Manage Associate Partners</h2>
+                    <p className="mt-2 text-sm font-medium text-muted">Search associate partners by name, email, phone, or company.</p>
+                  </div>
+                  <button
+                    onClick={exportBrokersToCSV}
+                    className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-green-700"
+                  >
+                    <Download size={18} /> Export to Excel
+                  </button>
                 </div>
                 <input
                   value={brokerSearch}
