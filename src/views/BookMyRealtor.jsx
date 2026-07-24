@@ -71,6 +71,14 @@ export default function BookMyRealtor() {
           <p className="text-gray-500 font-medium text-base sm:text-lg mt-3">
             Discover and connect directly with verified real estate experts in your locality. No middlemen. Direct Call, WhatsApp & Chat.
           </p>
+          <div className="mt-4 flex justify-center">
+            <a
+              href="/realtor-register"
+              className="inline-flex items-center gap-2 bg-slate-900 hover:bg-black text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-sm transition-all"
+            >
+              💼 Are you a Realtor? Join Directory (₹249 Lifetime) →
+            </a>
+          </div>
         </div>
 
         {/* Search & Filter Card */}

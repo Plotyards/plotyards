@@ -195,8 +195,8 @@ const Navbar = () => {
                         <Link onClick={closeMenu} href="/login" className="w-full text-center bg-primary text-white py-2 rounded-xl font-semibold hover:bg-rose-600 transition-colors">
                           Partner Login
                         </Link>
-                        <Link onClick={closeMenu} href="/register" className="w-full text-center bg-gray-50 text-text py-2 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
-                          Partner Signup
+                        <Link onClick={closeMenu} href="/realtor-register" className="w-full text-center bg-gray-50 text-text py-2 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+                          Realtor Signup
                         </Link>
                       </>
                     )}
