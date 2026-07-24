@@ -4,7 +4,7 @@ const getBaseUrl = () => {
   if (typeof window !== 'undefined') {
     return '/api';
   }
-  return process.env.NODE_ENV === 'production' ? 'http://187.127.175.192/api' : 'http://localhost:5000/api';
+  return process.env.NEXT_PUBLIC_API_URL || 'http://187.127.153.144/api';
 };
 
 const API_BASE_URL = getBaseUrl();

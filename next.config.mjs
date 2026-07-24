@@ -29,11 +29,12 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const isProd = process.env.NODE_ENV === 'production';
+    const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://187.127.153.144/api').replace(/\/+$/, '');
+    const targetUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
     return [
       {
         source: '/api/:path*',
-        destination: isProd ? 'http://187.127.175.192/api/:path*' : 'http://localhost:5000/api/:path*',
+        destination: `${targetUrl}/:path*`,
       },
     ];
   },
