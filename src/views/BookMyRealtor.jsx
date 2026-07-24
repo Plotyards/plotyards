@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Phone, MessageCircle, CheckCircle2, ShieldCheck, Award, Briefcase, ExternalLink, Filter } from 'lucide-react';
+import { Search, MapPin, Phone, MessageCircle, CheckCircle2, ShieldCheck, Award, Briefcase, ExternalLink, Filter, Building2, Layers } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { formatPhoneForDisplay } from '../utils/phoneUtils';
+import DropdownSelect from '../components/DropdownSelect';
 
 const STATES_CITIES = {
   Haryana: ['Jhajjar', 'Gurgaon', 'Faridabad', 'Rohtak', 'Panipat', 'Karnal', 'Hisar', 'Sonipat'],
@@ -79,61 +80,63 @@ export default function BookMyRealtor() {
             {/* State Dropdown */}
             <div>
               <label className="block text-xs font-bold text-text uppercase tracking-wider mb-2">State</label>
-              <select
+              <DropdownSelect
                 value={state}
-                onChange={(e) => {
-                  setState(e.target.value);
+                onChange={(val) => {
+                  setState(val);
                   setCity('');
                 }}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-text outline-none focus:border-primary/50 transition-colors"
-              >
-                <option value="">All States</option>
-                {Object.keys(STATES_CITIES).map((st) => (
-                  <option key={st} value={st}>{st}</option>
-                ))}
-              </select>
+                placeholder="All States"
+                icon={MapPin}
+                options={[
+                  { value: '', label: 'All States' },
+                  ...Object.keys(STATES_CITIES).map((st) => ({ value: st, label: st }))
+                ]}
+              />
             </div>
 
             {/* City Dropdown */}
             <div>
               <label className="block text-xs font-bold text-text uppercase tracking-wider mb-2">City</label>
-              <select
+              <DropdownSelect
                 value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-text outline-none focus:border-primary/50 transition-colors"
-              >
-                <option value="">All Cities</option>
-                {(state ? STATES_CITIES[state] || [] : Object.values(STATES_CITIES).flat()).map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
+                onChange={(val) => setCity(val)}
+                placeholder="All Cities"
+                icon={Building2}
+                options={[
+                  { value: '', label: 'All Cities' },
+                  ...(state ? STATES_CITIES[state] || [] : Object.values(STATES_CITIES).flat()).map((c) => ({ value: c, label: c }))
+                ]}
+              />
             </div>
 
             {/* Area / Locality Input */}
             <div>
               <label className="block text-xs font-bold text-text uppercase tracking-wider mb-2">Area / Locality</label>
-              <input
-                type="text"
-                placeholder="e.g. Sector 14, Dholera SIR..."
-                value={area}
-                onChange={(e) => setArea(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-text outline-none focus:border-primary/50 transition-colors placeholder:text-gray-400"
-              />
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  placeholder="e.g. Sector 14, Dholera SIR..."
+                  value={area}
+                  onChange={(e) => setArea(e.target.value)}
+                  className="w-full bg-gray-50/80 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-text outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 placeholder:text-gray-400 transition-all min-h-[48px]"
+                />
+              </div>
             </div>
 
             {/* Category Dropdown */}
             <div>
               <label className="block text-xs font-bold text-text uppercase tracking-wider mb-2">Category</label>
-              <select
+              <DropdownSelect
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-text outline-none focus:border-primary/50 transition-colors"
-              >
-                <option value="">All Categories</option>
-                {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
+                onChange={(val) => setCategory(val)}
+                placeholder="All Categories"
+                icon={Layers}
+                options={[
+                  { value: '', label: 'All Categories' },
+                  ...CATEGORIES.map((cat) => ({ value: cat, label: cat }))
+                ]}
+              />
             </div>
 
           </div>
