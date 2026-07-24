@@ -53,7 +53,7 @@ const DropdownSelect = ({
   }, [isOpen, searchable, normalizedOptions.length]);
 
   return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
+    <div className={`relative ${isOpen ? 'z-[90]' : 'z-10'} ${className}`} ref={dropdownRef}>
       {/* Dropdown Trigger Button */}
       <button
         type="button"
@@ -75,11 +75,11 @@ const DropdownSelect = ({
 
       {/* Dropdown Popup Menu */}
       {isOpen && (
-        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-[80] overflow-hidden rounded-2xl border border-gray-200/90 bg-white/98 shadow-2xl ring-1 ring-black/5 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-[100] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150">
           
           {/* Internal Search Bar (for > 5 options) */}
           {searchable && normalizedOptions.length > 5 && (
-            <div className="p-2 border-b border-gray-100 bg-gray-50/50">
+            <div className="p-2 border-b border-gray-100 bg-gray-50/80">
               <div className="relative flex items-center">
                 <Search size={15} className="absolute left-3 text-gray-400" />
                 <input
@@ -88,7 +88,7 @@ const DropdownSelect = ({
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Filter options..."
-                  className="w-full rounded-lg bg-white border border-gray-200 py-1.5 pl-8 pr-7 text-xs font-bold text-text outline-none focus:border-primary/50"
+                  className="w-full rounded-lg bg-white border border-gray-200 py-2 pl-8 pr-7 text-xs font-bold text-text outline-none focus:border-primary/50"
                 />
                 {search && (
                   <button
@@ -120,12 +120,12 @@ const DropdownSelect = ({
                     }}
                     className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-xs sm:text-sm font-bold transition-all disabled:cursor-not-allowed disabled:opacity-50 ${
                       isSelected
-                        ? 'bg-primary text-white shadow-sm'
-                        : 'text-text hover:bg-gray-100/80 active:bg-gray-200'
+                        ? 'bg-rose-50 text-primary border border-rose-100/80 shadow-xs'
+                        : 'text-text hover:bg-rose-50/40 hover:text-primary active:bg-rose-100/50'
                     }`}
                   >
                     <span className="truncate">{option.label}</span>
-                    {isSelected && <Check size={16} className="flex-shrink-0 ml-2 stroke-[3]" />}
+                    {isSelected && <Check size={16} className="flex-shrink-0 ml-2 text-primary stroke-[2.5]" />}
                   </button>
                 );
               })

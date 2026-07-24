@@ -74,7 +74,7 @@ export default function BookMyRealtor() {
         </div>
 
         {/* Search & Filter Card */}
-        <form onSubmit={handleSearchSubmit} className="bg-white rounded-3xl p-6 sm:p-8 mb-12 shadow-card border border-gray-100 relative overflow-hidden">
+        <form onSubmit={handleSearchSubmit} className="bg-white rounded-3xl p-6 sm:p-8 mb-12 shadow-card border border-gray-100 relative z-20">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             
             {/* State Dropdown */}
