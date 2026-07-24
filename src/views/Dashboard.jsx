@@ -12,6 +12,7 @@ import { formatPhoneForLink, formatPhoneForDisplay } from '../utils/phoneUtils';
 import BlogManager from '../components/BlogManager';
 import DeveloperDashboard from './DeveloperDashboard';
 import DeleteAccountModal from '../components/DeleteAccountModal';
+import SubscriptionModal from '../components/SubscriptionModal';
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 const RAZORPAY_CHECKOUT_URL = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -92,6 +93,7 @@ const Dashboard = () => {
   const [currentPlan, setCurrentPlan] = useState(normalizePlan(user?.brokerProfile?.subscriptionPlan));
   const [subscriptionLoading, setSubscriptionLoading] = useState(isBroker);
   const [subscriptionUpdating, setSubscriptionUpdating] = useState('');
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
   const [loadingUserData, setLoadingUserData] = useState(isUser);
   const [brokerRequestStatus, setBrokerRequestStatus] = useState('');
   const [brokerRequesting, setBrokerRequesting] = useState(false);
@@ -410,10 +412,18 @@ const Dashboard = () => {
                       <h2 className="text-3xl font-extrabold text-text">Associate Partner Subscription</h2>
                       <p className="mt-2 text-gray-500 font-medium">An active Premium plan is required to post property listings and unlock high-quality buyer leads.</p>
                     </div>
-                    <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-xs font-extrabold uppercase text-primary">
-                      <ShieldCheck size={15} />
-                      {subscriptionLoading ? 'Checking plan' : isPremiumActive ? 'Premium Plan Active' : 'Subscription Required'}
-                    </span>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={() => setIsSubModalOpen(true)}
+                        className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-600 px-4 py-2 text-xs font-extrabold uppercase text-white shadow-md hover:bg-blue-500 transition"
+                      >
+                        ⚡ View Plans & Book My Realtor
+                      </button>
+                      <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-xs font-extrabold uppercase text-primary">
+                        <ShieldCheck size={15} />
+                        {subscriptionLoading ? 'Checking plan' : isPremiumActive ? 'Premium Plan Active' : 'Subscription Required'}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
@@ -916,6 +926,13 @@ const Dashboard = () => {
       <DeleteAccountModal 
         isOpen={isDeleteModalOpen} 
         onClose={() => setIsDeleteModalOpen(false)} 
+      />
+
+      <SubscriptionModal 
+        isOpen={isSubModalOpen} 
+        onClose={() => setIsSubModalOpen(false)} 
+        onSuccess={refreshMe} 
+        user={user} 
       />
 
       {popup && (

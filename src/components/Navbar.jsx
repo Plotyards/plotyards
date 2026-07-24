@@ -116,6 +116,18 @@ const Navbar = () => {
         </div>
         {/* Right Section */}
         <div className="flex items-center gap-4 lg:gap-6">
+          {/* Book My Realtor */}
+          <Link
+            href="/book-my-realtor"
+            className={`hidden sm:flex items-center px-4 py-2 rounded-full text-sm font-semibold border transition-all ${
+              showSolidNav
+                ? 'border-blue-600/30 text-blue-600 bg-blue-50 hover:bg-blue-100'
+                : 'border-blue-400/40 text-blue-200 bg-blue-950/40 hover:bg-blue-900/60'
+            }`}
+          >
+            Book My Realtor
+          </Link>
+
           {/* Post Property */}
           <button 
             onClick={() => {

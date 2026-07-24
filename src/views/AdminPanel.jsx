@@ -495,18 +495,49 @@ const AdminPanel = () => {
                               </span>
                             </td>
                             <td className="px-4 py-4 text-right align-top">
-                              <button
-                                type="button"
-                                onClick={() => toggleBrokerActive(broker)}
-                                className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-extrabold shadow-sm transition-colors ${
-                                  broker.isActive
-                                    ? 'border border-rose-200 bg-rose-50 text-primary hover:bg-rose-100'
-                                    : 'border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                                }`}
-                              >
-                                {broker.isActive ? <XCircle size={16} /> : <CheckCircle2 size={16} />}
-                                {broker.isActive ? 'Disable Associate Partner' : 'Enable Associate Partner'}
-                              </button>
+                              <div className="flex flex-col gap-2 items-end">
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    try {
+                                      await apiRequest(`/admin/realtors/${broker._id}/rera`, { method: 'PATCH' });
+                                      fetchAdminData();
+                                    } catch (e) { alert(e.message); }
+                                  }}
+                                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-extrabold ${broker.brokerProfile?.isReraVerified ? 'bg-emerald-600 text-white' : 'border border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100'}`}
+                                >
+                                  {broker.brokerProfile?.isReraVerified ? '✓ RERA Certified' : '+ Verify RERA'}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    try {
+                                      await apiRequest(`/admin/realtors/${broker._id}/membership`, {
+                                        method: 'PATCH',
+                                        body: JSON.stringify({ bookMyRealtorMember: !broker.brokerProfile?.bookMyRealtorMember })
+                                      });
+                                      fetchAdminData();
+                                    } catch (e) { alert(e.message); }
+                                  }}
+                                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-extrabold ${broker.brokerProfile?.bookMyRealtorMember ? 'bg-blue-600 text-white' : 'border border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100'}`}
+                                >
+                                  {broker.brokerProfile?.bookMyRealtorMember ? 'Book My Realtor Active' : '+ Book My Realtor'}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => toggleBrokerActive(broker)}
+                                  className={`inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1 text-xs font-extrabold shadow-sm transition-colors ${
+                                    broker.isActive
+                                      ? 'border border-rose-200 bg-rose-50 text-primary hover:bg-rose-100'
+                                      : 'border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                  }`}
+                                >
+                                  {broker.isActive ? <XCircle size={14} /> : <CheckCircle2 size={14} />}
+                                  {broker.isActive ? 'Disable Partner' : 'Enable Partner'}
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}

@@ -43,53 +43,56 @@ const Subscribe = () => {
   const plans = [
     {
       id: 'free',
-      name: 'Trial Package',
-      price: 'Free',
+      name: 'Free Plan',
+      price: '₹0',
       period: '',
       highlights: [
-        '2 Active Listings',
-        '2 UGC Ad Reels',
-        'Buyer Inquiries'
+        '2 Property Listings',
+        'Basic Profile',
+        'Buyer Can View Profile (if active)',
+        'Direct Call & Chat'
       ],
-      description: 'Start with our free trial package to test the platform.',
-      buttonText: 'Start Free Trial',
+      description: 'Free entry-level access for realtors.',
+      buttonText: 'Continue Free',
       isPremium: false
     },
-    ...(isDeveloper ? [{
-      id: 'developer_premium',
-      name: 'Developer Growth Package',
-      price: `Rs. ${(100000 * quantity).toLocaleString('en-IN')}`,
-      period: '4 months',
+    {
+      id: 'paid',
+      name: 'Paid Plan',
+      price: '₹25,000',
+      period: 'Month',
       highlights: [
-        `${1 * quantity} Exclusive Developer Podcast${1 * quantity > 1 ? 's' : ''}`,
-        `${20 * quantity} Professional Reel Advertisements`,
-        `${10 * quantity} Premium Project Listings`,
-        'Professional Drone Footage',
-        'Developer Brand Promotion',
-        'Channel Partner Activation',
-        'Buyer Inquiry Generation'
+        '10 Property Listings',
+        '10 UGC Advertisement Videos',
+        'Professional Shoot & Video Editing',
+        'Script Writing & Content Planning',
+        'Realtor Brand Promotion',
+        'Social Media Promotion',
+        'Lead Access',
+        'Priority Visibility on Plotyards',
+        'Dedicated Marketing Support'
       ],
-      description: 'Exclusive maximalism package for developers to boost sales and branding with premium content.',
-      buttonText: 'Subscribe with Razorpay',
+      description: 'Plotyards works as your complete marketing partner to generate buyer leads and visibility.',
+      buttonText: 'Upgrade Now (₹25,000/mo)',
       isPremium: true
-    }] : [{
-      id: 'premium',
-      name: 'Premium Associate Partner Plan',
-      price: `Rs. ${(11000 * quantity).toLocaleString('en-IN')}`,
-      period: '3 months',
+    },
+    {
+      id: 'book_my_realtor',
+      name: 'Book My Realtor',
+      price: '₹249',
+      period: 'Lifetime',
       highlights: [
-        `${6 * quantity} Active Listings`,
-        `${6 * quantity} UGC Ad Reels`,
-        `${100 * quantity} Buyers Inquiries`,
-        'Featured on PlotYards Marketplace',
-        'Reels Published on PlotYards Media Channels',
-        'Collaboration Post with Broker’s Instagram',
-        'Dedicated Promotion for Your Plot Inventory'
+        'Listed inside Book My Realtor Directory',
+        'Area-wise & Locality Buyer Discovery',
+        'Direct WhatsApp & Call Actions',
+        'Social Media Visibility',
+        'RERA Certified Badge (after verification)',
+        'Lifetime Listing Access'
       ],
-      description: 'Instant automatic associate partner approval, verified badge status, and unlimited buyer leads.',
-      buttonText: 'Subscribe with Razorpay',
-      isPremium: true
-    }])
+      description: 'Independent add-on directory membership for maximum local buyer discovery.',
+      buttonText: 'Join Now (₹249 Lifetime)',
+      isBookMyRealtor: true
+    }
   ];
   // Replaced above
 
@@ -178,31 +181,32 @@ const Subscribe = () => {
       setLoading(true);
       setStatus('');
       setPopup(null);
-      const data = await apiRequest('/service/subscriptions', { 
-        method: 'POST', 
-        body: { plan: planId, quantity: planId === 'free' ? 1 : quantity } 
-      });
 
-      if (planId !== 'free' && data.payment?.provider === 'razorpay' && data.payment?.order?.id) {
-        const verified = await openRazorpayCheckout(data);
+      if (planId === 'book_my_realtor') {
+        const data = await apiRequest('/realtors/membership/book-my-realtor', { method: 'POST' });
         await refreshMe();
-        setPopup({ type: 'success', title: 'Premium Activated', message: verified.message || 'Premium plan activated successfully.' });
+        setPopup({ type: 'success', title: 'Membership Activated', message: data.message || 'Book My Realtor Lifetime Membership activated!' });
         return;
       }
 
+      const data = await apiRequest('/realtors/subscription/select', {
+        method: 'POST',
+        body: JSON.stringify({ plan: planId })
+      });
+
       await refreshMe();
-      if (planId === 'free') {
-          setPopup({ type: 'success', title: 'Trial Activated', message: 'Trial package activated successfully.' });
-      } else {
-          navigate.push('/dashboard?tab=overview');
-      }
+      setPopup({ 
+        type: 'success', 
+        title: planId === 'paid' ? 'Paid Plan Activated' : 'Free Plan Active', 
+        message: data.message || 'Subscription updated successfully.' 
+      });
     } catch (error) {
       const msg = error.message || '';
       if (msg.toLowerCase().includes('authentication') || msg.toLowerCase().includes('not authorized') || msg.toLowerCase().includes('log in')) {
         navigate.push('/login?from=/subscribe');
         return;
       }
-      setPopup({ type: 'error', title: 'Payment Failed', message: msg || 'Unable to start subscription payment.' });
+      setPopup({ type: 'error', title: 'Action Failed', message: msg || 'Unable to update subscription plan.' });
     } finally {
       setLoading(false);
     }
