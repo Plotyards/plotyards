@@ -308,8 +308,8 @@ export default function BookMyRealtor() {
               const isSaved = !!savedBrokers[realtor._id];
 
               const expYears = bp.experienceYears || (idx % 3 === 0 ? 10 : idx % 2 === 0 ? 7 : 5);
-              const dealsClosed = idx % 2 === 0 ? '250+' : '180+';
-              const totalSales = idx % 2 === 0 ? '₹150Cr+' : '₹90Cr+';
+              const dealsClosed = bp.closedDeals || (idx % 2 === 0 ? '250+' : '180+');
+              const totalSales = bp.totalSales || (idx % 2 === 0 ? '₹150Cr+' : '₹90Cr+');
               const realtorId = `PY-${10450 + idx}`;
 
               return (
