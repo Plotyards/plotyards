@@ -465,31 +465,6 @@ export default function BookMyRealtor() {
 
 
 
-                    {/* Dark Rating Box */}
-                    <div className="flex items-center justify-between rounded-xl bg-[#063339] p-2.5 text-white shadow-xs">
-                      <div className="flex items-center gap-2">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-white font-black text-xs shadow-xs">
-                          <Star size={13} className="fill-amber-300 text-amber-300" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs font-black text-white">4.9</span>
-                            <div className="flex text-amber-400">
-                              {[...Array(5)].map((_, i) => (
-                                <Star key={i} size={9} className="fill-amber-400" />
-                              ))}
-                            </div>
-                          </div>
-                          <p className="text-[8px] font-bold text-teal-200/80">(328 Reviews)</p>
-                        </div>
-                      </div>
-
-                      <div className="text-right max-w-[140px]">
-                        <p className="text-[9px] font-medium italic text-teal-100 line-clamp-1">"Very Professional & Trusted"</p>
-                        <p className="text-[8px] font-bold text-amber-300 uppercase tracking-widest">– Verified Client</p>
-                      </div>
-                    </div>
-
                   </div>
 
                   {/* ─── 4. BOTTOM ACTION BUTTONS ─── */}
