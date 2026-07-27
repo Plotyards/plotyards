@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Lightbulb, Loader2, PlusSquare, Search, User, X } from 'lucide-react';
+import { Home, Lightbulb, Loader2, PlusSquare, Search, User, UserCheck, X } from 'lucide-react';
 import { useAuth } from '../context/auth';
 import VerifyDocumentModal from './VerifyDocumentModal';
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/listings', label: 'Explore', icon: Search },
-  { href: '/post-property', label: 'Post Property', icon: PlusSquare, isPrimary: true },
+  { href: '/book-my-realtor', label: 'Book Realtor', icon: UserCheck, isPrimary: true },
   { href: '/blogs', label: 'Spotlight', icon: Lightbulb }
 ];
 
@@ -74,10 +74,10 @@ const MobileBottomNav = () => {
               >
                 <span className={`flex items-center justify-center transition-all ${
                   item.isPrimary
-                    ? 'h-10 w-10 rounded-2xl bg-primary text-white shadow-md shadow-primary/25'
+                    ? 'h-11 w-11 rounded-2xl bg-gradient-to-r from-primary to-rose-600 text-white shadow-lg shadow-primary/30 border border-white/20'
                     : `h-9 w-9 rounded-2xl ${isActive ? 'bg-primary/10 text-primary' : 'text-gray-500 group-hover:bg-gray-100'}`
                 }`}>
-                  <Icon size={item.isPrimary ? 28 : 22} strokeWidth={isActive ? 2.6 : 2.1} fill={isActive && !item.isPrimary ? 'currentColor' : 'none'} />
+                  <Icon size={item.isPrimary ? 24 : 22} strokeWidth={isActive ? 2.6 : 2.1} fill={isActive && !item.isPrimary ? 'currentColor' : 'none'} />
                 </span>
                 {!item.isPrimary && <span className="truncate leading-none">{item.label}</span>}
               </Link>
@@ -103,7 +103,7 @@ const MobileBottomNav = () => {
                 <User size={22} strokeWidth={2.1} />
               )}
             </span>
-            <span className="truncate leading-none">Profile</span>
+            <span className="truncate leading-none">Account</span>
           </button>
         </div>
       </nav>
@@ -117,17 +117,29 @@ const MobileBottomNav = () => {
 
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">Account</p>
+                <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">Account & Actions</p>
                 <h2 className="mt-1 text-2xl font-extrabold leading-tight text-text">
-                  {user ? 'Account' : 'Welcome back'}
+                  {user ? `Hello, ${user.name}` : 'Welcome back'}
                 </h2>
                 <p className="mt-1 text-sm font-medium text-muted">
-                  {user ? 'Dashboard, policies, and assistance links.' : authMode === 'login' ? 'Sign in to access partner dashboard.' : 'Join to post properties and contact buyers.'}
+                  {user ? 'Manage listings, post properties & partner options.' : authMode === 'login' ? 'Sign in to access partner dashboard.' : 'Join to post properties and contact buyers.'}
                 </p>
               </div>
               <button type="button" onClick={closeAuth} aria-label="Close auth form" className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600">
                 <X size={20} />
               </button>
+            </div>
+
+            {/* Quick Action: Post Property */}
+            <div className="mb-4">
+              <Link
+                href="/post-property"
+                onClick={closeAuth}
+                className="flex items-center justify-center gap-2 w-full rounded-2xl bg-gradient-to-r from-primary to-rose-600 p-3.5 text-center text-sm font-extrabold text-white shadow-lg shadow-primary/20 hover:opacity-95 transition-all"
+              >
+                <PlusSquare size={18} />
+                <span>+ Post New Property Listing</span>
+              </Link>
             </div>
 
             {user ? (
@@ -136,7 +148,7 @@ const MobileBottomNav = () => {
                   <p className="text-lg font-extrabold text-text">{user.name}</p>
                   <p className="mt-1 text-sm font-bold capitalize text-muted">{user.role === 'user' ? 'Buyer' : user.role}</p>
                   <div className="mt-4 grid grid-cols-2 gap-2">
-                    <Link href="/dashboard" onClick={closeAuth} className="rounded-xl bg-primary px-4 py-3 text-center text-sm font-extrabold text-white">
+                    <Link href="/dashboard" onClick={closeAuth} className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-extrabold text-white">
                       Dashboard
                     </Link>
                     <button

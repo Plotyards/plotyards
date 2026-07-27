@@ -53,7 +53,7 @@ const DropdownSelect = ({
   }, [isOpen, searchable, normalizedOptions.length]);
 
   return (
-    <div className={`relative ${isOpen ? 'z-[90]' : 'z-10'} ${className}`} ref={dropdownRef}>
+    <div className={`relative ${isOpen ? 'z-[100]' : 'z-10'} ${className}`} ref={dropdownRef}>
       {/* Dropdown Trigger Button */}
       <button
         type="button"
@@ -75,7 +75,7 @@ const DropdownSelect = ({
 
       {/* Dropdown Popup Menu */}
       {isOpen && (
-        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-[100] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-[110] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150">
           
           {/* Internal Search Bar (for > 5 options) */}
           {searchable && normalizedOptions.length > 5 && (

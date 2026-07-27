@@ -72,6 +72,18 @@ const formatDate = (value) => new Date(value).toLocaleDateString('en-IN', {
   year: 'numeric'
 });
 
+const formatDateTime = (value) => {
+  if (!value) return '';
+  return new Date(value).toLocaleString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+};
+
 const Dashboard = () => {
   const pathname = usePathname();
   const navigate = useRouter();
@@ -101,6 +113,24 @@ const Dashboard = () => {
   const [subscriptionProcessing, setSubscriptionProcessing] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [subscriptionHistory, setSubscriptionHistory] = useState([]);
+  const [profilePhotoInput, setProfilePhotoInput] = useState('');
+  const [savingPhoto, setSavingPhoto] = useState(false);
+
+  const handleSaveProfilePhoto = async () => {
+    const photoValue = profilePhotoInput || user?.brokerProfile?.photo;
+    if (!photoValue) return;
+    setSavingPhoto(true);
+    try {
+      await updateMe({
+        brokerProfile: { photo: photoValue }
+      });
+      setPopup({ type: 'success', title: 'Profile Updated', message: 'Realtor profile photo updated successfully!' });
+    } catch (err) {
+      setPopup({ type: 'error', title: 'Update Failed', message: err.message || 'Failed to update profile photo.' });
+    } finally {
+      setSavingPhoto(false);
+    }
+  };
 
   useEffect(() => {
     if (isBroker) {
@@ -294,7 +324,8 @@ const Dashboard = () => {
     )));
   };
 
-  const profileViews = properties.reduce((sum, item) => sum + (Number(item.viewsCount) || 0), 0);
+  const propertyViews = properties.reduce((sum, item) => sum + (Number(item.viewsCount) || 0), 0);
+  const profileViews = propertyViews + (Number(user?.brokerProfile?.profileViews) || 0);
   const activeListings = properties.filter((item) => item.status !== 'sold').length;
   const avgCtr = profileViews ? `${((inquiries.length / profileViews) * 100).toFixed(1)}%` : '0%';
 
@@ -310,52 +341,63 @@ const Dashboard = () => {
     [Compass, 'Explore', 'Discover new listings', 'from-emerald-100 to-green-50 text-emerald-700']
   ];
 
-  const activePlan = normalizePlan(currentPlan);
-  const isPremiumActive = activePlan === 'premium' || activePlan === 'developer_premium';
+  const activePlan = user?.brokerProfile?.subscriptionPlan === 'paid' ? 'paid' : user?.brokerProfile?.bookMyRealtorMember ? 'book_my_realtor' : 'free';
+  const isPremiumActive = activePlan === 'paid' || activePlan === 'book_my_realtor' || Boolean(user?.brokerProfile?.bookMyRealtorMember);
   const isDeveloper = user?.role === 'developer' || user?.brokerProfile?.companyType === 'developer';
 
-  const subscriptionPlans = [
+  const allSubscriptionPlans = [
     {
       id: 'free',
-      name: 'Trial Package',
-      price: 'Free',
+      name: 'Free Plan',
+      price: '₹0',
       period: '',
       accent: 'border-gray-200 bg-gray-50/50',
-      cta: 'Start Free Trial',
-      highlights: ['2 Active Listings', '2 UGC Ad Reels', 'Buyer Inquiries'],
+      cta: 'Continue Free',
+      highlights: ['2 Property Listings', 'Basic Realtor Profile', 'Direct Call & Chat'],
       icon: ShieldCheck,
       isPremium: false
     },
-    ...(isDeveloper ? [{
-      id: 'developer_premium',
-      name: 'Developer Growth Package',
-      price: `Rs. ${(100000 * quantity).toLocaleString('en-IN')}`,
-      period: '4 months',
-      accent: 'border-primary bg-white ring-2 ring-primary/10',
-      cta: 'Pay with Razorpay',
+    {
+      id: 'book_my_realtor',
+      name: 'Book My Realtor',
+      price: '₹699',
+      period: 'Lifetime',
+      badge: 'Most Popular ⭐ Recommended',
+      accent: 'border-blue-500 bg-blue-50/30 ring-2 ring-blue-500/20',
+      cta: 'Join Now',
       highlights: [
-        `${1 * quantity} Exclusive Developer Podcast${1 * quantity > 1 ? 's' : ''}`,
-        `${20 * quantity} Professional Reel Advertisements`,
-        `${10 * quantity} Premium Project Listings`,
-        'Professional Drone Footage',
-        'Developer Brand Promotion',
-        'Channel Partner Activation',
-        'Buyer Inquiry Generation'
+        'Lifetime Realtor Profile',
+        'Area-wise Search Visibility',
+        'Buyer Lead Access',
+        'Direct Call & WhatsApp',
+        'Verified Badge & Social Links',
+        'Unlimited Listings'
       ],
       icon: CreditCard,
+      isPremium: true,
+      isPopular: true
+    },
+    {
+      id: 'paid',
+      name: 'Growth Plan',
+      price: '₹25,000',
+      period: 'Month',
+      accent: 'border-purple-500 bg-purple-50/30 ring-2 ring-purple-500/20',
+      cta: 'Upgrade Now',
+      highlights: [
+        'Unlimited Property Listings',
+        '10 UGC Advertisement Videos',
+        'Professional Shoot & Editing',
+        'Script & Content Planning',
+        'Brand & Social Media Promotion',
+        'Premium Lead Access & Priority'
+      ],
+      icon: TrendingUp,
       isPremium: true
-    }] : [{
-      id: 'premium',
-      name: 'Premium Plan',
-      price: `Rs. ${(11000 * quantity).toLocaleString('en-IN')}`,
-      period: '3 months',
-      accent: 'border-primary bg-white ring-2 ring-primary/10',
-      cta: 'Pay with Razorpay',
-      highlights: [`${6 * quantity} Active Listings`, `${6 * quantity} UGC Ad Reels`, `${100 * quantity} Buyers Inquiries`, 'Auto associate partner approval'],
-      icon: CreditCard,
-      isPremium: true
-    }])
+    }
   ];
+
+  const subscriptionPlans = allSubscriptionPlans.filter(p => p.id !== 'free');
 
   const navItems = isBroker
     ? (brokerApproved
@@ -384,8 +426,12 @@ const Dashboard = () => {
           <aside className="lg:col-span-1">
             <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 sticky top-32">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-white text-xl font-bold">
-                  {user?.name?.charAt(0) || 'U'}
+                <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-white text-xl font-bold overflow-hidden border border-gray-200 shadow-sm">
+                  {user?.brokerProfile?.photo ? (
+                    <img src={user.brokerProfile.photo} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    user?.name?.charAt(0) || 'U'
+                  )}
                 </div>
                 <div>
                   <h3 className="font-bold text-text leading-tight">{user?.name}</h3>
@@ -410,21 +456,47 @@ const Dashboard = () => {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                       <h2 className="text-3xl font-extrabold text-text">Associate Partner Subscription</h2>
-                      <p className="mt-2 text-gray-500 font-medium">An active Premium plan is required to post property listings and unlock high-quality buyer leads.</p>
+                      <p className="mt-2 text-gray-500 font-medium">Manage your active plans, directory profile, and listing permissions.</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
-                      <button
-                        onClick={() => setIsSubModalOpen(true)}
-                        className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-600 px-4 py-2 text-xs font-extrabold uppercase text-white shadow-md hover:bg-blue-500 transition"
-                      >
-                        ⚡ View Plans & Book My Realtor
-                      </button>
                       <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-xs font-extrabold uppercase text-primary">
                         <ShieldCheck size={15} />
-                        {subscriptionLoading ? 'Checking plan' : isPremiumActive ? 'Premium Plan Active' : 'Subscription Required'}
+                        {subscriptionLoading ? 'Checking plan' : (user?.brokerProfile?.subscriptionPlan === 'paid' || user?.brokerProfile?.bookMyRealtorMember) ? 'Active Member' : 'Free Starter Plan'}
                       </span>
                     </div>
                   </div>
+
+                  {/* Growth Plan Convincing Upsell Banner for Realtors */}
+                  {user?.brokerProfile?.subscriptionPlan !== 'paid' && (
+                    <div className="rounded-3xl border border-purple-200 bg-gradient-to-r from-purple-950 via-indigo-900 to-purple-900 p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                      <div className="space-y-2 max-w-2xl">
+                        <div className="flex items-center gap-2">
+                          <span className="bg-amber-400 text-purple-950 font-black text-[10px] uppercase px-3 py-1 rounded-full tracking-wider">
+                            🔥 Recommended Agency Upgrade
+                          </span>
+                          {user?.brokerProfile?.bookMyRealtorMember && (
+                            <span className="bg-blue-500/30 text-blue-200 border border-blue-400/30 font-bold text-xs px-3 py-1 rounded-full">
+                              Verified Realtor Directory Active
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                          Scale Your Business with Growth Plan (₹25,000 / Month)
+                        </h3>
+                        <p className="text-purple-200 text-xs sm:text-sm font-medium leading-relaxed">
+                          Unlock <strong className="text-white">Unlimited Property Listings</strong>, <strong className="text-white">10 Professional UGC Video Ads</strong>, HD Video Shoot & Scripting, Social Media Brand Promotion, and Dedicated Marketing Support.
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => createSubscription('paid')}
+                        disabled={subscriptionUpdating === 'paid'}
+                        className="shrink-0 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-purple-950 font-black text-sm px-6 py-4 rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 whitespace-nowrap self-start md:self-auto"
+                      >
+                        {subscriptionUpdating === 'paid' ? 'Processing...' : 'Upgrade to Growth Plan (₹25,000) →'}
+                      </button>
+                    </div>
+                  )}
 
                   <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
                     <div className="rounded-[2rem] border-4 border-white/60 bg-[#f0f4f8] p-6 shadow-[inset_6px_6px_12px_rgba(0,0,0,0.06),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)]">
@@ -432,65 +504,95 @@ const Dashboard = () => {
                       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <p className="text-2xl font-extrabold text-gray-800">
-                            {subscriptionLoading ? 'Loading...' : isPremiumActive ? (activePlan === 'developer_premium' ? 'Developer Package' : 'Premium Plan') : activePlan === 'free' ? 'Trial Package' : 'No Active Subscription'}
+                            {subscriptionLoading
+                              ? 'Loading...'
+                              : user?.brokerProfile?.subscriptionPlan === 'paid'
+                                ? 'Growth Plan (₹25,000/Mo)'
+                                : user?.brokerProfile?.bookMyRealtorMember
+                                  ? 'Book My Realtor (₹699 Lifetime)'
+                                  : 'Free Plan (2 Listings)'}
                           </p>
-                          <p className="text-sm font-semibold text-gray-500">
-                            {currentSubscription?.expiresAt ? `Valid until ${formatDate(currentSubscription.expiresAt)}` : activePlan === 'free' ? 'Lifetime Validity' : 'Please purchase a premium subscription to post properties'}
+                          <p className="text-sm font-semibold text-gray-500 mt-1">
+                            {user?.brokerProfile?.subscriptionPlan === 'paid'
+                              ? 'Unlimited Listings • 10 UGC Videos • Priority Leads'
+                              : user?.brokerProfile?.bookMyRealtorMember
+                                ? 'Directory Profile Active • 2 Property Listings Quota (Upgrade for Unlimited)'
+                                : 'Starter Access (2 Active Property Listings Limit)'}
                           </p>
                         </div>
-                        <span className={`inline-flex w-fit rounded-full px-4 py-1.5 text-xs font-extrabold uppercase shadow-[4px_4px_8px_rgba(0,0,0,0.05),-4px_-4px_8px_rgba(255,255,255,1)] ${isPremiumActive ? 'bg-green-50 text-green-700' : activePlan === 'free' ? 'bg-blue-50 text-blue-700' : 'bg-rose-50 text-primary'}`}>
-                          {isPremiumActive || activePlan === 'free' ? (currentSubscription?.status || 'active') : 'inactive'}
+                        <span className={`inline-flex w-fit rounded-full px-4 py-1.5 text-xs font-extrabold uppercase shadow-sm ${
+                          user?.brokerProfile?.subscriptionPlan === 'paid' || user?.brokerProfile?.bookMyRealtorMember
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                            : 'bg-blue-100 text-blue-800 border border-blue-300'
+                        }`}>
+                          Active
                         </span>
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-4 rounded-[2rem] border-4 border-white/60 bg-[#f0f4f8] p-5 shadow-[inset_6px_6px_12px_rgba(0,0,0,0.06),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)]">
                       <div className="flex flex-col items-center sm:items-start">
-                        <div className="p-2 rounded-xl bg-white shadow-[2px_2px_5px_rgba(0,0,0,0.05),-2px_-2px_5px_rgba(255,255,255,1)] text-primary">
+                        <div className="p-2 rounded-xl bg-white shadow-sm text-primary">
                           <HomeIcon size={18} />
                         </div>
-                        <p className="mt-3 text-2xl font-extrabold text-gray-800">{isPremiumActive ? (activePlan === 'developer_premium' ? 10 : 6) * (currentSubscription?.quantity || 1) : activePlan === 'free' ? 2 : 0}</p>
-                        <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500">Listings</p>
+                        <p className="mt-3 text-2xl font-extrabold text-gray-800">
+                          {user?.brokerProfile?.subscriptionPlan === 'paid' ? '∞' : '2'}
+                        </p>
+                        <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500">Listings Limit</p>
                       </div>
                       <div className="flex flex-col items-center sm:items-start">
-                        <div className="p-2 rounded-xl bg-white shadow-[2px_2px_5px_rgba(0,0,0,0.05),-2px_-2px_5px_rgba(255,255,255,1)] text-secondary">
+                        <div className="p-2 rounded-xl bg-white shadow-sm text-secondary">
                           <Video size={18} />
                         </div>
-                        <p className="mt-3 text-2xl font-extrabold text-gray-800">{isPremiumActive ? (activePlan === 'developer_premium' ? 20 : 6) * (currentSubscription?.quantity || 1) : activePlan === 'free' ? 2 : 0}</p>
-                        <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500">Reels</p>
+                        <p className="mt-3 text-2xl font-extrabold text-gray-800">
+                          {user?.brokerProfile?.subscriptionPlan === 'paid' ? '10' : '0'}
+                        </p>
+                        <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500">UGC Ads</p>
                       </div>
                       <div className="flex flex-col items-center sm:items-start">
-                        <div className="p-2 rounded-xl bg-white shadow-[2px_2px_5px_rgba(0,0,0,0.05),-2px_-2px_5px_rgba(255,255,255,1)] text-emerald-600">
+                        <div className="p-2 rounded-xl bg-white shadow-sm text-emerald-600">
                           <Users size={18} />
                         </div>
-                        <p className="mt-3 text-2xl font-extrabold text-gray-800">{isPremiumActive ? 100 * (currentSubscription?.quantity || 1) : activePlan === 'free' ? 'Trial' : 0}</p>
-                        <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500">Leads</p>
+                        <p className="mt-3 text-2xl font-extrabold text-gray-800">
+                          {user?.brokerProfile?.subscriptionPlan === 'paid' || user?.brokerProfile?.bookMyRealtorMember ? 'Unlocked' : 'Basic'}
+                        </p>
+                        <p className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500">Buyer Leads</p>
                       </div>
                     </div>
+                  </div>
 
                     {subscriptionHistory.length > 0 && (
                       <div className="rounded-2xl border border-border bg-white p-5 shadow-sm lg:col-span-2">
                         <p className="text-xs font-extrabold uppercase tracking-wide text-muted mb-4">Subscription & Payment History</p>
                         <div className="space-y-4">
                           {subscriptionHistory.map((sub, index) => {
-                            const previousQuantity = index > 0 ? (subscriptionHistory[index - 1].quantity || 1) : 0;
-                            const addedQuantity = Math.max(1, (sub.quantity || 1) - previousQuantity);
+                            const planLabel = sub.plan === 'book_my_realtor'
+                              ? 'Book My Realtor (₹699 Lifetime)'
+                              : sub.plan === 'paid'
+                                ? 'Growth Plan (₹25,000 / Month)'
+                                : 'Free Starter Plan';
+
                             return (
-                              <div key={sub._id || index} className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border last:border-0 pb-4 last:pb-0">
+                              <div key={sub._id || index} className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border last:border-0 pb-4 last:pb-0 gap-2">
                                 <div>
-                                  <p className="font-bold text-text">
-                                    {index > 0 ? 'Plan Upgraded/Renewed' : 'Plan Activated'}
+                                  <p className="font-extrabold text-text text-sm">
+                                    {planLabel}
                                   </p>
-                                  <p className="text-xs font-semibold text-muted">
-                                    Purchased on {formatDate(sub.createdAt)}
+                                  <p className="text-xs font-semibold text-muted flex items-center gap-1.5 mt-1">
+                                    <Clock size={13} className="text-primary" />
+                                    Purchased on {formatDateTime(sub.createdAt)}
                                   </p>
                                 </div>
-                                <div className="mt-2 sm:mt-0 text-left sm:text-right">
-                                  <p className="text-sm font-extrabold text-primary">
-                                    + {(activePlan === 'developer_premium' ? 10 : 6) * addedQuantity} Listings Added
-                                  </p>
-                                  {sub.expiresAt && (
-                                    <p className="text-xs font-bold text-muted">
+                                <div className="mt-1 sm:mt-0 text-left sm:text-right">
+                                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    Successful ✓
+                                  </span>
+                                  {sub.expiresAt ? (
+                                    <p className="text-xs font-bold text-muted mt-1">
                                       Valid until {formatDate(sub.expiresAt)}
+                                    </p>
+                                  ) : (
+                                    <p className="text-xs font-bold text-blue-600 mt-1">
+                                      Lifetime Validity
                                     </p>
                                   )}
                                 </div>
@@ -500,96 +602,79 @@ const Dashboard = () => {
                         </div>
                       </div>
                     )}
-                  </div>
-
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full max-w-5xl mx-auto">
                     {subscriptionPlans.map((plan) => {
                       const Icon = plan.icon;
-                      const isActivePlan = activePlan === plan.id;
+                      const isThisBookMyRealtorActive = plan.id === 'book_my_realtor' && Boolean(user?.brokerProfile?.bookMyRealtorMember);
+                      const isThisGrowthActive = plan.id === 'paid' && user?.brokerProfile?.subscriptionPlan === 'paid';
                       const isUpdating = subscriptionUpdating === plan.id;
 
                       return (
-                        <div key={plan.id} className={`flex flex-col h-full w-full max-w-md mx-auto rounded-[2.5rem] p-8 transition-transform duration-300 hover:-translate-y-2 ${plan.isPremium ? 'bg-[#fef2f2] shadow-[inset_6px_6px_12px_rgba(248,14,17,0.08),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-4 border-white/60' : 'bg-[#f0f4f8] shadow-[inset_6px_6px_12px_rgba(0,0,0,0.06),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-4 border-white/60'}`}>
+                        <div key={plan.id} className={`flex flex-col h-full w-full max-w-md mx-auto rounded-[2.5rem] p-8 transition-transform duration-300 hover:-translate-y-2 relative ${
+                          plan.isPopular 
+                            ? 'bg-gradient-to-b from-blue-50/90 via-white to-blue-50/40 border-4 border-blue-500/80 shadow-[0_10px_30px_rgba(59,130,246,0.25)]' 
+                            : plan.isPremium 
+                              ? 'bg-[#fef2f2] shadow-[inset_6px_6px_12px_rgba(248,14,17,0.08),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-4 border-white/60' 
+                              : 'bg-[#f0f4f8] shadow-[inset_6px_6px_12px_rgba(0,0,0,0.06),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)] border-4 border-white/60'
+                        }`}>
                           <div className="flex items-start justify-between gap-4">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className={`inline-flex h-11 w-11 items-center justify-center rounded-[1rem] shadow-[4px_4px_8px_rgba(0,0,0,0.1),-4px_-4px_8px_rgba(255,255,255,1)] ${plan.isPremium ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}>
+                                <span className={`inline-flex h-11 w-11 items-center justify-center rounded-[1rem] shadow-[4px_4px_8px_rgba(0,0,0,0.1),-4px_-4px_8px_rgba(255,255,255,1)] ${plan.isPopular ? 'bg-blue-600 text-white' : plan.isPremium ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}>
                                   <Icon size={20} />
                                 </span>
                                 <h3 className="text-xl font-extrabold text-gray-800">{plan.name}</h3>
                               </div>
                               <div className="mt-6 flex items-end gap-2">
                                 <p className="text-4xl font-extrabold text-gray-800">{plan.price}</p>
-                                <p className="pb-1 text-sm font-bold text-gray-500">{plan.period}</p>
+                                {plan.period && <p className="pb-1 text-sm font-bold text-gray-500">/ {plan.period}</p>}
                               </div>
                             </div>
-                            {isActivePlan && (
-                              <span className={`rounded-full px-4 py-1.5 text-[10px] font-extrabold uppercase shadow-[4px_4px_8px_rgba(0,0,0,0.05),-4px_-4px_8px_rgba(255,255,255,1)] ${plan.isPremium ? 'bg-rose-100 text-primary' : 'bg-blue-100 text-blue-700'}`}>Active</span>
+
+                            {isThisBookMyRealtorActive && (
+                              <span className="rounded-full px-4 py-1.5 text-[10px] font-extrabold uppercase shadow-sm bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                Active Lifetime
+                              </span>
+                            )}
+                            {isThisGrowthActive && (
+                              <span className="rounded-full px-4 py-1.5 text-[10px] font-extrabold uppercase shadow-sm bg-purple-100 text-purple-800 border border-purple-300">
+                                Active Plan
+                              </span>
                             )}
                           </div>
 
-                          {plan.isPremium && (
-                            <div className="mt-4 flex items-center justify-between border-y border-gray-100 py-4">
-                              <span className="text-sm font-bold text-text">Package Quantity</span>
-                              <div className="flex items-center gap-3 bg-gray-50 p-1 rounded-xl border border-gray-100">
-                                <button
-                                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-gray-600 hover:text-primary hover:bg-rose-50 border border-gray-200 transition-colors"
-                                  disabled={quantity <= 1 || isUpdating}
-                                >
-                                  <Minus size={16} />
-                                </button>
-                                <span className="w-6 text-center font-extrabold text-lg">{quantity}</span>
-                                <button
-                                  onClick={() => setQuantity(quantity + 1)}
-                                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-gray-600 hover:text-primary hover:bg-rose-50 border border-gray-200 transition-colors"
-                                  disabled={isUpdating}
-                                >
-                                  <Plus size={16} />
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {plan.isPremium && isActivePlan && (
-                            <div className="mt-4 border-y border-primary/20 bg-primary/5 p-4 rounded-xl">
-                              <p className="text-sm font-extrabold text-primary flex items-center gap-2">
-                                <Plus size={16} /> Add another {plan.id === 'developer_premium' ? 10 : 6} listings to the existing plan
-                              </p>
-                              <p className="mt-1 text-xs font-semibold text-muted">
-                                Validity will be extended by {plan.id === 'developer_premium' ? 4 : 3} months from your current expiry date.
-                              </p>
-                            </div>
-                          )}
-
                           <div className="mt-6 flex-1 flex flex-col gap-3">
-
                             {plan.highlights.map((item) => (
                               <p key={item} className="flex items-center gap-2 text-sm font-bold text-muted">
-                                <CheckCircle2 size={16} className="text-emerald-600" />
+                                <CheckCircle2 size={16} className={plan.isPopular ? 'text-blue-600' : 'text-emerald-600'} />
                                 {item}
                               </p>
                             ))}
                           </div>
 
-                          {plan.isPremium && (
-                            <div className="mt-5 rounded-xl border border-primary/15 bg-primary/5 p-4">
-                              <p className="flex items-center gap-2 text-sm font-extrabold text-primary">
-                                <TrendingUp size={16} />
-                                Premium promotion package
-                              </p>
-                              <p className="mt-1 text-xs font-semibold text-muted">Featured visibility, reels, social promotion, 100 leads guarantee, and automatic associate partner approval.</p>
-                            </div>
-                          )}
-
                           <button
                             onClick={() => createSubscription(plan.id)}
-                            disabled={isUpdating || (plan.id === 'free' && activePlan !== '')}
-                            className={`mt-8 w-full font-extrabold py-4 rounded-[1.5rem] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 ${plan.isPremium ? 'bg-primary text-white shadow-[6px_6px_12px_rgba(248,14,17,0.3),-6px_-6px_12px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.2)]' : 'bg-[#f0f4f8] text-gray-700 shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.1),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]'}`}
+                            disabled={isUpdating || isThisBookMyRealtorActive || (plan.id === 'free' && (user?.brokerProfile?.subscriptionPlan === 'paid' || user?.brokerProfile?.bookMyRealtorMember))}
+                            className={`mt-8 w-full font-extrabold py-4 rounded-[1.5rem] transition-all duration-300 flex items-center justify-center gap-2 text-sm disabled:opacity-70 ${
+                              isThisBookMyRealtorActive
+                                ? 'bg-emerald-600 text-white cursor-not-allowed shadow-none'
+                                : plan.isPopular
+                                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md active:scale-95'
+                                  : plan.isPremium 
+                                    ? 'bg-primary text-white shadow-md active:scale-95' 
+                                    : 'bg-[#f0f4f8] text-gray-700 shadow-sm'
+                            }`}
                           >
-                            {isUpdating ? 'Processing...' : (isActivePlan && plan.isPremium ? 'Upgrade Plan with Razorpay' : isActivePlan ? 'Current Plan' : plan.cta)}
+                            {isUpdating 
+                              ? 'Processing...' 
+                              : isThisBookMyRealtorActive 
+                                ? 'Active Membership ✓' 
+                                : isThisGrowthActive 
+                                  ? 'Upgrade / Extend Plan' 
+                                  : plan.cta
+                            }
                           </button>
-                          {plan.isPremium && (
+                          {(plan.isPremium || plan.isPopular) && !isThisBookMyRealtorActive && (
                             <p className="mt-3 text-center text-xs font-semibold text-muted">
                               Payment is subject to our{' '}
                               <Link href="/refund-policy" className="font-extrabold text-primary hover:text-rose-600">
@@ -782,8 +867,62 @@ const Dashboard = () => {
                 <div className="grid gap-6">
                   <div className="flex items-end justify-between">
                     <div>
-                      <h2 className="text-2xl font-extrabold text-gray-900">Account Settings</h2>
-                      <p className="mt-1 text-sm text-gray-500 font-medium">Manage your account preferences and data</p>
+                      <h2 className="text-2xl font-extrabold text-gray-900">Account Settings & Profile Photo</h2>
+                      <p className="mt-1 text-sm text-gray-500 font-medium">Manage your profile details and update your realtor profile photo</p>
+                    </div>
+                  </div>
+
+                  {/* Realtor Profile Photo Card */}
+                  <div className="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
+                    <h3 className="text-lg font-extrabold text-text mb-4">Realtor Profile Picture</h3>
+                    <div className="flex flex-col sm:flex-row items-center gap-6">
+                      <div className="w-24 h-24 rounded-2xl bg-secondary/10 border-2 border-primary/20 flex items-center justify-center text-primary text-3xl font-extrabold overflow-hidden relative shadow-md">
+                        {profilePhotoInput || user?.brokerProfile?.photo ? (
+                          <img src={profilePhotoInput || user?.brokerProfile?.photo} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                          user?.name?.charAt(0) || 'R'
+                        )}
+                      </div>
+
+                      <div className="flex-1 space-y-3 w-full">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-500">
+                          Upload Photo / Image Link
+                        </label>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <input
+                            type="text"
+                            value={profilePhotoInput}
+                            onChange={(e) => setProfilePhotoInput(e.target.value)}
+                            placeholder="Paste image URL (https://...)"
+                            className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
+                          />
+                          <label className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-text text-xs font-bold px-4 py-2.5 transition-colors border border-gray-200 whitespace-nowrap">
+                            📷 Pick File
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setProfilePhotoInput(reader.result);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
+                        <button
+                          onClick={handleSaveProfilePhoto}
+                          disabled={savingPhoto}
+                          className="inline-flex items-center gap-2 rounded-xl bg-primary hover:bg-rose-600 text-white text-xs font-extrabold px-5 py-2.5 shadow-sm transition-all disabled:opacity-60"
+                        >
+                          {savingPhoto ? 'Saving...' : 'Save Profile Photo'}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -805,10 +944,62 @@ const Dashboard = () => {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-8">
+                <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-extrabold text-text mb-2">Welcome back, {user?.name}</h2>
-                    <p className="text-gray-500 font-medium">Here is your live associate partner activity.</p>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-text mb-1">Welcome back, {user?.name}</h2>
+                    <p className="text-gray-500 font-medium text-sm">Here is your live real estate dashboard & leads overview.</p>
+                  </div>
+
+                  {/* Realtor Active Subscription Card - Theme matched & shows ALL active memberships */}
+                  <div className="p-6 rounded-3xl border border-gray-200 bg-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center font-bold shadow-md shrink-0 mt-0.5">
+                        <ShieldCheck size={26} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400">Active Membership Status</span>
+                          <span className="inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Active
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          {user?.brokerProfile?.bookMyRealtorMember && (
+                            <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-800 border border-blue-200 text-xs font-black px-3.5 py-1.5 rounded-xl shadow-xs">
+                              🔵 Book My Realtor – ₹699 Lifetime Directory Member
+                            </span>
+                          )}
+                          {user?.brokerProfile?.subscriptionPlan === 'paid' && (
+                            <span className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-800 border border-purple-200 text-xs font-black px-3.5 py-1.5 rounded-xl shadow-xs">
+                              🟣 Growth Plan – ₹25,000 / Month Agency Pack
+                            </span>
+                          )}
+                          {!user?.brokerProfile?.bookMyRealtorMember && user?.brokerProfile?.subscriptionPlan !== 'paid' && (
+                            <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-black px-3.5 py-1.5 rounded-xl shadow-xs">
+                              🟢 Free Starter Plan (2 Property Listings Quota)
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-xs font-semibold text-gray-500 mt-2">
+                          {user?.brokerProfile?.subscriptionPlan === 'paid'
+                            ? 'Unlimited Property Listings • 10 UGC Video Ads • Priority Buyer Leads'
+                            : user?.brokerProfile?.bookMyRealtorMember
+                              ? 'Verified Directory Profile • Area-Wise Search Visibility • Direct Call & WhatsApp Enquiries'
+                              : 'Upgrade to Growth Plan (₹25,000/mo) for Unlimited Listings & UGC Ads'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {!user?.brokerProfile?.bookMyRealtorMember && user?.brokerProfile?.subscriptionPlan !== 'paid' && (
+                      <button
+                        onClick={() => setIsSubModalOpen(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all whitespace-nowrap self-start md:self-auto"
+                      >
+                        Join Book My Realtor (₹699) →
+                      </button>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {brokerStats.map(([Icon, label, value, color]) => (

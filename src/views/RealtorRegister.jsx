@@ -1,19 +1,13 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, Eye, EyeOff, Building2, MapPin, Award, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Eye, EyeOff, Building2, MapPin, Award, CheckCircle2, CheckCheck } from 'lucide-react';
 import { useAuth } from '../context/auth';
 import DropdownSelect from '../components/DropdownSelect';
 
-const STATES_CITIES = {
-  Haryana: ['Jhajjar', 'Gurgaon', 'Faridabad', 'Rohtak', 'Panipat', 'Karnal', 'Hisar', 'Sonipat'],
-  Gujarat: ['Ahmedabad', 'Dholera', 'Surat', 'Vadodara', 'Rajkot'],
-  Karnataka: ['Bangalore', 'Mysore', 'Mangalore'],
-  Maharashtra: ['Mumbai', 'Pune', 'Nagpur', 'Nashik'],
-  'Delhi NCR': ['Delhi', 'Noida', 'Greater Noida', 'Ghaziabad']
-};
+// API used for states and cities dynamically
 
 const CATEGORY_OPTIONS = [
   'Residential Plots',
@@ -33,6 +27,7 @@ export default function RealtorRegister() {
     password: '',
     confirmPassword: '',
     companyName: '',
+    photo: '',
     reraId: '',
     state: 'Haryana',
     city: 'Jhajjar',
@@ -49,11 +44,58 @@ export default function RealtorRegister() {
   });
 
   const [error, setError] = useState('');
+  const [popup, setPopup] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useRouter();
   const { register } = useAuth();
+
+  const [statesList, setStatesList] = useState(['Haryana', 'Gujarat', 'Karnataka', 'Maharashtra']);
+  const [citiesList, setCitiesList] = useState([]);
+
+  useEffect(() => {
+    fetch('https://countriesnow.space/api/v0.1/countries/states', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ country: 'India' })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.error && data.data?.states) {
+          const normalizedStates = data.data.states.map(s => 
+            s.name.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+          );
+          setStatesList(normalizedStates);
+        }
+      })
+      .catch(err => console.error('Failed to fetch states', err));
+  }, []);
+
+  useEffect(() => {
+    if (form.state) {
+      fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ country: 'India', state: form.state })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!data.error && data.data) {
+            const normalizedCities = [...new Set(data.data.map(c => 
+              c.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+            ))].sort();
+            setCitiesList(normalizedCities);
+            if (!normalizedCities.includes(form.city)) {
+              setForm(prev => ({ ...prev, city: normalizedCities[0] || '' }));
+            }
+          } else {
+             setCitiesList([]);
+          }
+        })
+        .catch(err => console.error('Failed to fetch cities', err));
+    }
+  }, [form.state]);
 
   const toggleCategory = (cat) => {
     setForm((prev) => {
@@ -68,14 +110,15 @@ export default function RealtorRegister() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
+    setPopup(null);
 
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match');
+      setPopup({ type: 'error', message: 'Passwords do not match' });
       return;
     }
 
     if (form.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setPopup({ type: 'error', message: 'Password must be at least 8 characters long' });
       return;
     }
 
@@ -96,6 +139,7 @@ export default function RealtorRegister() {
         brokerProfile: {
           companyName: form.companyName || `${form.name} Realty`,
           companyType: 'broker',
+          photo: form.photo,
           contactPhone: form.phone,
           whatsappNumber: form.whatsappNumber || form.phone,
           reraId: form.reraId,
@@ -119,7 +163,7 @@ export default function RealtorRegister() {
       // Redirect to plan & directory subscription page
       navigate.push('/subscribe');
     } catch (err) {
-      setError(err.message || 'Registration failed. Please check your details.');
+      setPopup({ type: 'error', message: err.message || 'Registration failed. Please check your details.' });
     } finally {
       setLoading(false);
     }
@@ -131,7 +175,7 @@ export default function RealtorRegister() {
         
         {/* Header */}
         <div className="text-center max-w-xl mx-auto mb-8">
-          <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-extrabold px-3.5 py-1.5 rounded-full border border-primary/20 uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-1.5 bg-rose-50 text-primary text-xs font-extrabold px-3.5 py-1.5 rounded-full border border-rose-200 uppercase tracking-wider mb-2">
             <ShieldCheck size={16} /> Realtor & Partner Signup
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold text-text tracking-tight">
@@ -140,9 +184,27 @@ export default function RealtorRegister() {
           <p className="text-gray-500 text-sm font-medium mt-2">
             Join the Plotyards network to get area-wise buyer leads, listing packages, and Book My Realtor directory exposure.
           </p>
+
+          {/* Book My Realtor Plan Banner */}
+          <div className="mt-6 bg-gradient-to-r from-secondary via-[#005765] to-[#00424d] text-white p-5 sm:p-6 rounded-3xl text-left shadow-xl border border-secondary/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
+            <div className="absolute -right-10 -bottom-10 w-36 h-36 bg-primary/20 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="relative z-10 flex-1">
+              <div className="inline-flex items-center gap-1.5 bg-primary text-white font-extrabold text-[10px] uppercase tracking-wider px-3 py-1 rounded-full shadow-sm mb-2">
+                Most Popular ⭐ Recommended
+              </div>
+              <h4 className="text-lg sm:text-xl font-black text-white tracking-tight">Book My Realtor – ₹699 Lifetime</h4>
+              <p className="text-teal-100/90 text-xs font-medium mt-1 leading-relaxed">
+                Unlimited Property Listings • Buyer Lead Access • Direct Call & WhatsApp
+              </p>
+            </div>
+            <div className="relative z-10 shrink-0 bg-white/15 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/25 text-center shadow-sm">
+              <span className="text-2xl font-black text-white block">₹699</span>
+              <span className="text-[10px] text-teal-100 font-extrabold uppercase tracking-wider">Lifetime</span>
+            </div>
+          </div>
         </div>
 
-        {error && (
+        {error && !popup && (
           <div className="mb-6 p-4 bg-rose-50 border border-rose-200 text-primary text-sm font-bold rounded-2xl text-center">
             {error}
           </div>
@@ -257,8 +319,49 @@ export default function RealtorRegister() {
           {/* Section 2: Business & Directory Profile */}
           <div className="bg-gray-50/80 p-6 rounded-2xl border border-gray-200/80 space-y-4">
             <h3 className="text-sm font-extrabold text-text uppercase tracking-wider border-b border-gray-200 pb-2">
-              2. Realtor Profile & Location Details
+              2. Profile & Location Details
             </h3>
+
+            {/* Profile Photo Upload */}
+            <div>
+              <label className="block text-xs font-bold text-text mb-1">Profile Photo (Optional)</label>
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gray-200 border border-gray-300 flex items-center justify-center text-gray-500 overflow-hidden shrink-0">
+                  {form.photo ? (
+                    <img src={form.photo} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    '📷'
+                  )}
+                </div>
+                <div className="flex-1 flex gap-2">
+                  <input
+                    type="text"
+                    value={form.photo}
+                    onChange={(e) => setForm({ ...form, photo: e.target.value })}
+                    placeholder="Image URL (https://...)"
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-text outline-none focus:border-primary/50"
+                  />
+                  <label className="cursor-pointer bg-white border border-gray-200 hover:bg-gray-100 px-3 py-2.5 rounded-xl text-xs font-bold text-text shrink-0 flex items-center gap-1">
+                    Pick File
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setForm((prev) => ({ ...prev, photo: reader.result }));
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -290,8 +393,8 @@ export default function RealtorRegister() {
                 <label className="block text-xs font-bold text-text mb-1">State *</label>
                 <DropdownSelect
                   value={form.state}
-                  onChange={(val) => setForm({ ...form, state: val, city: (STATES_CITIES[val] || [])[0] || '' })}
-                  options={Object.keys(STATES_CITIES).map((st) => ({ value: st, label: st }))}
+                  onChange={(val) => setForm({ ...form, state: val })}
+                  options={statesList.map((st) => ({ value: st, label: st }))}
                 />
               </div>
 
@@ -300,7 +403,7 @@ export default function RealtorRegister() {
                 <DropdownSelect
                   value={form.city}
                   onChange={(val) => setForm({ ...form, city: val })}
-                  options={(STATES_CITIES[form.state] || []).map((c) => ({ value: c, label: c }))}
+                  options={citiesList.length > 0 ? citiesList.map((c) => ({ value: c, label: c })) : [{ value: form.city, label: form.city || 'Loading cities...' }]}
                 />
               </div>
             </div>
@@ -446,6 +549,24 @@ export default function RealtorRegister() {
 
         </form>
       </div>
+
+      {popup && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200 text-center">
+            <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${popup.type === 'error' ? 'bg-rose-100 text-primary' : 'bg-green-100 text-green-600'}`}>
+              {popup.type === 'error' ? <span className="text-2xl font-bold">!</span> : <CheckCheck size={24} />}
+            </div>
+            <h3 className="mb-2 text-xl font-extrabold text-text">{popup.type === 'error' ? 'Oops!' : 'Success'}</h3>
+            <p className="mb-6 text-sm font-medium text-gray-500">{popup.message}</p>
+            <button
+              onClick={() => setPopup(null)}
+              className="w-full rounded-xl bg-gray-900 py-3 text-sm font-bold text-white transition-colors hover:bg-black"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

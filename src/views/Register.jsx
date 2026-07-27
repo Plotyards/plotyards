@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 
 import { useState } from 'react';
 import { useAuth } from '../context/auth';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, CheckCheck } from 'lucide-react';
+import { sendOtp, verifyOtp } from '../lib/api';
 
 const Register = () => {
   const [accountType, setAccountType] = useState('broker');
@@ -81,36 +82,56 @@ const Register = () => {
 
   return (
     <div className="flex min-h-screen items-start justify-center bg-surface px-6 pb-12 pt-24 md:items-center md:pt-32">
-      <div className="w-full max-w-xl bg-white p-8 rounded-3xl shadow-card border border-gray-100 relative overflow-hidden">
+      <div className="w-full max-w-xl bg-white p-8 sm:p-10 rounded-3xl shadow-card border border-gray-100 relative overflow-hidden">
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-[50px]"></div>
         <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/10 rounded-full blur-[50px]"></div>
 
         <form onSubmit={handleRegister} className="relative z-10 flex flex-col gap-5">
-          <div className="text-center mb-3">
+          <div className="text-center mb-1">
+            <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-extrabold px-3.5 py-1.5 rounded-full border border-blue-200 uppercase tracking-wider mb-2">
+              ⭐ Choose Registration Type
+            </span>
             <h2 className="text-3xl font-extrabold text-text mb-2">
-              {accountType === 'broker' ? 'Associate Partner Registration' : 'Create Account'}
+              {accountType === 'broker' ? 'Realtor & Partner Signup' : 'Developer Signup'}
             </h2>
             <p className="text-gray-500 font-medium text-sm">
               {accountType === 'broker'
-                ? 'Share your business details and start managing plot listings.'
-                : 'Register as a developer and list your new projects.'}
+                ? 'Join Plotyards network to get area-wise buyer leads & directory profile.'
+                : 'Register as a developer to showcase new projects & townships.'}
             </p>
           </div>
 
+          {/* Featured Plan Banner for Realtors */}
+          {accountType === 'broker' && (
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-2xl shadow-md relative overflow-hidden">
+              <div className="flex justify-between items-start">
+                <div>
+                  <span className="bg-white/20 backdrop-blur-md text-white font-extrabold text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                    Recommended ⭐ Most Popular
+                  </span>
+                  <h4 className="text-lg font-black mt-1">Book My Realtor – ₹699 (Lifetime)</h4>
+                  <p className="text-blue-100 text-xs font-medium mt-0.5">
+                    Unlimited Property Listings • Buyer Lead Access • Call & WhatsApp
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {error && !popup && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-bold text-primary">{error}</p>}
 
-          <div className="grid grid-cols-2 gap-2 rounded-2xl bg-gray-50 p-1">
+          <div className="grid grid-cols-2 gap-2 rounded-2xl bg-gray-100 p-1.5">
             {[
-              ['broker', 'Associate Partner'],
-              ['developer', 'Developer']
+              ['broker', 'Realtor / Partner'],
+              ['developer', 'Project Developer']
             ].map(([value, label]) => (
               <button
                 key={value}
                 type="button"
                 onClick={() => setAccountType(value)}
-                className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${
+                className={`rounded-xl px-4 py-2.5 text-xs sm:text-sm font-extrabold transition-all ${
                   accountType === value
-                    ? 'bg-white text-primary shadow-sm'
+                    ? 'bg-white text-blue-700 shadow-md'
                     : 'text-gray-500 hover:text-text'
                 }`}
               >
@@ -119,9 +140,23 @@ const Register = () => {
             ))}
           </div>
 
+          {accountType === 'broker' && (
+            <div className="text-center bg-blue-50/60 p-3 rounded-2xl border border-blue-200">
+              <p className="text-xs font-bold text-blue-900">
+                Want to complete full Realtor Directory Profile (Locality, RERA, Social Links)?
+              </p>
+              <Link 
+                href="/realtor-register" 
+                className="inline-block mt-1 text-xs font-extrabold text-blue-600 hover:text-blue-800 underline"
+              >
+                Go to Full Realtor Registration Screen →
+              </Link>
+            </div>
+          )}
+
           <div>
-            <label className="block text-sm font-bold text-text mb-1">Full Name</label>
-            <input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium" placeholder="John Doe" required />
+            <label className="block text-xs font-extrabold text-text uppercase tracking-wider mb-1">Full Name *</label>
+            <input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text outline-none focus:border-primary/50 transition-colors placeholder-gray-400 font-medium text-sm" placeholder="e.g. Rajesh Kumar" required />
             {fieldErrors.name && <p className="mt-1 text-xs text-primary font-bold">{fieldErrors.name}</p>}
           </div>
           <div>
@@ -196,7 +231,7 @@ const Register = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200 text-center">
             <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${popup.type === 'error' ? 'bg-rose-100 text-primary' : 'bg-green-100 text-green-600'}`}>
-              <span className="text-2xl font-bold">!</span>
+              {popup.type === 'error' ? <span className="text-2xl font-bold">!</span> : <CheckCheck size={24} />}
             </div>
             <h3 className="mb-2 text-xl font-extrabold text-text">{popup.type === 'error' ? 'Oops!' : 'Success'}</h3>
             <p className="mb-6 text-sm font-medium text-gray-500">{popup.message}</p>

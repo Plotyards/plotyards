@@ -200,7 +200,7 @@ const PropertyDetails = () => {
       }
     }
     const message = encodeURIComponent(`Hi, I am interested in your property "${property.title}" listed on Plotyards.`);
-    window.open(`https://wa.me/${activeBroker.whatsapp}?text=${message}`, '_blank');
+    window.open(`https://wa.me/${formatPhoneForLink(activeBroker.whatsapp || activeBroker.phone)}?text=${message}`, '_blank');
   };
 
   const handleShare = async () => {

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
-import { Menu, User, Search, X } from 'lucide-react';
+import { Menu, User, Search, X, UserCheck } from 'lucide-react';
 import { useAuth } from '../context/auth';
 import VerifyDocumentModal from './VerifyDocumentModal';
 import { isAdminSearchQuery, openAdminEntry } from '../utils/adminAccess';
@@ -119,13 +119,14 @@ const Navbar = () => {
           {/* Book My Realtor */}
           <Link
             href="/book-my-realtor"
-            className={`hidden sm:flex items-center px-4 py-2 rounded-full text-sm font-semibold border transition-all ${
+            className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-full text-sm font-extrabold border transition-all ${
               showSolidNav
-                ? 'border-blue-600/30 text-blue-600 bg-blue-50 hover:bg-blue-100'
-                : 'border-blue-400/40 text-blue-200 bg-blue-950/40 hover:bg-blue-900/60'
+                ? 'border-primary/30 text-primary bg-primary/10 hover:bg-primary hover:text-white shadow-xs'
+                : 'border-white/30 text-white bg-white/10 hover:bg-white/20 backdrop-blur-md'
             }`}
           >
-            Book My Realtor
+            <UserCheck size={17} className="shrink-0" />
+            <span>Book My Realtor</span>
           </Link>
 
           {/* Post Property */}

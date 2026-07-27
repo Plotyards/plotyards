@@ -10,6 +10,7 @@ import { apiRequest } from '../lib/api';
 import { isAdminSearchQuery, openAdminEntry } from '../utils/adminAccess';
 import { buildListingsSearchUrl } from '../utils/propertySearch';
 import { adaptProperties } from '../utils/propertyAdapter';
+import { formatPhoneForLink } from '../utils/phoneUtils';
 
 import { propertyListings } from '../data/properties';
 import { useCompare } from '../context/CompareContext';
@@ -310,7 +311,7 @@ const Home = () => {
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                const num = plot.broker?.whatsapp?.replace(/\D/g, '') || '918287697756';
+                const num = formatPhoneForLink(plot.broker?.whatsapp || plot.broker?.phone || '8287697756');
                 const message = encodeURIComponent(`Hi, I am interested in your property "${plot.title}" listed on Plotyards.`);
                 window.open(`https://wa.me/${num}?text=${message}`, '_blank');
               }}

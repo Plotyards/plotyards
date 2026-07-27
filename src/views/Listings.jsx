@@ -11,6 +11,7 @@ import { propertyListings } from '../data/properties';
 import { advancedPropertySearch } from '../utils/propertySearch';
 import { apiRequest, buildQuery } from '../lib/api';
 import { adaptProperties, propertyTypeToApiValue } from '../utils/propertyAdapter';
+import { formatPhoneForLink } from '../utils/phoneUtils';
 import { useAuth } from '../context/auth';
 import { isAdminSearchQuery, openAdminEntry } from '../utils/adminAccess';
 
@@ -620,7 +621,7 @@ const Listings = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          const num = listing.broker?.whatsapp?.replace(/\D/g, '') || '918287697756';
+                          const num = formatPhoneForLink(listing.broker?.whatsapp || listing.broker?.phone || '8287697756');
                           const message = encodeURIComponent(`Hi, I am interested in your property "${listing.title}" listed on Plotyards.`);
                           window.open(`https://wa.me/${num}?text=${message}`, '_blank');
                         }}
