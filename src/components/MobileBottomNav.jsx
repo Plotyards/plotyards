@@ -6,10 +6,42 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Home, Lightbulb, Loader2, PlusSquare, Search, User, UserCheck, X } from 'lucide-react';
 import { useAuth } from '../context/auth';
 import VerifyDocumentModal from './VerifyDocumentModal';
+function CalendarClockIcon({ size = 26, className = "" }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      {/* Binder tabs at top */}
+      <rect x="7" y="2" width="2" height="3" rx="1" fill="currentColor" />
+      <rect x="15" y="2" width="2" height="3" rx="1" fill="currentColor" />
+
+      {/* Main calendar box */}
+      <rect x="3.5" y="4.5" width="17" height="16" rx="2.5" stroke="currentColor" strokeWidth="2" fill="none" />
+
+      {/* Top bar divider */}
+      <line x1="3.5" y1="9.5" x2="20.5" y2="9.5" stroke="currentColor" strokeWidth="2" />
+
+      {/* Date grid squares */}
+      <rect x="6.5" y="11.8" width="2" height="2" rx="0.5" fill="currentColor" />
+      <rect x="10.5" y="11.8" width="2" height="2" rx="0.5" fill="currentColor" />
+      <rect x="6.5" y="15" width="2" height="2" rx="0.5" fill="currentColor" />
+
+      {/* Clock circle in bottom right */}
+      <circle cx="15.5" cy="15.5" r="4.2" stroke="currentColor" strokeWidth="1.8" fill="#f80e11" />
+      <polyline points="15.5 13.5 15.5 15.5 17 15.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/listings', label: 'Explore', icon: Search },
-  { href: '/book-my-realtor', label: 'Book Realtor', icon: UserCheck, isPrimary: true },
+  { href: '/book-my-realtor', label: 'Book Realtor', icon: CalendarClockIcon, isPrimary: true },
   { href: '/blogs', label: 'Spotlight', icon: Lightbulb }
 ];
 
@@ -58,10 +90,28 @@ const MobileBottomNav = () => {
   return (
     <>
       <nav className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(env(safe-area-inset-bottom),0.65rem)] pt-2 md:hidden" aria-label="Mobile navigation">
-        <div className="mx-auto grid h-[72px] max-w-[420px] grid-cols-5 items-center gap-1 rounded-[1.4rem] border border-gray-200/80 bg-white/95 px-2 py-2 shadow-[0_-12px_34px_rgba(15,23,42,0.14)] backdrop-blur-xl">
+        <div className="relative mx-auto grid h-[66px] max-w-[420px] grid-cols-5 items-center gap-1 rounded-[1.6rem] border border-gray-200/80 bg-white/95 px-2 py-1 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] backdrop-blur-xl">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+
+            if (item.isPrimary) {
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive ? 'page' : undefined}
+                  aria-label={item.label}
+                  className="group relative flex flex-col items-center justify-center -mt-6"
+                >
+                  <div className="relative flex items-center justify-center p-[5px] rounded-full bg-primary/20 shadow-[0_6px_22px_rgba(248,14,17,0.45)] transition-transform group-active:scale-95">
+                    <div className="flex h-[58px] w-[58px] items-center justify-center rounded-full bg-primary text-white shadow-lg">
+                      <Icon size={28} />
+                    </div>
+                  </div>
+                </Link>
+              );
+            }
 
             return (
               <Link
@@ -73,13 +123,11 @@ const MobileBottomNav = () => {
                 }`}
               >
                 <span className={`flex items-center justify-center transition-all ${
-                  item.isPrimary
-                    ? 'h-11 w-11 rounded-2xl bg-gradient-to-r from-primary to-rose-600 text-white shadow-lg shadow-primary/30 border border-white/20'
-                    : `h-9 w-9 rounded-2xl ${isActive ? 'bg-primary/10 text-primary' : 'text-gray-500 group-hover:bg-gray-100'}`
+                  `h-9 w-9 rounded-2xl ${isActive ? 'bg-primary/10 text-primary' : 'text-gray-500 group-hover:bg-gray-100'}`
                 }`}>
-                  <Icon size={item.isPrimary ? 24 : 22} strokeWidth={isActive ? 2.6 : 2.1} fill={isActive && !item.isPrimary ? 'currentColor' : 'none'} />
+                  <Icon size={22} strokeWidth={isActive ? 2.6 : 2.1} fill={isActive && !item.isPrimary ? 'currentColor' : 'none'} />
                 </span>
-                {!item.isPrimary && <span className="truncate leading-none">{item.label}</span>}
+                <span className="truncate leading-none">{item.label}</span>
               </Link>
             );
           })}
@@ -103,7 +151,7 @@ const MobileBottomNav = () => {
                 <User size={22} strokeWidth={2.1} />
               )}
             </span>
-            <span className="truncate leading-none">Account</span>
+            <span className="truncate leading-none">Profile</span>
           </button>
         </div>
       </nav>
