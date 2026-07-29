@@ -458,25 +458,31 @@ export default function BookMyRealtor() {
                     </div>
 
                     {/* Specializes In Grid (3x2 compact boxes) */}
-                    {(bp.categoriesServed || CATEGORIES).length > 0 && (
-                      <div>
-                        <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500">Specializes In</p>
-                        <div className="grid grid-cols-3 gap-1.5">
-                          {(bp.categoriesServed && bp.categoriesServed.length > 0 ? bp.categoriesServed : CATEGORIES).slice(0, 6).map((catItem, i) => {
-                            const IconComponent = getCategoryIcon(catItem);
-                            return (
-                              <div
-                                key={i}
-                                className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50/70 p-2 text-left transition-colors hover:border-primary/40 hover:bg-white"
-                              >
-                                <IconComponent size={14} className="text-secondary shrink-0" />
-                                <span className="line-clamp-1 text-[10px] font-bold text-text leading-tight">{catItem}</span>
-                              </div>
-                            );
-                          })}
-                        </div>
+                    <div>
+                      <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500">Specializes In</p>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {((Array.isArray(bp.categoriesServed) && bp.categoriesServed.length > 0)
+                          ? bp.categoriesServed
+                          : ['Residential Plots', 'Commercial', 'Farm Land', 'Industrial', 'Villas', 'Apartments']
+                        ).slice(0, 6).map((catItem, i) => {
+                          const IconComponent = getCategoryIcon(catItem);
+                          const isMatch = category && category.toLowerCase() === catItem.toLowerCase();
+                          return (
+                            <div
+                              key={i}
+                              className={`flex items-center gap-1.5 rounded-xl border p-2 text-left transition-colors ${
+                                isMatch
+                                  ? 'border-primary bg-rose-50 text-primary font-black shadow-2xs'
+                                  : 'border-gray-200 bg-gray-50/70 text-text hover:border-primary/40 hover:bg-white font-bold'
+                              }`}
+                            >
+                              <IconComponent size={14} className={isMatch ? 'text-primary shrink-0' : 'text-secondary shrink-0'} />
+                              <span className="line-clamp-1 text-[10px] leading-tight">{catItem}</span>
+                            </div>
+                          );
+                        })}
                       </div>
-                    )}
+                    </div>
 
 
 
