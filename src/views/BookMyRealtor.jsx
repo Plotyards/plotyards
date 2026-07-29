@@ -529,10 +529,10 @@ export default function BookMyRealtor() {
       {/* ═══════════ LEAD FORM POPUP MODAL ═══════════ */}
       {selectedRealtor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl border border-gray-100">
+          <div className="relative w-full max-w-lg rounded-3xl bg-white shadow-2xl border border-gray-100">
             
             {/* Modal Header */}
-            <div className="relative bg-gradient-to-r from-secondary to-teal-800 p-6 text-white">
+            <div className="relative bg-gradient-to-r from-secondary to-teal-800 p-6 text-white rounded-t-3xl overflow-hidden">
               <button
                 onClick={handleCloseLeadModal}
                 className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"

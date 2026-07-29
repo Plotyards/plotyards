@@ -11,10 +11,12 @@ const DropdownSelect = ({
   disabled = false,
   icon: Icon,
   className = '',
-  searchable = true
+  searchable = true,
+  openUpwards = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [shouldOpenUpward, setShouldOpenUpward] = useState(openUpwards);
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
 
@@ -47,6 +49,18 @@ const DropdownSelect = ({
   }, []);
 
   useEffect(() => {
+    if (isOpen && dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      if (spaceBelow < 250 && rect.top > 200) {
+        setShouldOpenUpward(true);
+      } else {
+        setShouldOpenUpward(openUpwards);
+      }
+    }
+  }, [isOpen, openUpwards]);
+
+  useEffect(() => {
     if (isOpen && searchable && searchInputRef.current && normalizedOptions.length > 5) {
       setTimeout(() => searchInputRef.current?.focus(), 50);
     }
@@ -75,7 +89,7 @@ const DropdownSelect = ({
 
       {/* Dropdown Popup Menu */}
       {isOpen && (
-        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-[110] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150">
+        <div className={`absolute left-0 right-0 ${shouldOpenUpward ? 'bottom-[calc(100%+6px)]' : 'top-[calc(100%+6px)]'} z-[110] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150`}>
           
           {/* Internal Search Bar (for > 5 options) */}
           {searchable && normalizedOptions.length > 5 && (
@@ -104,7 +118,7 @@ const DropdownSelect = ({
           )}
 
           {/* Options List */}
-          <div className="max-h-60 overflow-y-auto overscroll-contain p-1.5 space-y-1 hero-dropdown-scroll">
+          <div className="max-h-56 overflow-y-auto overscroll-contain p-1.5 space-y-1 hero-dropdown-scroll">
             {filteredOptions.length ? (
               filteredOptions.map((option) => {
                 const isSelected = value === option.value;
