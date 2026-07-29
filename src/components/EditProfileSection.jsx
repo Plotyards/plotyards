@@ -437,13 +437,19 @@ export default function EditProfileSection({ user, updateMe, refreshMe, onSaved 
 
                 <div>
                   <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-300 mb-1">Total Sales Volume</label>
-                  <input
-                    type="text"
-                    value={form.totalSales}
-                    onChange={(e) => setForm({ ...form, totalSales: e.target.value })}
-                    placeholder="e.g. ₹150Cr+"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs font-bold text-white outline-none focus:border-emerald-400"
-                  />
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3 text-xs font-extrabold text-emerald-400 pointer-events-none select-none">₹</span>
+                    <input
+                      type="text"
+                      value={form.totalSales?.replace(/^₹\s*/, '') || ''}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/^₹\s*/, '');
+                        setForm({ ...form, totalSales: val ? `₹${val}` : '₹' });
+                      }}
+                      placeholder="150Cr+"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-7 pr-4 py-2.5 text-xs font-bold text-white outline-none focus:border-emerald-400"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

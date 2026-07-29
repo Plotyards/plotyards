@@ -474,13 +474,19 @@ export default function RealtorRegister() {
 
               <div>
                 <label className="block text-xs font-bold text-text mb-1">Total Sales Volume</label>
-                <input
-                  type="text"
-                  value={form.totalSales}
-                  onChange={(e) => setForm({ ...form, totalSales: e.target.value })}
-                  placeholder="e.g. ₹150Cr+"
-                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-text outline-none focus:border-primary/50"
-                />
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-sm font-extrabold text-gray-500 pointer-events-none select-none">₹</span>
+                  <input
+                    type="text"
+                    value={form.totalSales?.replace(/^₹\s*/, '') || ''}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/^₹\s*/, '');
+                      setForm({ ...form, totalSales: val ? `₹${val}` : '₹' });
+                    }}
+                    placeholder="150Cr+"
+                    className="w-full bg-white border border-gray-200 rounded-xl pl-7 pr-4 py-3 text-sm font-bold text-text outline-none focus:border-primary/50"
+                  />
+                </div>
               </div>
             </div>
 

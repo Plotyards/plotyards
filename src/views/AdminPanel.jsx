@@ -1134,12 +1134,19 @@ const AdminPanel = () => {
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-slate-300 mb-1">Total Sales (e.g. ₹150Cr+)</label>
-                    <input
-                      type="text"
-                      value={editingRealtorForm.totalSales}
-                      onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, totalSales: e.target.value })}
-                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-white outline-none focus:border-emerald-400"
-                    />
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3 text-xs font-extrabold text-emerald-400 pointer-events-none select-none">₹</span>
+                      <input
+                        type="text"
+                        value={editingRealtorForm.totalSales?.replace(/^₹\s*/, '') || ''}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/^₹\s*/, '');
+                          setEditingRealtorForm({ ...editingRealtorForm, totalSales: val ? `₹${val}` : '₹' });
+                        }}
+                        placeholder="150Cr+"
+                        className="w-full rounded-xl border border-slate-700 bg-slate-800 pl-7 pr-3 py-2 text-xs font-bold text-white outline-none focus:border-emerald-400"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
