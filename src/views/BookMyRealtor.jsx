@@ -23,7 +23,8 @@ const CATEGORIES = [
   'Farm Land',
   'Industrial',
   'Villas',
-  'Apartments'
+  'Apartments',
+  'Other'
 ];
 
 export default function BookMyRealtor() {
@@ -71,6 +72,17 @@ export default function BookMyRealtor() {
     fetchRealtors();
   }, [state, city, category]);
 
+  useEffect(() => {
+    if (selectedRealtor) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedRealtor]);
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchRealtors();
@@ -95,6 +107,7 @@ export default function BookMyRealtor() {
       phone: '',
       email: '',
       requirement: realtor.brokerProfile?.categoriesServed?.[0] || 'Residential Plots',
+      customRequirement: '',
       message: ''
     });
     setLeadSuccess(false);
@@ -125,7 +138,9 @@ export default function BookMyRealtor() {
           name: leadForm.name,
           phone: leadForm.phone,
           email: leadForm.email,
-          requirement: leadForm.requirement,
+          requirement: leadForm.requirement === 'Other' && leadForm.customRequirement 
+            ? `Other: ${leadForm.customRequirement}` 
+            : leadForm.requirement,
           message: leadForm.message,
           source: actionType === 'call' ? 'call_click' : actionType === 'whatsapp' ? 'whatsapp_click' : 'book_my_realtor'
         }
@@ -493,13 +508,13 @@ export default function BookMyRealtor() {
                       </button>
                     </div>
 
-                    {/* Save Broker Outline Button */}
+                    {/* Save Realtor Outline Button */}
                     <button
                       onClick={() => toggleSaveBroker(realtor._id)}
                       className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-gray-300 bg-white py-2 text-[11px] font-extrabold text-gray-700 hover:bg-gray-50 transition-colors"
                     >
                       <Bookmark size={12} className={isSaved ? 'text-primary fill-primary' : 'text-gray-400'} />
-                      {isSaved ? 'Broker Saved' : 'Save Broker'}
+                      {isSaved ? 'Realtor Saved' : 'Save Realtor'}
                     </button>
                   </div>
 
@@ -666,6 +681,17 @@ export default function BookMyRealtor() {
                       icon={Layers}
                       placeholder="Select Category"
                     />
+                    {leadForm.requirement === 'Other' && (
+                      <div className="mt-2 animate-in fade-in duration-150">
+                        <input
+                          type="text"
+                          placeholder="Please specify your requirement..."
+                          value={leadForm.customRequirement || ''}
+                          onChange={(e) => setLeadForm({ ...leadForm, customRequirement: e.target.value })}
+                          className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-semibold text-text outline-none focus:border-primary focus:bg-white"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div>

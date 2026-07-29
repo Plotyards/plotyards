@@ -15,7 +15,8 @@ const CATEGORY_OPTIONS = [
   'Farm Land',
   'Industrial',
   'Villas',
-  'Apartments'
+  'Apartments',
+  'Other'
 ];
 
 export default function RealtorRegister() {

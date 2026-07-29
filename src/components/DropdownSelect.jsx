@@ -104,7 +104,7 @@ const DropdownSelect = ({
           )}
 
           {/* Options List */}
-          <div className="max-h-60 overflow-y-auto p-1.5 space-y-1 hero-dropdown-scroll">
+          <div className="max-h-60 overflow-y-auto overscroll-contain p-1.5 space-y-1 hero-dropdown-scroll">
             {filteredOptions.length ? (
               filteredOptions.map((option) => {
                 const isSelected = value === option.value;
