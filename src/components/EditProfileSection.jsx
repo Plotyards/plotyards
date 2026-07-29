@@ -114,6 +114,50 @@ export default function EditProfileSection({ user, updateMe, refreshMe, onSaved 
   const [citiesList, setCitiesList] = useState([]);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState({ type: '', text: '' });
+  const [uploadConfig, setUploadConfig] = useState(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
+
+  useEffect(() => {
+    apiRequest('/service/uploads/signature')
+      .then(data => setUploadConfig(data))
+      .catch(() => setUploadConfig(null));
+  }, []);
+
+  const handlePhotoFileSelect = async (file) => {
+    if (!file) return;
+    setPhotoUploading(true);
+    setMsg({ type: '', text: '' });
+
+    try {
+      if (uploadConfig?.cloudName && uploadConfig?.uploadPreset) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', uploadConfig.uploadPreset);
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${uploadConfig.cloudName}/image/upload`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+        if (res.ok && data.secure_url) {
+          setForm(prev => ({ ...prev, photo: data.secure_url }));
+          setMsg({ type: 'success', text: 'Photo uploaded to Cloudinary successfully!' });
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Cloudinary upload fallback to canvas compression:', err);
+    }
+
+    // Fallback to canvas compression if Cloudinary is not configured or fails
+    try {
+      const base64 = await compressImage(file, 800, 800, 0.8);
+      setForm(prev => ({ ...prev, photo: base64 }));
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
 
   useEffect(() => {
     fetch('https://countriesnow.space/api/v0.1/countries/states', {
@@ -271,11 +315,7 @@ export default function EditProfileSection({ user, updateMe, refreshMe, onSaved 
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) {
-                    compressImage(file, 800, 800, 0.8).then(base64 => {
-                      setForm(prev => ({ ...prev, photo: base64 }));
-                    });
-                  }
+                  if (file) handlePhotoFileSelect(file);
                 }}
               />
             </label>
@@ -294,18 +334,15 @@ export default function EditProfileSection({ user, updateMe, refreshMe, onSaved 
                 className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-text outline-none focus:border-primary/50"
               />
               <label className="cursor-pointer bg-white border border-gray-200 hover:bg-gray-100 px-4 py-2.5 rounded-xl text-xs font-bold text-text shrink-0 flex items-center gap-1 shadow-2xs">
-                Upload
+                {photoUploading ? 'Uploading...' : 'Upload'}
                 <input
                   type="file"
                   accept="image/*"
+                  disabled={photoUploading}
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) {
-                      compressImage(file, 800, 800, 0.8).then(base64 => {
-                        setForm(prev => ({ ...prev, photo: base64 }));
-                      });
-                    }
+                    if (file) handlePhotoFileSelect(file);
                   }}
                 />
               </label>
