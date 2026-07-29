@@ -85,6 +85,9 @@ const AdminPanel = () => {
   const [featurePage, setFeaturePage] = useState(1);
   const [topCities, setTopCities] = useState([]);
   const [topCitiesStatus, setTopCitiesStatus] = useState('');
+  const [selectedRealtorToEdit, setSelectedRealtorToEdit] = useState(null);
+  const [editingRealtorForm, setEditingRealtorForm] = useState({});
+  const [savingRealtor, setSavingRealtor] = useState(false);
 
   const loadAdminData = async () => {
     const [statsData, usersData, pendingBrokersData, announcementData, featurePropertiesData, topCitiesData] = await Promise.all([
@@ -241,6 +244,97 @@ const AdminPanel = () => {
     setUsers((current) => current.map((userItem) => (
       userItem._id === broker._id ? data.user : userItem
     )));
+  };
+
+  const handleOpenEditRealtorModal = (broker) => {
+    const bp = broker.brokerProfile || {};
+    setSelectedRealtorToEdit(broker);
+    setEditingRealtorForm({
+      name: broker.name || '',
+      email: broker.email || '',
+      phone: broker.phone || '',
+      companyName: bp.companyName || '',
+      reraId: bp.reraId || '',
+      contactPhone: bp.contactPhone || broker.phone || '',
+      whatsappNumber: bp.whatsappNumber || broker.phone || '',
+      state: bp.state || 'Haryana',
+      city: bp.city || 'Rohtak',
+      locality: bp.locality || '',
+      areasServed: Array.isArray(bp.areasServed) ? bp.areasServed.join(', ') : (bp.areasServed || ''),
+      experienceYears: bp.experienceYears || 0,
+      closedDeals: bp.closedDeals || '100+',
+      totalSales: bp.totalSales || '₹50Cr+',
+      bio: bp.bio || '',
+      photo: bp.photo || '',
+      instagram: bp.socialLinks?.instagram || '',
+      facebook: bp.socialLinks?.facebook || '',
+      linkedin: bp.socialLinks?.linkedin || '',
+      youtube: bp.socialLinks?.youtube || ''
+    });
+  };
+
+  const handleSaveRealtorProfile = async () => {
+    if (!selectedRealtorToEdit) return;
+    setSavingRealtor(true);
+    try {
+      const areasList = typeof editingRealtorForm.areasServed === 'string'
+        ? editingRealtorForm.areasServed.split(',').map(s => s.trim()).filter(Boolean)
+        : editingRealtorForm.areasServed;
+
+      const payload = {
+        name: editingRealtorForm.name,
+        email: editingRealtorForm.email,
+        phone: editingRealtorForm.phone,
+        brokerProfile: {
+          photo: editingRealtorForm.photo,
+          companyName: editingRealtorForm.companyName,
+          reraId: editingRealtorForm.reraId,
+          contactPhone: editingRealtorForm.contactPhone,
+          whatsappNumber: editingRealtorForm.whatsappNumber,
+          state: editingRealtorForm.state,
+          city: editingRealtorForm.city,
+          locality: editingRealtorForm.locality,
+          areasServed: areasList,
+          experienceYears: Number(editingRealtorForm.experienceYears) || 0,
+          closedDeals: editingRealtorForm.closedDeals,
+          totalSales: editingRealtorForm.totalSales,
+          bio: editingRealtorForm.bio,
+          socialLinks: {
+            instagram: editingRealtorForm.instagram,
+            facebook: editingRealtorForm.facebook,
+            linkedin: editingRealtorForm.linkedin,
+            youtube: editingRealtorForm.youtube
+          }
+        }
+      };
+
+      await apiRequest(`/admin/users/${selectedRealtorToEdit._id}`, {
+        method: 'PATCH',
+        body: payload
+      });
+
+      await loadAdminData();
+      setSelectedRealtorToEdit(null);
+      alert('Realtor profile updated successfully!');
+    } catch (err) {
+      alert(err.message || 'Failed to update realtor profile');
+    } finally {
+      setSavingRealtor(false);
+    }
+  };
+
+  const handleDeleteRealtor = async (broker) => {
+    if (!window.confirm(`Are you sure you want to permanently delete realtor "${broker.name}" (${broker.brokerProfile?.companyName || broker.email})? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await apiRequest(`/admin/users/${broker._id}`, { method: 'DELETE' });
+      setUsers(prev => prev.filter(u => u._id !== broker._id));
+      alert('Realtor deleted successfully.');
+    } catch (err) {
+      alert(err.message || 'Failed to delete realtor');
+    }
   };
 
   const exportBrokersToCSV = () => {
@@ -498,10 +592,17 @@ const AdminPanel = () => {
                               <div className="flex flex-col gap-2 items-end">
                                 <button
                                   type="button"
+                                  onClick={() => handleOpenEditRealtorModal(broker)}
+                                  className="inline-flex items-center gap-1.5 rounded-lg border border-purple-300 bg-purple-50 px-3 py-1 text-xs font-extrabold text-purple-700 hover:bg-purple-100 transition-colors"
+                                >
+                                  <FileText size={13} /> Edit Profile
+                                </button>
+                                <button
+                                  type="button"
                                   onClick={async () => {
                                     try {
                                       await apiRequest(`/admin/realtors/${broker._id}/rera`, { method: 'PATCH' });
-                                      fetchAdminData();
+                                      loadAdminData();
                                     } catch (e) { alert(e.message); }
                                   }}
                                   className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-extrabold ${broker.brokerProfile?.isReraVerified ? 'bg-emerald-600 text-white' : 'border border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100'}`}
@@ -517,7 +618,7 @@ const AdminPanel = () => {
                                         method: 'PATCH',
                                         body: JSON.stringify({ bookMyRealtorMember: !broker.brokerProfile?.bookMyRealtorMember })
                                       });
-                                      fetchAdminData();
+                                      loadAdminData();
                                     } catch (e) { alert(e.message); }
                                   }}
                                   className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-extrabold ${broker.brokerProfile?.bookMyRealtorMember ? 'bg-blue-600 text-white' : 'border border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100'}`}
@@ -536,6 +637,13 @@ const AdminPanel = () => {
                                 >
                                   {broker.isActive ? <XCircle size={14} /> : <CheckCircle2 size={14} />}
                                   {broker.isActive ? 'Disable Partner' : 'Enable Partner'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteRealtor(broker)}
+                                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1 text-xs font-extrabold text-red-600 hover:bg-red-100 transition-colors"
+                                >
+                                  <Trash2 size={13} /> Delete Realtor
                                 </button>
                               </div>
                             </td>
@@ -874,6 +982,17 @@ const AdminPanel = () => {
                         <p className="text-2xl font-extrabold">{stats?.inquiries || 0}</p>
                         <p className="text-xs font-bold text-white/70">Inquiries</p>
                       </div>
+                      ))}
+                    </svg>
+                    <div className="mt-5 grid grid-cols-2 gap-3">
+                      <div className="rounded-xl border border-white/20 bg-white/10 p-3">
+                        <p className="text-2xl font-extrabold">{stats?.pendingProperties || 0}</p>
+                        <p className="text-xs font-bold text-white/70">Pending properties</p>
+                      </div>
+                      <div className="rounded-xl border border-white/20 bg-white/10 p-3">
+                        <p className="text-2xl font-extrabold">{stats?.inquiries || 0}</p>
+                        <p className="text-xs font-bold text-white/70">Inquiries</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -882,6 +1001,226 @@ const AdminPanel = () => {
           </main>
         </div>
       </div>
+
+      {/* ─── EDIT REALTOR MODAL ─── */}
+      {selectedRealtorToEdit && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto">
+          <div className="relative w-full max-w-2xl my-8 overflow-hidden rounded-3xl bg-white shadow-2xl border border-gray-100">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between bg-slate-900 px-6 py-4 text-white">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 font-bold text-primary">
+                  {selectedRealtorToEdit.name?.charAt(0) || 'R'}
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold">Edit Realtor Profile: {selectedRealtorToEdit.name}</h3>
+                  <p className="text-xs text-gray-400 font-medium">{selectedRealtorToEdit.email || selectedRealtorToEdit.phone}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedRealtorToEdit(null)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-text mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    value={editingRealtorForm.name}
+                    onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, name: e.target.value })}
+                    className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    value={editingRealtorForm.email}
+                    onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, email: e.target.value })}
+                    className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-text mb-1">Mobile Phone</label>
+                  <input
+                    type="tel"
+                    value={editingRealtorForm.phone}
+                    onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, phone: e.target.value })}
+                    className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text mb-1">Agency / Company Name</label>
+                  <input
+                    type="text"
+                    value={editingRealtorForm.companyName}
+                    onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, companyName: e.target.value })}
+                    className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-text mb-1">Contact Phone</label>
+                  <input
+                    type="tel"
+                    value={editingRealtorForm.contactPhone}
+                    onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, contactPhone: e.target.value })}
+                    className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text mb-1">WhatsApp Number</label>
+                  <input
+                    type="tel"
+                    value={editingRealtorForm.whatsappNumber}
+                    onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, whatsappNumber: e.target.value })}
+                    className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-text mb-1">State</label>
+                  <input
+                    type="text"
+                    value={editingRealtorForm.state}
+                    onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, state: e.target.value })}
+                    className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text mb-1">City</label>
+                  <input
+                    type="text"
+                    value={editingRealtorForm.city}
+                    onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, city: e.target.value })}
+                    className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text mb-1">Locality</label>
+                  <input
+                    type="text"
+                    value={editingRealtorForm.locality}
+                    onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, locality: e.target.value })}
+                    className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              {/* Display Metrics */}
+              <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-2">
+                <p className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">Card Display Metrics</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1">Experience Years</label>
+                    <input
+                      type="number"
+                      value={editingRealtorForm.experienceYears}
+                      onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, experienceYears: e.target.value })}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-white outline-none focus:border-emerald-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1">Deals Closed (e.g. 250+)</label>
+                    <input
+                      type="text"
+                      value={editingRealtorForm.closedDeals}
+                      onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, closedDeals: e.target.value })}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-white outline-none focus:border-emerald-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 mb-1">Total Sales (e.g. ₹150Cr+)</label>
+                    <input
+                      type="text"
+                      value={editingRealtorForm.totalSales}
+                      onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, totalSales: e.target.value })}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-white outline-none focus:border-emerald-400"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-text mb-1">Areas Served (Comma separated)</label>
+                <input
+                  type="text"
+                  value={editingRealtorForm.areasServed}
+                  onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, areasServed: e.target.value })}
+                  placeholder="e.g. Sector 14, Main Bypass"
+                  className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-text mb-1">Profile Photo URL</label>
+                <input
+                  type="text"
+                  value={editingRealtorForm.photo}
+                  onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, photo: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-text mb-1">RERA ID</label>
+                <input
+                  type="text"
+                  value={editingRealtorForm.reraId}
+                  onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, reraId: e.target.value })}
+                  className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-text mb-1">Short Bio</label>
+                <textarea
+                  rows={2}
+                  value={editingRealtorForm.bio}
+                  onChange={(e) => setEditingRealtorForm({ ...editingRealtorForm, bio: e.target.value })}
+                  className="w-full rounded-xl border border-gray-200 bg-surface px-3.5 py-2 text-xs font-semibold text-text outline-none focus:border-primary resize-none"
+                />
+              </div>
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-end gap-3 bg-gray-50 px-6 py-4 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setSelectedRealtorToEdit(null)}
+                className="rounded-xl border border-gray-300 bg-white px-5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={savingRealtor}
+                onClick={handleSaveRealtorProfile}
+                className="rounded-xl bg-primary px-6 py-2 text-xs font-extrabold text-white hover:bg-rose-600 shadow-md disabled:opacity-50"
+              >
+                {savingRealtor ? 'Saving...' : 'Save Realtor Profile'}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };
