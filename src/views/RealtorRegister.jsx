@@ -19,6 +19,40 @@ const CATEGORY_OPTIONS = [
   'Other'
 ];
 
+const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.8) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(event.target.result);
+    };
+    reader.onerror = () => resolve('');
+  });
+};
+
 export default function RealtorRegister() {
   const [form, setForm] = useState({
     name: '',
@@ -56,6 +90,49 @@ export default function RealtorRegister() {
 
   const [statesList, setStatesList] = useState(['Haryana', 'Gujarat', 'Karnataka', 'Maharashtra']);
   const [citiesList, setCitiesList] = useState([]);
+  const [uploadConfig, setUploadConfig] = useState(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/service/uploads/signature')
+      .then(res => res.json())
+      .then(data => setUploadConfig(data))
+      .catch(() => setUploadConfig(null));
+  }, []);
+
+  const handlePhotoFileSelect = async (file) => {
+    if (!file) return;
+    setPhotoUploading(true);
+
+    try {
+      if (uploadConfig?.cloudName && uploadConfig?.uploadPreset) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', uploadConfig.uploadPreset);
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${uploadConfig.cloudName}/image/upload`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+        if (res.ok && data.secure_url) {
+          setForm(prev => ({ ...prev, photo: data.secure_url }));
+          setPhotoUploading(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Cloudinary upload fallback:', err);
+    }
+
+    try {
+      const base64 = await compressImage(file, 800, 800, 0.8);
+      setForm(prev => ({ ...prev, photo: base64 }));
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
 
   useEffect(() => {
     fetch('https://countriesnow.space/api/v0.1/countries/states', {
@@ -347,20 +424,15 @@ export default function RealtorRegister() {
                     className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-text outline-none focus:border-primary/50"
                   />
                   <label className="cursor-pointer bg-white border border-gray-200 hover:bg-gray-100 px-3 py-2.5 rounded-xl text-xs font-bold text-text shrink-0 flex items-center gap-1">
-                    Pick File
+                    {photoUploading ? 'Uploading...' : 'Pick File'}
                     <input
                       type="file"
                       accept="image/*"
+                      disabled={photoUploading}
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            setForm((prev) => ({ ...prev, photo: reader.result }));
-                          };
-                          reader.readAsDataURL(file);
-                        }
+                        if (file) handlePhotoFileSelect(file);
                       }}
                     />
                   </label>
