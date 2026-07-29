@@ -982,17 +982,6 @@ const AdminPanel = () => {
                         <p className="text-2xl font-extrabold">{stats?.inquiries || 0}</p>
                         <p className="text-xs font-bold text-white/70">Inquiries</p>
                       </div>
-                      ))}
-                    </svg>
-                    <div className="mt-5 grid grid-cols-2 gap-3">
-                      <div className="rounded-xl border border-white/20 bg-white/10 p-3">
-                        <p className="text-2xl font-extrabold">{stats?.pendingProperties || 0}</p>
-                        <p className="text-xs font-bold text-white/70">Pending properties</p>
-                      </div>
-                      <div className="rounded-xl border border-white/20 bg-white/10 p-3">
-                        <p className="text-2xl font-extrabold">{stats?.inquiries || 0}</p>
-                        <p className="text-xs font-bold text-white/70">Inquiries</p>
-                      </div>
                     </div>
                   </div>
                 </div>

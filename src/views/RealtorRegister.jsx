@@ -494,7 +494,6 @@ export default function RealtorRegister() {
                   className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-text outline-none focus:border-primary/50"
                 />
               </div>
-            </div>
 
             <div>
               <label className="block text-xs font-bold text-text mb-1">Office Address</label>
