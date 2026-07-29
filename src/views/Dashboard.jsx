@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle, Plus, Minus, Settings } from 'lucide-react';
+import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle, Plus, Minus, Settings, User } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 import { adaptProperty, adaptProperties } from '../utils/propertyAdapter';
@@ -13,6 +13,7 @@ import BlogManager from '../components/BlogManager';
 import DeveloperDashboard from './DeveloperDashboard';
 import DeleteAccountModal from '../components/DeleteAccountModal';
 import SubscriptionModal from '../components/SubscriptionModal';
+import EditProfileSection from '../components/EditProfileSection';
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 const RAZORPAY_CHECKOUT_URL = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -403,20 +404,23 @@ const Dashboard = () => {
     ? (brokerApproved
         ? [
             ['overview', BarChart3, 'Overview'],
+            ['profile', User, 'Edit Profile'],
             ['leads', Inbox, 'Leads'],
             ['listings', HomeIcon, 'My Listings'],
             ['blogs', FileText, 'Blogs'],
             ['subscription', CreditCard, 'Subscription'],
-            ['settings', Settings, 'Settings']
+            ['settings', Settings, 'Account Settings']
           ]
         : [
+            ['profile', User, 'Edit Profile'],
             ['subscription', CreditCard, 'Subscription'],
-            ['settings', Settings, 'Settings']
+            ['settings', Settings, 'Account Settings']
           ])
     : [
         ['overview', Users, 'Overview'],
+        ['profile', User, 'Edit Profile'],
         ['history', Clock, 'History'],
-        ['settings', Settings, 'Settings']
+        ['settings', Settings, 'Account Settings']
       ];
 
   return (
@@ -436,6 +440,13 @@ const Dashboard = () => {
                 <div>
                   <h3 className="font-bold text-text leading-tight">{user?.name}</h3>
                   <p className="text-xs text-primary font-bold uppercase">{roleLabel}</p>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('profile')}
+                    className="mt-1 text-[11px] text-blue-600 hover:underline font-bold flex items-center gap-1"
+                  >
+                    <User size={12} /> Edit Profile
+                  </button>
                 </div>
               </div>
 
@@ -451,7 +462,32 @@ const Dashboard = () => {
 
           <main className="lg:col-span-4">
             {isBroker ? (
-              activeTab === 'subscription' ? (
+              (activeTab === 'profile' || activeTab === 'settings') ? (
+                <div className="space-y-8">
+                  <EditProfileSection
+                    user={user}
+                    updateMe={updateMe}
+                    refreshMe={refreshMe}
+                    onSaved={() => setPopup({ type: 'success', title: 'Profile Updated', message: 'Your profile details have been saved successfully!' })}
+                  />
+                  <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 sm:p-8">
+                    <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-bold text-rose-900">Danger Zone</h3>
+                        <p className="mt-1 text-sm text-rose-700 max-w-lg font-medium">
+                          Permanently delete your account, including all your listings, leads, and personal data. This action cannot be undone.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setIsDeleteModalOpen(true)}
+                        className="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-rose-700 shadow-sm"
+                      >
+                        Delete My Account
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : activeTab === 'subscription' ? (
                 <div className="space-y-8">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
@@ -1066,14 +1102,14 @@ const Dashboard = () => {
                         <p className="text-sm font-bold text-muted">No recent history yet.</p>
                       )}
                     </div>
-                  ) : activeTab === 'settings' ? (
+                  ) : (activeTab === 'settings' || activeTab === 'profile') ? (
                     <div className="grid gap-6">
-                      <div className="flex items-end justify-between">
-                        <div>
-                          <h2 className="text-2xl font-extrabold text-gray-900">Account Settings</h2>
-                          <p className="mt-1 text-sm text-gray-500 font-medium">Manage your account preferences and data</p>
-                        </div>
-                      </div>
+                      <EditProfileSection
+                        user={user}
+                        updateMe={updateMe}
+                        refreshMe={refreshMe}
+                        onSaved={() => setPopup({ type: 'success', title: 'Profile Updated', message: 'Your profile details have been saved successfully!' })}
+                      />
 
                       <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 sm:p-8 mt-4">
                         <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between">

@@ -36,6 +36,8 @@ export default function RealtorRegister() {
     areasServed: '',
     categoriesServed: ['Residential Plots'],
     experienceYears: '3',
+    closedDeals: '100+',
+    totalSales: '₹50Cr+',
     bio: '',
     address: '',
     instagram: '',
@@ -151,6 +153,8 @@ export default function RealtorRegister() {
           areasServed: areasList.length ? areasList : [form.city],
           categoriesServed: form.categoriesServed,
           experienceYears: Number(form.experienceYears) || 0,
+          closedDeals: form.closedDeals || '',
+          totalSales: form.totalSales || '',
           bio: form.bio,
           socialLinks: {
             instagram: form.instagram,
@@ -444,7 +448,7 @@ export default function RealtorRegister() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-bold text-text mb-1">Years of Experience</label>
                 <input
@@ -452,9 +456,33 @@ export default function RealtorRegister() {
                   min="0"
                   value={form.experienceYears}
                   onChange={(e) => setForm({ ...form, experienceYears: e.target.value })}
+                  placeholder="e.g. 5"
                   className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-text outline-none focus:border-primary/50"
                 />
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-text mb-1">Deals Closed</label>
+                <input
+                  type="text"
+                  value={form.closedDeals}
+                  onChange={(e) => setForm({ ...form, closedDeals: e.target.value })}
+                  placeholder="e.g. 250+"
+                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-text outline-none focus:border-primary/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-text mb-1">Total Sales Volume</label>
+                <input
+                  type="text"
+                  value={form.totalSales}
+                  onChange={(e) => setForm({ ...form, totalSales: e.target.value })}
+                  placeholder="e.g. ₹150Cr+"
+                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-text outline-none focus:border-primary/50"
+                />
+              </div>
+            </div>
 
               <div>
                 <label className="block text-xs font-bold text-text mb-1">Short Bio / Tagline</label>
