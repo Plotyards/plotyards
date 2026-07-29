@@ -899,70 +899,16 @@ const Dashboard = () => {
                     </div>
                   )}
                 </div>
-              ) : activeTab === 'settings' ? (
-                <div className="grid gap-6">
-                  <div className="flex items-end justify-between">
-                    <div>
-                      <h2 className="text-2xl font-extrabold text-gray-900">Account Settings & Profile Photo</h2>
-                      <p className="mt-1 text-sm text-gray-500 font-medium">Manage your profile details and update your realtor profile photo</p>
-                    </div>
-                  </div>
+              ) : (activeTab === 'settings' || activeTab === 'profile') ? (
+                <div className="space-y-8">
+                  <EditProfileSection
+                    user={user}
+                    updateMe={updateMe}
+                    refreshMe={refreshMe}
+                    onSaved={() => setPopup({ type: 'success', title: 'Profile Updated', message: 'Your profile details have been saved successfully!' })}
+                  />
 
-                  {/* Realtor Profile Photo Card */}
-                  <div className="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
-                    <h3 className="text-lg font-extrabold text-text mb-4">Realtor Profile Picture</h3>
-                    <div className="flex flex-col sm:flex-row items-center gap-6">
-                      <div className="w-24 h-24 rounded-2xl bg-secondary/10 border-2 border-primary/20 flex items-center justify-center text-primary text-3xl font-extrabold overflow-hidden relative shadow-md">
-                        {profilePhotoInput || user?.brokerProfile?.photo ? (
-                          <img src={profilePhotoInput || user?.brokerProfile?.photo} alt="Profile" className="w-full h-full object-cover" />
-                        ) : (
-                          user?.name?.charAt(0) || 'R'
-                        )}
-                      </div>
-
-                      <div className="flex-1 space-y-3 w-full">
-                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-500">
-                          Upload Photo / Image Link
-                        </label>
-                        <div className="flex flex-col sm:flex-row gap-3">
-                          <input
-                            type="text"
-                            value={profilePhotoInput}
-                            onChange={(e) => setProfilePhotoInput(e.target.value)}
-                            placeholder="Paste image URL (https://...)"
-                            className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
-                          />
-                          <label className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-text text-xs font-bold px-4 py-2.5 transition-colors border border-gray-200 whitespace-nowrap">
-                            📷 Pick File
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  const reader = new FileReader();
-                                  reader.onloadend = () => {
-                                    setProfilePhotoInput(reader.result);
-                                  };
-                                  reader.readAsDataURL(file);
-                                }
-                              }}
-                            />
-                          </label>
-                        </div>
-                        <button
-                          onClick={handleSaveProfilePhoto}
-                          disabled={savingPhoto}
-                          className="inline-flex items-center gap-2 rounded-xl bg-primary hover:bg-rose-600 text-white text-xs font-extrabold px-5 py-2.5 shadow-sm transition-all disabled:opacity-60"
-                        >
-                          {savingPhoto ? 'Saving...' : 'Save Profile Photo'}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 sm:p-8 mt-4">
+                  <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 sm:p-8">
                     <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between">
                       <div>
                         <h3 className="text-lg font-bold text-rose-900">Danger Zone</h3>
