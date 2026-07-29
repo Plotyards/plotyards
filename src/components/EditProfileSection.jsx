@@ -37,6 +37,40 @@ const YoutubeIcon = () => (
   </svg>
 );
 
+const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.8) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(event.target.result);
+    };
+    reader.onerror = () => resolve('');
+  });
+};
+
 const CATEGORY_OPTIONS = [
   'Residential Plots',
   'Commercial',
@@ -238,9 +272,9 @@ export default function EditProfileSection({ user, updateMe, refreshMe, onSaved 
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => setForm(prev => ({ ...prev, photo: reader.result }));
-                    reader.readAsDataURL(file);
+                    compressImage(file, 800, 800, 0.8).then(base64 => {
+                      setForm(prev => ({ ...prev, photo: base64 }));
+                    });
                   }
                 }}
               />
@@ -268,9 +302,9 @@ export default function EditProfileSection({ user, updateMe, refreshMe, onSaved 
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => setForm(prev => ({ ...prev, photo: reader.result }));
-                      reader.readAsDataURL(file);
+                      compressImage(file, 800, 800, 0.8).then(base64 => {
+                        setForm(prev => ({ ...prev, photo: base64 }));
+                      });
                     }
                   }}
                 />
