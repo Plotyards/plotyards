@@ -115,11 +115,8 @@ export default function EditProfileSection({ user, updateMe, refreshMe, onSaved 
       const payload = {
         name: form.name,
         email: form.email,
-        phone: form.phone
-      };
-
-      if (isBroker) {
-        payload.brokerProfile = {
+        phone: form.phone,
+        brokerProfile: {
           photo: form.photo,
           companyName: form.companyName,
           reraId: form.reraId,
@@ -141,8 +138,8 @@ export default function EditProfileSection({ user, updateMe, refreshMe, onSaved 
             linkedin: form.linkedin,
             youtube: form.youtube
           }
-        };
-      }
+        }
+      };
 
       await updateMe(payload);
       if (refreshMe) await refreshMe();
@@ -295,12 +292,11 @@ export default function EditProfileSection({ user, updateMe, refreshMe, onSaved 
           </div>
         </div>
 
-        {/* ─── 2. REALTOR / BUSINESS INFORMATION ─── */}
-        {isBroker && (
-          <div className="space-y-6 pt-2">
-            <h3 className="text-sm font-extrabold text-text uppercase tracking-wider border-b border-gray-100 pb-2 flex items-center gap-2">
-              <Building2 size={16} className="text-primary" /> Realtor Directory & Agency Details
-            </h3>
+        {/* ─── 2. REALTOR / LOCATION & BUSINESS INFORMATION ─── */}
+        <div className="space-y-6 pt-2">
+          <h3 className="text-sm font-extrabold text-text uppercase tracking-wider border-b border-gray-100 pb-2 flex items-center gap-2">
+            <Building2 size={16} className="text-primary" /> Location, Agency & Profile Details
+          </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -520,7 +516,7 @@ export default function EditProfileSection({ user, updateMe, refreshMe, onSaved 
             </div>
 
           </div>
-        )}
+        </div>
 
         {/* Save Button */}
         <div className="pt-4 border-t border-gray-100 flex justify-end">
