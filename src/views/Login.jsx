@@ -62,7 +62,7 @@ const Login = () => {
         <div className="relative z-10 flex flex-col gap-5">
           <div className="text-center mb-1">
             <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-[11px] font-extrabold px-3.5 py-1 rounded-full border border-blue-200 uppercase tracking-wider mb-2">
-              💼 Realtor & Partner Portal
+              💼 Realtor Portal
             </span>
             <h2 className="text-3xl font-extrabold text-text mb-2">Welcome Back</h2>
             <p className="text-gray-500 font-medium text-sm">Sign in to manage your listings, buyer leads & directory profile</p>
@@ -120,7 +120,7 @@ const Login = () => {
           <div className="text-center mt-2 text-xs font-semibold text-gray-500">
             Don't have an account?
             <Link href="/realtor-register" className="text-primary hover:text-rose-600 font-extrabold ml-1 transition-colors underline">
-              Register as Realtor / Partner
+              Register as Realtor
             </Link>
           </div>
         </div>

@@ -170,7 +170,7 @@ const MobileBottomNav = () => {
                   {user ? `Hello, ${user.name}` : 'Welcome back'}
                 </h2>
                 <p className="mt-1 text-sm font-medium text-muted">
-                  {user ? 'Manage listings, post properties & partner options.' : authMode === 'login' ? 'Sign in to access partner dashboard.' : 'Join to post properties and contact buyers.'}
+                  {user ? 'Manage listings, post properties & partner options.' : authMode === 'login' ? 'Sign in to access realtor dashboard.' : 'Join to post properties and contact buyers.'}
                 </p>
               </div>
               <button type="button" onClick={closeAuth} aria-label="Close auth form" className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600">
@@ -217,8 +217,8 @@ const MobileBottomNav = () => {
               <>
                 <div className="mb-5 grid grid-cols-2 rounded-xl bg-gray-100 p-1">
                   {[
-                    ['login', 'Partner Login'],
-                    ['signup', 'Partner Signup']
+                    ['login', 'Realtor Login'],
+                    ['signup', 'Realtor Signup']
                   ].map(([mode, label]) => (
                     <button
                       key={mode}
