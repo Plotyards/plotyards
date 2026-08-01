@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BarChart3, Clock, Compass, CreditCard, FileText, Home as HomeIcon, Inbox, MapPin, MessageCircle, Phone, Sparkles, TrendingUp, Users, Video, Plus, ShieldCheck, Mail, CheckCircle2, Settings } from 'lucide-react';
+import { BarChart3, Clock, Compass, CreditCard, FileText, Home as HomeIcon, Inbox, MapPin, MessageCircle, Phone, Sparkles, TrendingUp, Users, Video, Plus, ShieldCheck, Mail, CheckCircle2, Settings, FileSpreadsheet } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 import { adaptProperties, adaptProperty } from '../utils/propertyAdapter';
@@ -34,6 +34,47 @@ const DeveloperDashboard = () => {
       })
       .catch(() => setSubscription(null));
   }, []);
+
+  const handleDownloadLeadsExcel = () => {
+    if (!inquiries || inquiries.length === 0) return;
+
+    const headers = [
+      'S.No.',
+      'Buyer Name',
+      'Phone Number',
+      'Email Address',
+      'Property / Project Title',
+      'Message',
+      'Status',
+      'Date'
+    ];
+
+    const rows = inquiries.map((lead, index) => {
+      const dateStr = lead.createdAt ? new Date(lead.createdAt).toLocaleDateString('en-IN') : 'N/A';
+      const rawPhone = lead.phone ? (lead.phone.startsWith('+') ? lead.phone : `+91${lead.phone}`) : 'N/A';
+
+      return [
+        index + 1,
+        `"${(lead.name || 'N/A').replace(/"/g, '""')}"`,
+        `"${rawPhone.replace(/"/g, '""')}"`,
+        `"${(lead.email || 'N/A').replace(/"/g, '""')}"`,
+        `"${(lead.property?.title || 'Unknown Project').replace(/"/g, '""')}"`,
+        `"${(lead.message || 'N/A').replace(/"/g, '""')}"`,
+        `"${(lead.status || 'new').replace(/"/g, '""')}"`,
+        `"${dateStr}"`
+      ];
+    });
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Plotyards_Developer_Leads_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const profileViews = properties.reduce((sum, item) => sum + (Number(item.viewsCount) || 0), 0);
   const activeListings = properties.filter((item) => item.status !== 'sold').length;
@@ -177,7 +218,18 @@ const DeveloperDashboard = () => {
 
             {activeTab === 'leads' && (
               <div className="space-y-6">
-                <h2 className="text-4xl font-black uppercase text-white mb-8">Exclusive Leads</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                  <h2 className="text-4xl font-black uppercase text-white">Exclusive Leads</h2>
+                  {inquiries.length > 0 && (
+                    <button
+                      onClick={handleDownloadLeadsExcel}
+                      className="inline-flex items-center gap-2 rounded-xl bg-[#d4af37] hover:bg-[#b8972e] px-5 py-2.5 text-xs font-extrabold text-black shadow-lg transition-all active:scale-95 cursor-pointer"
+                    >
+                      <FileSpreadsheet size={16} />
+                      <span>Download Leads (Excel)</span>
+                    </button>
+                  )}
+                </div>
                 <div className="grid gap-6">
                     {inquiries.map((lead) => {
                       return (

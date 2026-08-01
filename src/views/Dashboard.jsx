@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle, Plus, Minus, Settings, User } from 'lucide-react';
+import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle, Plus, Minus, Settings, User, FileSpreadsheet } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 import { adaptProperty, adaptProperties } from '../utils/propertyAdapter';
@@ -323,6 +323,54 @@ const Dashboard = () => {
     setProperties((current) => current.map((item) => (
       item.id === propertyId ? adaptProperty(data.property) : item
     )));
+  };
+
+  const handleDownloadLeadsExcel = () => {
+    if (!inquiries || inquiries.length === 0) return;
+
+    const headers = [
+      'S.No.',
+      'Buyer Name',
+      'Phone Number',
+      'Email Address',
+      'Property Title',
+      'Location',
+      'Price',
+      'Message',
+      'Status',
+      'Date'
+    ];
+
+    const rows = inquiries.map((lead, index) => {
+      const propertyLocation = lead.property?.location
+        ? [lead.property.location.locality, lead.property.location.city].filter(Boolean).join(', ')
+        : 'N/A';
+      const dateStr = lead.createdAt ? new Date(lead.createdAt).toLocaleDateString('en-IN') : 'N/A';
+      const rawPhone = lead.phone ? (lead.phone.startsWith('+') ? lead.phone : `+91${lead.phone}`) : 'N/A';
+
+      return [
+        index + 1,
+        `"${(lead.name || 'N/A').replace(/"/g, '""')}"`,
+        `"${rawPhone.replace(/"/g, '""')}"`,
+        `"${(lead.email || 'N/A').replace(/"/g, '""')}"`,
+        `"${(lead.property?.title || 'N/A').replace(/"/g, '""')}"`,
+        `"${propertyLocation.replace(/"/g, '""')}"`,
+        `"${(lead.property?.price?.label || 'N/A').replace(/"/g, '""')}"`,
+        `"${(lead.message || 'N/A').replace(/"/g, '""')}"`,
+        `"${(lead.status || 'new').replace(/"/g, '""')}"`,
+        `"${dateStr}"`
+      ];
+    });
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Plotyards_Leads_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const propertyViews = properties.reduce((sum, item) => sum + (Number(item.viewsCount) || 0), 0);
@@ -789,14 +837,25 @@ const Dashboard = () => {
                 />
               ) : activeTab === 'leads' ? (
                 <div className="space-y-5">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h2 className="text-2xl font-extrabold text-text">Leads</h2>
                       <p className="text-sm font-medium text-muted">Buyer inquiries grouped with the property they came from.</p>
                     </div>
-                    <span className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold text-primary">
-                      {inquiries.length} total
-                    </span>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="w-fit rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-extrabold text-primary">
+                        {inquiries.length} total
+                      </span>
+                      {inquiries.length > 0 && (
+                        <button
+                          onClick={handleDownloadLeadsExcel}
+                          className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-xs font-extrabold text-white shadow-md transition-all hover:shadow-lg active:scale-95 cursor-pointer"
+                        >
+                          <FileSpreadsheet size={16} />
+                          <span>Download Excel</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid gap-4">
