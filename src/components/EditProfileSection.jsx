@@ -7,6 +7,7 @@ import {
   FileText, Check, Share2
 } from 'lucide-react';
 import DropdownSelect from './DropdownSelect';
+import { apiRequest } from '../lib/api';
 
 const InstagramIcon = () => (
   <svg className="w-4 h-4 text-pink-600 shrink-0 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
