@@ -346,12 +346,13 @@ const Dashboard = () => {
         ? [lead.property.location.locality, lead.property.location.city].filter(Boolean).join(', ')
         : 'N/A';
       const dateStr = lead.createdAt ? new Date(lead.createdAt).toLocaleDateString('en-IN') : 'N/A';
-      const rawPhone = lead.phone ? (lead.phone.startsWith('+') ? lead.phone : `+91${lead.phone}`) : 'N/A';
+      const formattedPhone = lead.phone ? formatPhoneForDisplay(lead.phone) : 'N/A';
+      const phoneCell = lead.phone ? `="${formattedPhone.replace(/"/g, '""')}"` : '"N/A"';
 
       return [
         index + 1,
         `"${(lead.name || 'N/A').replace(/"/g, '""')}"`,
-        `"${rawPhone.replace(/"/g, '""')}"`,
+        phoneCell,
         `"${(lead.email || 'N/A').replace(/"/g, '""')}"`,
         `"${(lead.property?.title || 'N/A').replace(/"/g, '""')}"`,
         `"${propertyLocation.replace(/"/g, '""')}"`,
