@@ -230,7 +230,7 @@ export default function BookMyRealtor() {
           onSubmit={handleSearchSubmit}
           className="rounded-2xl border border-white bg-white/95 p-3.5 shadow-lg backdrop-blur-xl sm:p-5"
         >
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5 items-end">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 items-end">
             
             <div className="w-full">
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-muted">State</label>
@@ -252,20 +252,6 @@ export default function BookMyRealtor() {
                 icon={Building2}
                 options={[{ value: '', label: 'All Cities' }, ...(state ? STATES_CITIES[state] || [] : Object.values(STATES_CITIES).flat()).map(c => ({ value: c, label: c }))]}
               />
-            </div>
-
-            <div className="w-full">
-              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-muted">Locality</label>
-              <div className="flex items-center rounded-xl border border-gray-200 bg-surface px-3 py-2.5 transition-colors focus-within:border-primary focus-within:bg-white">
-                <MapPin size={15} className="mr-2 text-primary" />
-                <input
-                  type="text"
-                  placeholder='e.g. Sector 14...'
-                  value={area}
-                  onChange={(e) => setArea(e.target.value)}
-                  className="w-full bg-transparent text-xs font-semibold text-text outline-none placeholder:text-gray-400"
-                />
-              </div>
             </div>
 
             <div className="w-full">
