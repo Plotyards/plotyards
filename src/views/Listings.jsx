@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { ArrowUpDown, Camera, CheckCircle2, Filter, Heart, MessageCircle, MapPin, RotateCcw, Search, Sparkles, TrendingUp, Scale } from 'lucide-react';
+import { ArrowUpDown, Camera, CheckCircle2, Filter, Heart, MessageCircle, MapPin, RotateCcw, Search, Sparkles, Scale } from 'lucide-react';
 import { motion } from 'framer-motion';
 import DropdownSelect from '../components/DropdownSelect';
 import { propertyListings } from '../data/properties';
@@ -666,7 +666,7 @@ const Listings = () => {
                       <span className="min-w-0 truncate">{listing.location}</span>
                     </p>
 
-                    <div className="mb-3 grid grid-cols-1 gap-1.5 md:mb-6 md:grid-cols-3 md:gap-3">
+                    <div className="mb-3 grid grid-cols-1 gap-1.5 md:mb-6 md:grid-cols-2 md:gap-3">
                       <div className="rounded-xl bg-surface md:border md:border-border/50">
                         <div className="px-2 py-2 md:px-3 md:py-3">
                           <p className="hidden text-[11px] font-bold uppercase tracking-wide text-muted md:block">Price</p>
@@ -680,12 +680,6 @@ const Listings = () => {
                       <div className="hidden rounded-xl border border-border/50 bg-surface p-3 text-center md:block">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-muted mb-1">Size</p>
                         <p className="text-sm font-extrabold text-text">{listing.size}</p>
-                      </div>
-                      <div className="hidden rounded-xl border border-border/50 bg-surface p-3 text-center md:block">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted mb-1">ROI</p>
-                        <p className="text-sm font-extrabold text-green-600 flex items-center justify-center gap-1">
-                          <TrendingUp size={12} /> {listing.roi}
-                        </p>
                       </div>
                     </div>
 

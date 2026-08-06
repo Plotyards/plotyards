@@ -1,7 +1,7 @@
 "use client";
 import { useCompare } from '../context/CompareContext';
 import { usePathname } from 'next/navigation';
-import { X, CheckCircle2, TrendingUp } from 'lucide-react';
+import { X, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
 
@@ -96,18 +96,6 @@ const CompareModal = () => {
                   {Array.from({ length: 3 - compareList.length }).map((_, i) => <td key={`empty-type-${i}`} className="p-4 border-b border-border"></td>)}
                 </tr>
 
-                <tr>
-                  <td className="p-4 border-b border-border font-bold text-text">Expected ROI</td>
-                  {compareList.map((property) => (
-                    <td key={property.id} className="p-4 border-b border-border">
-                      <span className="inline-flex items-center gap-1 font-extrabold text-green-600">
-                        <TrendingUp size={16} />
-                        {property.roi}
-                      </span>
-                    </td>
-                  ))}
-                  {Array.from({ length: 3 - compareList.length }).map((_, i) => <td key={`empty-roi-${i}`} className="p-4 border-b border-border"></td>)}
-                </tr>
 
                 <tr>
                   <td className="p-4 border-b border-border font-bold text-text">Approval Status</td>

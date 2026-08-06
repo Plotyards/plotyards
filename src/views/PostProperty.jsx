@@ -436,10 +436,6 @@ const PostProperty = () => {
                 icon={Layers}
               />
             </div>
-            <div>
-              <label className="block text-sm font-bold text-text mb-1">Expected growth</label>
-              <input value={form.roi} onChange={(event) => updateField('roi', event.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="e.g. 18% yearly" />
-            </div>
           </div>
           <div>
             <label className="block text-sm font-bold text-text mb-1">Property photos</label>

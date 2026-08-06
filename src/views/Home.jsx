@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, MapPin, ChevronDown, CheckCircle2, ShieldCheck, Heart, MessageCircle, Camera, Check, Star, Download, Paperclip, Scale, BookOpen, ArrowRight, Menu, TrendingUp, Sparkles, Share2 } from 'lucide-react';
+import { Search, MapPin, ChevronDown, CheckCircle2, ShieldCheck, Heart, MessageCircle, Camera, Check, Star, Download, Paperclip, Scale, BookOpen, ArrowRight, Menu, Sparkles, Share2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -372,7 +372,7 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="mb-6 hidden grid-cols-3 gap-3 md:grid">
+          <div className="mb-6 hidden grid-cols-2 gap-3 md:grid">
             <div className="rounded-xl border border-border/50 bg-surface p-3">
               <p className="text-[11px] font-bold uppercase tracking-wide text-muted">Price</p>
               <p className="mt-1 truncate text-sm font-black text-text">{priceText}</p>
@@ -380,12 +380,6 @@ const Home = () => {
             <div className="rounded-xl border border-border/50 bg-surface p-3 text-center">
               <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-muted">Size</p>
               <p className="text-sm font-extrabold text-text">{sizeText}</p>
-            </div>
-            <div className="rounded-xl border border-border/50 bg-surface p-3 text-center">
-              <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-muted">ROI</p>
-              <p className="flex items-center justify-center gap-1 text-sm font-extrabold text-green-600">
-                <TrendingUp size={12} /> {roiText}
-              </p>
             </div>
           </div>
 

@@ -21,7 +21,6 @@ import {
   Route,
   Share2,
   ShieldCheck,
-  TrendingUp,
   Scale
 } from 'lucide-react';
 import { propertyListings } from '../data/properties';
@@ -512,11 +511,10 @@ const PropertyDetails = () => {
                 </div>
               </div>
 
-              <div className="mt-5 grid grid-cols-2 overflow-hidden rounded-2xl border border-border bg-surface md:mt-8 md:grid-cols-4">
+              <div className="mt-5 grid grid-cols-3 overflow-hidden rounded-2xl border border-border bg-surface md:mt-8 md:grid-cols-3">
                 {[
                   ['Plot size', property.size],
                   ['Property type', property.type],
-                  ['Expected ROI', property.roi],
                   ['Status', 'Available']
                 ].map(([label, value]) => (
                   <div key={label} className="border-b border-r border-border p-3 last:border-r-0 md:border-b-0 md:p-4">
@@ -575,11 +573,10 @@ const PropertyDetails = () => {
 
             <section className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6 lg:p-8">
               <h2 className="text-2xl font-extrabold text-text">Location advantages</h2>
-              <div className="mt-5 grid gap-4 sm:grid-cols-3">
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 {[
                   [Route, property.corridor, 'Primary growth corridor'],
-                  [CalendarDays, 'Immediate', 'Registration support'],
-                  [TrendingUp, property.roi, 'Expected annual ROI']
+                  [CalendarDays, 'Immediate', 'Registration support']
                 ].map(([Icon, title, label]) => (
                   <div key={title} className="rounded-2xl bg-surface p-4">
                     <Icon size={22} className="text-primary" />
