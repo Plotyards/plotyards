@@ -42,7 +42,7 @@ export default function BookMyRealtor() {
   const [leadForm, setLeadForm] = useState({
     name: '',
     phone: '',
-    email: '',
+    contactMethod: 'both',
     requirement: 'Residential Plots',
     message: ''
   });
@@ -105,7 +105,7 @@ export default function BookMyRealtor() {
     setLeadForm({
       name: '',
       phone: '',
-      email: '',
+      contactMethod: type === 'whatsapp' ? 'whatsapp' : type === 'call' ? 'call' : 'both',
       requirement: realtor.brokerProfile?.categoriesServed?.[0] || 'Residential Plots',
       customRequirement: '',
       message: ''
@@ -137,11 +137,10 @@ export default function BookMyRealtor() {
           brokerId: selectedRealtor._id,
           name: leadForm.name,
           phone: leadForm.phone,
-          email: leadForm.email,
           requirement: leadForm.requirement === 'Other' && leadForm.customRequirement 
             ? `Other: ${leadForm.customRequirement}` 
             : leadForm.requirement,
-          message: leadForm.message,
+          message: `[Preferred Contact: ${leadForm.contactMethod === 'call' ? 'Call' : leadForm.contactMethod === 'whatsapp' ? 'WhatsApp' : 'Call & WhatsApp'}] ${leadForm.message || ''}`,
           source: actionType === 'call' ? 'call_click' : actionType === 'whatsapp' ? 'whatsapp_click' : 'book_my_realtor'
         }
       });
@@ -651,16 +650,41 @@ export default function BookMyRealtor() {
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-bold text-text">Email Address (Optional)</label>
-                    <div className="flex items-center rounded-xl border border-gray-200 bg-surface px-3.5 py-2.5 focus-within:border-primary focus-within:bg-white">
-                      <Mail size={16} className="mr-2 text-gray-400" />
-                      <input
-                        type="email"
-                        placeholder="name@example.com"
-                        value={leadForm.email}
-                        onChange={(e) => setLeadForm({ ...leadForm, email: e.target.value })}
-                        className="w-full bg-transparent text-sm font-semibold text-text outline-none"
-                      />
+                    <label className="mb-1.5 block text-xs font-bold text-text">Preferred Contact Method</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setLeadForm({ ...leadForm, contactMethod: 'call' })}
+                        className={`flex items-center justify-center gap-1.5 rounded-xl border py-2.5 text-xs font-bold transition-all ${
+                          leadForm.contactMethod === 'call'
+                            ? 'border-[#009688] bg-[#009688] text-white shadow-xs'
+                            : 'border-gray-200 bg-surface text-text hover:bg-gray-100'
+                        }`}
+                      >
+                        <Phone size={14} /> Call
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setLeadForm({ ...leadForm, contactMethod: 'whatsapp' })}
+                        className={`flex items-center justify-center gap-1.5 rounded-xl border py-2.5 text-xs font-bold transition-all ${
+                          leadForm.contactMethod === 'whatsapp'
+                            ? 'border-[#25D366] bg-[#25D366] text-white shadow-xs'
+                            : 'border-gray-200 bg-surface text-text hover:bg-gray-100'
+                        }`}
+                      >
+                        <MessageCircle size={14} /> WhatsApp
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setLeadForm({ ...leadForm, contactMethod: 'both' })}
+                        className={`flex items-center justify-center gap-1.5 rounded-xl border py-2.5 text-xs font-bold transition-all ${
+                          leadForm.contactMethod === 'both'
+                            ? 'border-primary bg-primary text-white shadow-xs'
+                            : 'border-gray-200 bg-surface text-text hover:bg-gray-100'
+                        }`}
+                      >
+                        <Phone size={13} /><MessageCircle size={13} /> Both
+                      </button>
                     </div>
                   </div>
 

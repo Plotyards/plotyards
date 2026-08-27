@@ -956,12 +956,15 @@ const Dashboard = () => {
                                     <Phone size={14} />
                                     Call
                                   </a>
-                                  {lead.email && (
-                                    <a href={`mailto:${lead.email}`} className="inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-xs font-bold text-text transition-colors hover:border-primary hover:text-primary">
-                                      <Mail size={14} />
-                                      Email
-                                    </a>
-                                  )}
+                                  <a
+                                    href={`https://wa.me/${formatPhoneForLink(lead.phone)}?text=${encodeURIComponent(`Hi ${lead.name || ''}, I received your property inquiry on Plotyards.`)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100"
+                                  >
+                                    <MessageCircle size={14} />
+                                    WhatsApp
+                                  </a>
                                 </>
                               )}
                             </div>

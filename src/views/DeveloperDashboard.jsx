@@ -274,9 +274,23 @@ const DeveloperDashboard = () => {
                           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                             <div>
                               <p className="font-black text-3xl text-white mb-2">{lead.name}</p>
-                              <div className="flex flex-wrap items-center gap-4 text-sm font-bold text-[#d4af37]">
-                                <span className="inline-flex items-center gap-1"><Phone size={14} /> {formatPhoneForDisplay(lead.phone)}</span>
-                                {lead.email && <span className="inline-flex items-center gap-1"><Mail size={14} /> {lead.email}</span>}
+                              <div className="mt-3 flex flex-wrap items-center gap-2">
+                                <a
+                                  href={`tel:+${formatPhoneForLink(lead.phone)}`}
+                                  className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-white/20"
+                                >
+                                  <Phone size={14} />
+                                  Call
+                                </a>
+                                <a
+                                  href={`https://wa.me/${formatPhoneForLink(lead.phone)}?text=${encodeURIComponent(`Hi ${lead.name || ''}, I received your inquiry on Plotyards.`)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#25D366] px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[#1ebd5a]"
+                                >
+                                  <MessageCircle size={14} />
+                                  WhatsApp
+                                </a>
                               </div>
                               {lead.message && (
                                 <div className="mt-4 flex items-start gap-2 rounded-xl bg-white/5 p-3 text-xs text-gray-300">
