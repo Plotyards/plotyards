@@ -345,10 +345,13 @@ const Dashboard = () => {
         return 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:border-emerald-400';
       case 'Not Interested':
         return 'bg-rose-50 text-rose-700 border-rose-300 hover:border-rose-400';
+      case 'No Response':
       case 'Call Not Pick':
         return 'bg-amber-50 text-amber-700 border-amber-300 hover:border-amber-400';
       case 'Future Prospect':
         return 'bg-purple-50 text-purple-700 border-purple-300 hover:border-purple-400';
+      case 'Callback Requested':
+        return 'bg-sky-50 text-sky-700 border-sky-300 hover:border-sky-400';
       case 'closed':
         return 'bg-green-50 text-green-700 border-green-300';
       case 'contacted':
@@ -933,9 +936,10 @@ const Dashboard = () => {
                                 >
                                   <option value="Interested">Interested</option>
                                   <option value="Not Interested">Not Interested</option>
-                                  <option value="Call Not Pick">Call Not Pick</option>
+                                  <option value="No Response">No Response</option>
                                   <option value="Future Prospect">Future Prospect</option>
-                                  {['new', 'contacted', 'closed'].includes(lead.status) && (
+                                  <option value="Callback Requested">Callback Requested</option>
+                                  {['new', 'contacted', 'closed', 'Call Not Pick'].includes(lead.status) && (
                                     <option value={lead.status}>{lead.status}</option>
                                   )}
                                 </select>

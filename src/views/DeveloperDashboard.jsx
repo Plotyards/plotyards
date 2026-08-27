@@ -97,10 +97,13 @@ const DeveloperDashboard = () => {
         return 'bg-emerald-950/80 text-emerald-400 border-emerald-500/50';
       case 'Not Interested':
         return 'bg-rose-950/80 text-rose-400 border-rose-500/50';
+      case 'No Response':
       case 'Call Not Pick':
         return 'bg-amber-950/80 text-amber-400 border-amber-500/50';
       case 'Future Prospect':
         return 'bg-purple-950/80 text-purple-400 border-purple-500/50';
+      case 'Callback Requested':
+        return 'bg-sky-950/80 text-sky-400 border-sky-500/50';
       case 'closed':
         return 'bg-green-950/80 text-green-400 border-green-500/50';
       case 'contacted':
@@ -295,9 +298,10 @@ const DeveloperDashboard = () => {
                                 >
                                   <option value="Interested" className="bg-[#111] text-white">Interested</option>
                                   <option value="Not Interested" className="bg-[#111] text-white">Not Interested</option>
-                                  <option value="Call Not Pick" className="bg-[#111] text-white">Call Not Pick</option>
+                                  <option value="No Response" className="bg-[#111] text-white">No Response</option>
                                   <option value="Future Prospect" className="bg-[#111] text-white">Future Prospect</option>
-                                  {['new', 'contacted', 'closed'].includes(lead.status) && (
+                                  <option value="Callback Requested" className="bg-[#111] text-white">Callback Requested</option>
+                                  {['new', 'contacted', 'closed', 'Call Not Pick'].includes(lead.status) && (
                                     <option value={lead.status} className="bg-[#111] text-white">{lead.status}</option>
                                   )}
                                 </select>
