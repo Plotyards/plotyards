@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BarChart3, Clock, Compass, CreditCard, FileText, Home as HomeIcon, Inbox, MapPin, MessageCircle, Phone, Sparkles, TrendingUp, Users, Video, Plus, ShieldCheck, Mail, CheckCircle2, Settings, FileSpreadsheet } from 'lucide-react';
+import { BarChart3, Clock, Compass, CreditCard, FileText, Home as HomeIcon, Inbox, MapPin, MessageCircle, Phone, Sparkles, TrendingUp, Users, Video, Plus, ShieldCheck, Mail, CheckCircle2, Settings, FileSpreadsheet, ChevronDown } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 import { adaptProperties, adaptProperty } from '../utils/propertyAdapter';
@@ -75,6 +75,39 @@ const DeveloperDashboard = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleLeadStatusChange = async (inquiryId, newStatus) => {
+    try {
+      const data = await apiRequest(`/inquiries/${inquiryId}/status`, {
+        method: 'PATCH',
+        body: { status: newStatus }
+      });
+      setInquiries((prev) =>
+        prev.map((lead) => (lead._id === inquiryId ? { ...lead, status: data.inquiry?.status || newStatus } : lead))
+      );
+    } catch (err) {
+      alert(err.message || 'Failed to update lead status');
+    }
+  };
+
+  const getStatusBadgeStyle = (status) => {
+    switch (status) {
+      case 'Interested':
+        return 'bg-emerald-950/80 text-emerald-400 border-emerald-500/50';
+      case 'Not Interested':
+        return 'bg-rose-950/80 text-rose-400 border-rose-500/50';
+      case 'Call Not Pick':
+        return 'bg-amber-950/80 text-amber-400 border-amber-500/50';
+      case 'Future Prospect':
+        return 'bg-purple-950/80 text-purple-400 border-purple-500/50';
+      case 'closed':
+        return 'bg-green-950/80 text-green-400 border-green-500/50';
+      case 'contacted':
+        return 'bg-blue-950/80 text-blue-400 border-blue-500/50';
+      default:
+        return 'bg-white/10 text-gray-300 border-white/20';
+    }
   };
 
   const profileViews = properties.reduce((sum, item) => sum + (Number(item.viewsCount) || 0), 0);
@@ -235,17 +268,41 @@ const DeveloperDashboard = () => {
                     {inquiries.map((lead) => {
                       return (
                         <article key={lead._id} className="rounded-[2rem] border border-white/10 bg-[#111] p-8 transition-all hover:border-[#d4af37]/40 shadow-xl">
-                          <div className="flex flex-col lg:flex-row lg:justify-between gap-6">
+                          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                             <div>
                               <p className="font-black text-3xl text-white mb-2">{lead.name}</p>
                               <div className="flex flex-wrap items-center gap-4 text-sm font-bold text-[#d4af37]">
                                 <span className="inline-flex items-center gap-1"><Phone size={14} /> {formatPhoneForDisplay(lead.phone)}</span>
                                 {lead.email && <span className="inline-flex items-center gap-1"><Mail size={14} /> {lead.email}</span>}
                               </div>
+                              {lead.message && (
+                                <div className="mt-4 flex items-start gap-2 rounded-xl bg-white/5 p-3 text-xs text-gray-300">
+                                  <MessageCircle size={14} className="mt-0.5 text-[#d4af37] flex-shrink-0" />
+                                  <p>{lead.message}</p>
+                                </div>
+                              )}
                             </div>
-                            <div className="text-left lg:text-right">
-                              <p className="text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Project Interest</p>
-                              <p className="text-xl font-bold text-white">{lead.property?.title || 'Unknown Project'}</p>
+                            <div className="flex flex-col lg:items-end gap-3">
+                              <div className="text-left lg:text-right">
+                                <p className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Project Interest</p>
+                                <p className="text-lg font-bold text-white">{lead.property?.title || 'Unknown Project'}</p>
+                              </div>
+                              <div className="relative inline-block mt-2">
+                                <select
+                                  value={lead.status || 'Interested'}
+                                  onChange={(e) => handleLeadStatusChange(lead._id, e.target.value)}
+                                  className={`appearance-none rounded-xl border px-4 py-2 pr-8 text-xs font-extrabold shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50 cursor-pointer ${getStatusBadgeStyle(lead.status)}`}
+                                >
+                                  <option value="Interested" className="bg-[#111] text-white">Interested</option>
+                                  <option value="Not Interested" className="bg-[#111] text-white">Not Interested</option>
+                                  <option value="Call Not Pick" className="bg-[#111] text-white">Call Not Pick</option>
+                                  <option value="Future Prospect" className="bg-[#111] text-white">Future Prospect</option>
+                                  {['new', 'contacted', 'closed'].includes(lead.status) && (
+                                    <option value={lead.status} className="bg-[#111] text-white">{lead.status}</option>
+                                  )}
+                                </select>
+                                <ChevronDown size={12} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 opacity-70 text-white" />
+                              </div>
                             </div>
                           </div>
                         </article>

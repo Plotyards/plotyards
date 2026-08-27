@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle, Plus, Minus, Settings, User, FileSpreadsheet } from 'lucide-react';
+import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle, Plus, Minus, Settings, User, FileSpreadsheet, ChevronDown } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 import { adaptProperty, adaptProperties } from '../utils/propertyAdapter';
@@ -323,6 +323,39 @@ const Dashboard = () => {
     setProperties((current) => current.map((item) => (
       item.id === propertyId ? adaptProperty(data.property) : item
     )));
+  };
+
+  const handleLeadStatusChange = async (inquiryId, newStatus) => {
+    try {
+      const data = await apiRequest(`/inquiries/${inquiryId}/status`, {
+        method: 'PATCH',
+        body: { status: newStatus }
+      });
+      setInquiries((prev) =>
+        prev.map((lead) => (lead._id === inquiryId ? { ...lead, status: data.inquiry?.status || newStatus } : lead))
+      );
+    } catch (err) {
+      alert(err.message || 'Failed to update lead status');
+    }
+  };
+
+  const getStatusBadgeStyle = (status) => {
+    switch (status) {
+      case 'Interested':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:border-emerald-400';
+      case 'Not Interested':
+        return 'bg-rose-50 text-rose-700 border-rose-300 hover:border-rose-400';
+      case 'Call Not Pick':
+        return 'bg-amber-50 text-amber-700 border-amber-300 hover:border-amber-400';
+      case 'Future Prospect':
+        return 'bg-purple-50 text-purple-700 border-purple-300 hover:border-purple-400';
+      case 'closed':
+        return 'bg-green-50 text-green-700 border-green-300';
+      case 'contacted':
+        return 'bg-blue-50 text-blue-700 border-blue-300';
+      default:
+        return 'bg-primary/10 text-primary border-primary/30';
+    }
   };
 
   const handleDownloadLeadsExcel = () => {
@@ -864,11 +897,6 @@ const Dashboard = () => {
                       const propertyLocation = lead.property?.location
                         ? [lead.property.location.locality, lead.property.location.city].filter(Boolean).join(', ')
                         : '';
-                      const statusClass = lead.status === 'closed'
-                        ? 'bg-green-50 text-green-700'
-                        : lead.status === 'contacted'
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'bg-primary/10 text-primary';
 
                       return (
                         <article key={lead._id} className="rounded-2xl border border-border/80 bg-white p-5 shadow-lg shadow-gray-200/70 ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl">
@@ -897,9 +925,22 @@ const Dashboard = () => {
                             </div>
 
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className={`rounded-full px-3 py-1 text-xs font-extrabold capitalize ${statusClass}`}>
-                                {lead.status || 'new'}
-                              </span>
+                              <div className="relative inline-block">
+                                <select
+                                  value={lead.status || 'Interested'}
+                                  onChange={(e) => handleLeadStatusChange(lead._id, e.target.value)}
+                                  className={`appearance-none rounded-xl border px-3 py-2 pr-7 text-xs font-extrabold shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer ${getStatusBadgeStyle(lead.status)}`}
+                                >
+                                  <option value="Interested">Interested</option>
+                                  <option value="Not Interested">Not Interested</option>
+                                  <option value="Call Not Pick">Call Not Pick</option>
+                                  <option value="Future Prospect">Future Prospect</option>
+                                  {['new', 'contacted', 'closed'].includes(lead.status) && (
+                                    <option value={lead.status}>{lead.status}</option>
+                                  )}
+                                </select>
+                                <ChevronDown size={12} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 opacity-70" />
+                              </div>
                               {lead.isLocked ? (
                                 <button onClick={() => setActiveTab('subscription')} className="inline-flex items-center gap-1 rounded-xl border border-primary bg-primary px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-rose-600">
                                   <ShieldCheck size={14} />
