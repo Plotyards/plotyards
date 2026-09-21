@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { Mail, MapPin } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 const Footer = () => {
   const pathname = usePathname() || '';
@@ -66,10 +66,6 @@ const Footer = () => {
           <div>
             <h4 className="text-text font-bold text-lg mb-6">Contact Us</h4>
             <ul className="flex flex-col gap-4 text-muted">
-              <li className="flex items-start gap-3">
-                <MapPin className="text-primary mt-1 flex-shrink-0" size={18} />
-                <span>A 21C, Rohini Sector 38, New Delhi</span>
-              </li>
               <li className="flex items-center gap-3">
                 <Mail className="text-primary flex-shrink-0" size={18} />
                 <span>info@plotyards.com</span>
