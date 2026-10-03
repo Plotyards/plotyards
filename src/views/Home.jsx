@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, MapPin, ChevronDown, CheckCircle2, ShieldCheck, Heart, MessageCircle, Camera, Check, Star, Download, Paperclip, Scale, BookOpen, ArrowRight, Menu, Sparkles, Share2 } from 'lucide-react';
+import { Search, MapPin, ChevronDown, CheckCircle2, ShieldCheck, Heart, MessageCircle, Camera, Check, Star, Download, Paperclip, Scale, BookOpen, Menu, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -53,7 +53,6 @@ const Home = () => {
   const [statsLoaded, setStatsLoaded] = useState(false);
   const [realProperties, setRealProperties] = useState([]);
   const [loadingReal, setLoadingReal] = useState(true);
-  const [latestBlogs, setLatestBlogs] = useState([]);
   const stateMenuRef = useRef(null);
   const moreMenuRef = useRef(null);
   const mobileHeroSearchRef = useRef(null);
@@ -243,14 +242,6 @@ const Home = () => {
         })
         .catch(() => {})
         .finally(() => isMounted && setLoadingReal(false));
-
-      apiRequest('/blogs?limit=6')
-        .then((data) => {
-          if (isMounted && Array.isArray(data.blogs)) {
-            setLatestBlogs(data.blogs);
-          }
-        })
-        .catch(() => {});
     };
 
     fetchAllData();
@@ -804,76 +795,7 @@ const Home = () => {
         </section>
       )}
 
-      {latestBlogs.length > 0 && (
-        <section className="hidden md:block px-6 py-6 md:py-10 lg:px-12 max-w-[1400px] mx-auto">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-primary">
-                <BookOpen size={14} />
-                Latest insights
-              </p>
-              <h2 className="mt-2 text-xl md:text-3xl font-extrabold text-text md:mt-4 capitalize">Spotlight</h2>
-              <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-muted">Success Stories, Investment Guides & Industry Updates</p>
-            </div>
-            <div className="hidden md:flex md:flex-wrap items-center gap-2 ">
-              <Link href="/blogs" className="inline-flex  w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-extrabold text-white transition-colors hover:bg-rose-600">
-                View all articles <ArrowRight size={16} />
-              </Link>
-            </div>
-          </div>
 
-          <div className="mt-5 md:mt-8">
-            <div className="relative md:hidden">
-              <div className="grid grid-cols-2 gap-3">
-                {latestBlogs.slice(0, 4).map((blog) => (
-                  <Link key={blog.slug} href={`/blogs/${blog.slug}`} className="group min-w-0 overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all duration-500 active:translate-y-0.5 active:rotate-1">
-                    <div className="relative aspect-[16/10] overflow-hidden bg-surface">
-                      <img src={blog.coverImage || '/hero-bg.jpg'} alt={blog.title} className="h-full w-full object-cover transition-transform duration-500 group-active:scale-105" />
-                      <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-black/35 to-transparent"></div>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-black/35 to-transparent"></div>
-                    </div>
-                    <div className="p-3">
-                      <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-primary">{blog.category || 'Real Estate'}</span>
-                      <h3 className="mt-3 line-clamp-2 text-sm font-extrabold leading-tight text-text">{blog.title}</h3>
-                      <div className="mt-3 flex items-center justify-between">
-                        <p className="text-[11px] font-bold text-muted">{blog.readingTime || 1} min read</p>
-                        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); if(navigator.share) { navigator.share({ title: blog.title, url: `${window.location.origin}/blogs/${blog.slug}` }); } else { navigator.clipboard.writeText(`${window.location.origin}/blogs/${blog.slug}`); alert('Link copied!'); } }} className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-surface text-muted transition-colors hover:bg-primary/10 hover:text-primary">
-                          <Share2 size={12} />
-                        </button>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-              <Link href="/blogs" className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-extrabold text-white transition-colors active:bg-rose-600">
-                Show more <ArrowRight size={16} />
-              </Link>
-            </div>
-            <div className="hidden md:grid md:grid-cols-3 md:gap-5">
-              {latestBlogs.map((blog) => (
-                <Link key={blog.slug} href={`/blogs/${blog.slug}`} className="group overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all duration-500 active:translate-y-0.5 active:rotate-1 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl">
-                <div className="relative aspect-[16/10] overflow-hidden bg-surface">
-                  <img src={blog.coverImage || '/hero-bg.jpg'} alt={blog.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-black/35 to-transparent"></div>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-black/35 to-transparent"></div>
-                </div>
-                <div className="p-3 md:p-5">
-                  <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-primary md:px-3 md:text-xs">{blog.category || 'Real Estate'}</span>
-                  <h3 className="mt-3 line-clamp-2 text-sm font-extrabold leading-tight text-text group-hover:text-primary md:mt-4 md:text-xl">{blog.title}</h3>
-                  <p className="mt-2 hidden text-sm font-medium leading-7 text-muted md:line-clamp-3">{blog.excerpt}</p>
-                  <div className="mt-3 flex items-center justify-between md:mt-5">
-                    <p className="text-[10px] font-bold text-muted md:text-xs">{blog.readingTime || 1} min read</p>
-                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); if(navigator.share) { navigator.share({ title: blog.title, url: `${window.location.origin}/blogs/${blog.slug}` }); } else { navigator.clipboard.writeText(`${window.location.origin}/blogs/${blog.slug}`); alert('Link copied!'); } }} className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-surface text-muted transition-colors hover:bg-primary/10 hover:text-primary">
-                      <Share2 size={14} />
-                    </button>
-                  </div>
-                </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Trust Section */}
       <section className="bg-secondary text-white py-12 mt-12">
