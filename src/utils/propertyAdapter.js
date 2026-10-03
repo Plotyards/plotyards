@@ -78,7 +78,9 @@ export const adaptProperty = (property) => {
     featured: Boolean(property.featured),
     roi: property.roi || '12%',
     tags: property.tags || property.amenities || [],
-    photoCount
+    photoCount,
+    isDeveloperListing: Boolean(property.isDeveloperListing),
+    builderName: property.builderName || property.broker?.brokerProfile?.companyName || property.broker?.name || ''
   };
 };
 

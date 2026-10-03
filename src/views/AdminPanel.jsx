@@ -218,6 +218,17 @@ const AdminPanel = () => {
     )));
   };
 
+  const toggleDeveloperProperty = async (property) => {
+    const isDev = !property.isDeveloperListing;
+    const data = await apiRequest(`/properties/${property._id}`, {
+      method: 'PATCH',
+      body: { isDeveloperListing: isDev }
+    });
+    setFeatureProperties((current) => current.map((item) => (
+      item._id === property._id ? { ...item, isDeveloperListing: isDev, ...data.property } : item
+    )));
+  };
+
   const handleDeleteProperty = async (propertyId) => {
     if (!window.confirm('Delete this property permanently?')) return;
     await apiRequest(`/properties/${propertyId}`, { method: 'DELETE' });
@@ -691,7 +702,14 @@ const AdminPanel = () => {
                           <tr key={property._id} className="bg-white transition-colors hover:bg-surface/70">
                             <td className="px-4 py-4 align-top">
                               <p className="font-extrabold text-text">{property.title}</p>
-                              <p className="text-xs font-semibold text-muted">{property.type || 'Property'}</p>
+                              <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                                <span className="text-xs font-semibold text-muted">{property.type || 'Property'}</span>
+                                {property.isDeveloperListing && (
+                                  <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-extrabold text-primary">
+                                    Builder: {property.builderName || 'Project'}
+                                  </span>
+                                )}
+                              </div>
                             </td>
                             <td className="px-4 py-4 align-top font-semibold text-muted">
                               {[property.location?.locality, property.location?.city].filter(Boolean).join(', ') || 'N/A'}
@@ -706,6 +724,15 @@ const AdminPanel = () => {
                             </td>
                             <td className="px-4 py-4 text-right align-top">
                               <div className="flex flex-wrap justify-end gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleDeveloperProperty(property)}
+                                  className={`inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-extrabold shadow-sm transition-colors ${property.isDeveloperListing ? 'bg-primary text-white hover:bg-rose-600' : 'border border-primary/30 bg-white text-primary hover:bg-primary/5'}`}
+                                  title={property.isDeveloperListing ? 'Remove from Builder Spotlight' : 'Add to Builder Spotlight'}
+                                >
+                                  <Building2 size={13} />
+                                  {property.isDeveloperListing ? 'Builder Active' : '+ Builder'}
+                                </button>
                                 {property.status !== 'sold' && (
                                   <button
                                     type="button"
