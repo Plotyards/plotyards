@@ -83,6 +83,7 @@ const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('stats');
   const [brokerPage, setBrokerPage] = useState(1);
   const [featurePage, setFeaturePage] = useState(1);
+  const [builderPage, setBuilderPage] = useState(1);
   const [topCities, setTopCities] = useState([]);
   const [topCitiesStatus, setTopCitiesStatus] = useState('');
   const [selectedRealtorToEdit, setSelectedRealtorToEdit] = useState(null);
@@ -389,6 +390,7 @@ const AdminPanel = () => {
     ['stats', BarChart3, 'Analytics'],
     ['manageBrokers', Users, 'Manage Associate Partners'],
     ['properties', Building2, 'Manage Properties'],
+    ['builderProjects', Sparkles, 'Builder Projects'],
     ['blogs', FileText, 'Blogs'],
     ['announcement', Megaphone, 'Announcement'],
     ['topCities', Building2, 'Top Cities']
@@ -439,6 +441,13 @@ const AdminPanel = () => {
   const paginatedFeatureProperties = featureProperties.slice(
     (safeFeaturePage - 1) * ADMIN_TABLE_PAGE_SIZE,
     safeFeaturePage * ADMIN_TABLE_PAGE_SIZE
+  );
+  const builderProperties = featureProperties.filter((p) => p.isDeveloperListing);
+  const builderPageCount = Math.max(Math.ceil(builderProperties.length / ADMIN_TABLE_PAGE_SIZE), 1);
+  const safeBuilderPage = Math.min(builderPage, builderPageCount);
+  const paginatedBuilderProperties = builderProperties.slice(
+    (safeBuilderPage - 1) * ADMIN_TABLE_PAGE_SIZE,
+    safeBuilderPage * ADMIN_TABLE_PAGE_SIZE
   );
 
   return (
@@ -784,6 +793,149 @@ const AdminPanel = () => {
                     pageSize={ADMIN_TABLE_PAGE_SIZE}
                     totalItems={featureProperties.length}
                     onPageChange={setFeaturePage}
+                  />
+                </div>
+              </div>
+            ) : activeTab === 'builderProjects' ? (
+              <div className="grid gap-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-2xl font-extrabold text-text flex items-center gap-2">
+                      <Sparkles size={24} className="text-primary" />
+                      Builder Projects Spotlight
+                    </h2>
+                    <p className="mt-1 text-sm font-medium text-muted">
+                      Post and manage builder & developer projects from your end with full images, about builder info, and direct contact details.
+                    </p>
+                  </div>
+                  <a
+                    href="/post-property?type=builder"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-extrabold text-white shadow-md hover:bg-rose-600 transition-colors"
+                  >
+                    <Plus size={16} /> Post New Builder Project
+                  </a>
+                </div>
+
+                <div className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[860px] border-collapse text-left text-sm">
+                      <thead className="bg-surface text-xs font-extrabold uppercase tracking-wide text-muted">
+                        <tr>
+                          <th className="px-4 py-3">Project & Builder</th>
+                          <th className="px-4 py-3">Location</th>
+                          <th className="px-4 py-3">Price & Size</th>
+                          <th className="px-4 py-3">Builder Contact</th>
+                          <th className="px-4 py-3">Status</th>
+                          <th className="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-black/10">
+                        {paginatedBuilderProperties.map((property) => (
+                          <tr key={property._id} className="bg-white transition-colors hover:bg-surface/70">
+                            <td className="px-4 py-4 align-top">
+                              <p className="font-extrabold text-text">{property.title}</p>
+                              <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                <span className="inline-flex items-center gap-1 rounded bg-primary/10 px-2 py-0.5 text-xs font-extrabold text-primary">
+                                  <Building2 size={12} /> {property.builderName || 'Reputed Builder'}
+                                </span>
+                                {property.reraNumber && (
+                                  <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                                    RERA: {property.reraNumber}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-4 py-4 align-top font-semibold text-muted">
+                              {[property.location?.locality, property.location?.city].filter(Boolean).join(', ') || 'N/A'}
+                            </td>
+                            <td className="px-4 py-4 align-top">
+                              <p className="font-extrabold text-text">{property.price?.label || 'Price on request'}</p>
+                              <p className="text-xs font-medium text-muted">{property.size?.value ? `${property.size.value} Sq. Yrd` : ''}</p>
+                            </td>
+                            <td className="px-4 py-4 align-top text-xs font-semibold text-muted">
+                              {property.builderContact?.phone && (
+                                <p className="text-text font-bold">{property.builderContact.phone}</p>
+                              )}
+                              {property.builderContact?.email && (
+                                <p className="truncate text-muted">{property.builderContact.email}</p>
+                              )}
+                              {!property.builderContact?.phone && !property.builderContact?.email && (
+                                <span className="text-gray-400">Direct on Plotyards</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-4 align-top">
+                              <span className="inline-flex rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-extrabold capitalize text-muted">
+                                {property.status || 'approved'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4 text-right align-top">
+                              <div className="flex flex-wrap justify-end gap-2">
+                                <a
+                                  href={`/property/${property._id}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-bold shadow-sm transition-colors border border-gray-200 bg-white text-text hover:bg-surface"
+                                >
+                                  View
+                                </a>
+                                <a
+                                  href={`/post-property?edit=${property._id}`}
+                                  className="inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition-colors border border-blue-200 bg-white text-blue-700 hover:bg-blue-50"
+                                >
+                                  Edit
+                                </a>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleDeveloperProperty(property)}
+                                  className={`inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-extrabold shadow-sm transition-colors ${property.isDeveloperListing ? 'bg-primary text-white hover:bg-rose-600' : 'border border-primary/30 bg-white text-primary hover:bg-primary/5'}`}
+                                  title={property.isDeveloperListing ? 'Remove from Builder Spotlight' : 'Add to Builder Spotlight'}
+                                >
+                                  <Building2 size={13} />
+                                  {property.isDeveloperListing ? 'Spotlight ON' : 'Spotlight OFF'}
+                                </button>
+                                {property.status !== 'sold' && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleMarkSold(property._id)}
+                                    className="inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition-colors border border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
+                                  >
+                                    Mark Sold
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteProperty(property._id)}
+                                  className="inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition-colors border border-rose-200 bg-white text-rose-700 hover:bg-rose-50"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                        {!paginatedBuilderProperties.length && (
+                          <tr>
+                            <td colSpan="6" className="px-4 py-12 text-center">
+                              <p className="text-base font-extrabold text-text">No builder projects found</p>
+                              <p className="mt-1 text-sm font-medium text-muted">Post your first builder project using the button above.</p>
+                              <a
+                                href="/post-property?type=builder"
+                                className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-extrabold text-white shadow-sm hover:bg-rose-600"
+                              >
+                                <Plus size={14} /> Post Builder Project
+                              </a>
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                  <PaginationControls
+                    page={safeBuilderPage}
+                    pageCount={builderPageCount}
+                    pageSize={ADMIN_TABLE_PAGE_SIZE}
+                    totalItems={builderProperties.length}
+                    onPageChange={setBuilderPage}
                   />
                 </div>
               </div>

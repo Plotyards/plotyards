@@ -12,7 +12,7 @@ import DropdownSelect from '../components/DropdownSelect';
 const CATEGORY_OPTIONS = [
   'Residential Plots',
   'Commercial',
-  'Farm Land',
+  'Farmhouse',
   'Industrial',
   'Villas',
   'Apartments',

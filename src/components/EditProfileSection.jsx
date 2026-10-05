@@ -75,7 +75,7 @@ const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.8) => 
 const CATEGORY_OPTIONS = [
   'Residential Plots',
   'Commercial',
-  'Farm Land',
+  'Farmhouse',
   'Industrial',
   'Villas',
   'Apartments',

@@ -7,6 +7,7 @@ import { useRouter, useParams } from 'next/navigation';
 import {
   ArrowLeft,
   BadgeCheck,
+  Building2,
   CalendarDays,
   Camera,
   Check,
@@ -15,13 +16,15 @@ import {
   ChevronRight,
   ClipboardCheck,
   Heart,
+  Mail,
   MessageCircle,
   MapPin,
   Phone,
   Route,
   Share2,
   ShieldCheck,
-  Scale
+  Scale,
+  Sparkles
 } from 'lucide-react';
 import { propertyListings } from '../data/properties';
 import { apiRequest } from '../lib/api';
@@ -95,16 +98,24 @@ const PropertyDetails = () => {
   }, [property]);
 
   const activeBroker = useMemo(() => {
+    const isDev = Boolean(property?.isDeveloperListing);
+    const builderContact = property?.builderContact || {};
     const broker = property?.broker || defaultBroker;
-    const phone = broker.brokerProfile?.contactPhone || broker.phone || '';
+    const phone = (isDev && builderContact.phone) ? builderContact.phone : (broker.brokerProfile?.contactPhone || broker.phone || '');
+    const whatsapp = (isDev && builderContact.whatsapp) ? builderContact.whatsapp : (broker.whatsapp || phone || defaultBroker.whatsapp);
+    const name = (isDev && property?.builderName) ? property.builderName : (broker.brokerProfile?.companyName || broker.name || defaultBroker.name);
 
     return {
       ...broker,
+      name,
       phone: phone || defaultBroker.phone,
-      whatsapp: formatPhoneForLink(broker.whatsapp || phone || defaultBroker.whatsapp),
+      whatsapp: formatPhoneForLink(whatsapp),
       callNumber: formatPhoneForLink(phone || defaultBroker.phone),
-      companyName: broker.brokerProfile?.companyName || defaultBroker.companyName,
+      companyName: name,
       experience: broker.brokerProfile?.experience || defaultBroker.experience,
+      isDeveloper: isDev,
+      email: (isDev && builderContact.email) ? builderContact.email : (broker.email || ''),
+      address: (isDev && builderContact.address) ? builderContact.address : (broker.brokerProfile?.businessAddress || '')
     };
   }, [property]);
 
@@ -486,6 +497,18 @@ const PropertyDetails = () => {
                     This is a demo property
                   </span>
                 )}
+                {property.isDeveloperListing && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-black text-primary shadow-sm">
+                    <Building2 size={13} />
+                    Builder Project: {property.builderName || 'Reputed Builder'}
+                  </span>
+                )}
+                {property.reraNumber && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
+                    <ShieldCheck size={13} className="text-emerald-600" />
+                    RERA: {property.reraNumber}
+                  </span>
+                )}
                 <span className="rounded-full bg-surface px-3 py-1 text-xs font-bold text-text">{property.type}</span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
                   <CheckCircle2 size={13} />
@@ -541,6 +564,29 @@ const PropertyDetails = () => {
               </p>
             </section>
 
+            {property.isDeveloperListing && (
+              <section className="rounded-[1.5rem] border border-primary/20 bg-gradient-to-br from-white via-white to-red-50/20 p-5 shadow-sm md:rounded-[2rem] md:p-6 lg:p-8">
+                <div className="flex items-center gap-3.5 mb-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm">
+                    <Building2 size={24} />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-black uppercase tracking-wider text-primary">Developer Showcase</span>
+                    <h2 className="text-xl font-extrabold text-text md:text-2xl">About {property.builderName || 'the Builder'}</h2>
+                  </div>
+                </div>
+                <p className="max-w-4xl text-sm font-medium leading-7 text-muted">
+                  {property.aboutBuilder || `${property.builderName || 'This builder'} is a reputed real estate developer dedicated to creating master-planned plotted developments with high-standard infrastructure, clear legal approvals, and secure gated community amenities.`}
+                </p>
+                {property.reraNumber && (
+                  <div className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white border border-emerald-200 px-4 py-2.5 text-xs font-extrabold text-emerald-800 shadow-sm">
+                    <CheckCircle2 size={16} className="text-emerald-600" />
+                    <span>Official RERA Registration: <strong className="text-text font-black">{property.reraNumber}</strong></span>
+                  </div>
+                )}
+              </section>
+            )}
+
             <section className="grid gap-4 md:grid-cols-2 md:gap-6">
               <div className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6">
                 <h2 className="mb-5 text-xl font-extrabold text-text">Layout amenities</h2>
@@ -594,41 +640,63 @@ const PropertyDetails = () => {
             <div className="space-y-5 md:sticky md:top-28">
               <div className="rounded-[1.5rem] border border-border bg-white p-4 shadow-card md:rounded-[2rem] md:p-6">
                 <p className="text-xs font-bold uppercase tracking-wide text-muted">
-                  {activeBroker.companyType === 'developer' ? 'Developer Contact' : 'Associate Partner Contact'}
+                  {property.isDeveloperListing ? 'Builder / Developer Sales Desk' : (activeBroker.companyType === 'developer' ? 'Developer Contact' : 'Associate Partner Contact')}
                 </p>
                 <div className="mt-5 flex items-center gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-xl font-extrabold text-white">
-                    {activeBroker.name.charAt(0)}
+                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-xl font-extrabold text-white shadow-sm ${property.isDeveloperListing ? 'bg-primary' : 'bg-secondary'}`}>
+                    {property.isDeveloperListing ? <Building2 size={26} /> : activeBroker.name.charAt(0)}
                   </div>
                   <div>
-                    <h3 className="flex items-center gap-1 font-extrabold text-text">
+                    <h3 className="flex items-center gap-1 font-extrabold text-text text-base">
                       {activeBroker.name}
-                      <BadgeCheck size={16} className="text-primary" />
+                      <BadgeCheck size={16} className="text-primary flex-shrink-0" />
                     </h3>
-                    <p className="text-xs font-semibold text-muted">{activeBroker.properties} active properties</p>
+                    <p className="text-xs font-semibold text-muted">
+                      {property.isDeveloperListing ? 'Verified Builder Direct Listing' : `${activeBroker.properties} active properties`}
+                    </p>
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-2xl bg-surface p-4">
-                  <p className="text-sm font-bold text-text">{activeBroker.response}</p>
-                  <p className="mt-1 text-xs font-medium text-muted">Ask for exact plot number, documents, or site visit slots.</p>
+                <div className="mt-5 rounded-2xl bg-surface p-4">
+                  <p className="text-sm font-bold text-text">
+                    {property.isDeveloperListing ? 'Direct Builder Inquiry' : activeBroker.response}
+                  </p>
+                  <p className="mt-1 text-xs font-medium text-muted">
+                    {property.isDeveloperListing 
+                      ? 'Inquire for official master plans, unit layout drawings, and booking site visits.'
+                      : 'Ask for exact plot number, documents, or site visit slots.'}
+                  </p>
+
+                  {property.isDeveloperListing && activeBroker.address && (
+                    <div className="mt-3 pt-3 border-t border-border/70 flex items-start gap-2 text-xs font-semibold text-text">
+                      <MapPin size={14} className="text-primary mt-0.5 flex-shrink-0" />
+                      <span>{activeBroker.address}</span>
+                    </div>
+                  )}
+
+                  {property.isDeveloperListing && activeBroker.email && (
+                    <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-text">
+                      <Mail size={14} className="text-primary flex-shrink-0" />
+                      <span className="truncate">{activeBroker.email}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-5 grid gap-3">
                   <a
                     href="#"
                     onClick={handleDirectChat}
-                    className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-sm font-extrabold text-white transition-colors hover:bg-[#1ebd5a]"
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-sm font-extrabold text-white transition-colors hover:bg-[#1ebd5a] shadow-sm"
                   >
                     <MessageCircle size={18} />
-                    Direct to Chat
+                    {property.isDeveloperListing ? 'WhatsApp Builder Desk' : 'Direct to Chat'}
                   </a>
                   <a
                     href={`tel:+${activeBroker.callNumber}`}
-                    className="flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-white text-sm font-extrabold text-text transition-colors hover:border-primary hover:text-primary"
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-white text-sm font-extrabold text-text transition-colors hover:border-primary hover:text-primary shadow-sm"
                   >
                     <Phone size={18} />
-                    Call Associate Partner
+                    {property.isDeveloperListing ? 'Call Builder Desk' : 'Call Associate Partner'}
                   </a>
                 </div>
               </div>

@@ -1,14 +1,22 @@
-import { normalizePropertyType } from './propertyAdapter';
+import { normalizePropertyType } from './propertyAdapter.js';
 
 const synonyms = {
   plot: ['plots', 'land', 'parcel', 'site', 'layout'],
   residential: ['home', 'house', 'villa', 'housing'],
   commercial: ['shop', 'shops', 'retail', 'office', 'business'],
-  farmland: ['farm', 'farmhouse', 'agriculture', 'agricultural'],
+  farmland: ['farm', 'farmhouse', 'farmhouses', 'farm house', 'agriculture', 'agricultural', 'farmland', 'farm land'],
   approved: ['rera', 'verified', 'clear', 'registry', 'title'],
   budget: ['cheap', 'affordable', 'low'],
   highway: ['road', 'frontage', 'expressway', 'nh'],
-  airport: ['aero', 'jewar', 'devanahalli']
+  airport: ['aero', 'jewar', 'devanahalli'],
+  gurugram: ['gurgaon'],
+  gurgaon: ['gurugram'],
+  bangalore: ['bengaluru'],
+  bengaluru: ['bangalore'],
+  mumbai: ['bombay'],
+  bombay: ['mumbai'],
+  calcutta: ['kolkata'],
+  kolkata: ['calcutta']
 };
 
 const searchStopWords = new Set([
@@ -22,11 +30,14 @@ const searchStopWords = new Set([
   'for',
   'from',
   'in',
+  'land',
   'less',
   'near',
   'of',
   'on',
   'or',
+  'plot',
+  'plots',
   'property',
   'properties',
   'rs',
@@ -212,6 +223,12 @@ const parseBudgetIntent = (query) => {
   return null;
 };
 
+const TYPE_REMOVAL_TOKENS = [
+  'commercial', 'shop', 'shops', 'retail', 'office', 'business',
+  'farm', 'farmland', 'farm land', 'farmhouse', 'farm house', 'farmhouses', 'agriculture', 'agricultural',
+  'residential', 'housing', 'villa', 'home', 'plot', 'plots'
+];
+
 const parseQueryIntent = (query = '') => {
   const normalizedQuery = normalize(query);
   const budgetIntent = parseBudgetIntent(query);
@@ -222,7 +239,7 @@ const parseQueryIntent = (query = '') => {
 
   if (/\b(commercial|shop|shops|retail|office|business)\b/.test(normalizedQuery)) {
     filters.type = 'commercial';
-  } else if (/\b(farm|farmland|farm land|agriculture|agricultural)\b/.test(normalizedQuery)) {
+  } else if (/\b(farm|farmland|farm land|farmhouse|farm house|farmhouses|agriculture|agricultural)\b/.test(normalizedQuery)) {
     filters.type = 'farmland';
   } else if (/\b(residential|housing|villa|home)\b/.test(normalizedQuery)) {
     filters.type = 'plot';
@@ -234,7 +251,7 @@ const parseQueryIntent = (query = '') => {
 
   const termGroups = tokenize(query)
     .filter((group) => !group.some((token) => ['rera', 'approved', 'verified', 'clear', 'title', 'registry', 'budget'].includes(token)))
-    .filter((group) => !group.some((token) => ['commercial', 'shop', 'shops', 'retail', 'office', 'business', 'farm', 'farmland', 'agriculture', 'agricultural', 'residential', 'housing', 'villa', 'home'].includes(token)));
+    .filter((group) => !group.some((token) => TYPE_REMOVAL_TOKENS.includes(token)));
 
   return { filters, termGroups };
 };
@@ -261,7 +278,7 @@ export const advancedPropertySearch = (listings, query = '', filters = {}) => {
   const queryIntent = parseQueryIntent(query);
   const combinedFilters = {
     ...filters,
-    type: filters.type || queryIntent.filters.type,
+    type: queryIntent.filters.type || filters.type,
     approvedOnly: filters.approvedOnly || queryIntent.filters.approvedOnly,
     minPrice: filters.minPrice ?? queryIntent.filters.minPrice,
     maxPrice: filters.maxPrice ?? queryIntent.filters.maxPrice

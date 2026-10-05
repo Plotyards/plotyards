@@ -27,7 +27,7 @@ const typeFilterOptions = [
   { value: '', label: 'All types' },
   { value: 'Residential', label: 'Residential' },
   { value: 'Commercial', label: 'Commercial' },
-  { value: 'Farm Land', label: 'Farm Land' }
+  { value: 'Farmhouse', label: 'Farmhouse' }
 ];
 
 const isMongoId = (val) => /^[0-9a-fA-F]{24}$/.test(String(val));
@@ -236,8 +236,20 @@ const Listings = () => {
 
     const nextParams = new URLSearchParams(searchParams);
 
-    if (nextQuery) nextParams.set('q', nextQuery);
-    else nextParams.delete('q');
+    if (nextQuery) {
+      nextParams.set('q', nextQuery);
+
+      if (/\b(farm|farmland|farm land|farmhouse|farm house|farmhouses)\b/i.test(nextQuery)) {
+        nextParams.set('type', 'Farmhouse');
+      } else if (/\b(commercial|shop|office)\b/i.test(nextQuery)) {
+        nextParams.set('type', 'Commercial');
+      } else if (/\b(residential|villa|plots?)\b/i.test(nextQuery)) {
+        nextParams.set('type', 'Residential');
+      }
+    } else {
+      nextParams.delete('q');
+    }
+
     if (sortBy !== 'recommended') nextParams.set('sort', sortBy);
     else nextParams.delete('sort');
     nextParams.delete('page');

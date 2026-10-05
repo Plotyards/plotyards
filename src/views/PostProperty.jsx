@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Building2, Layers, MapPin, ShieldCheck, Sparkles } from 'lucide-react';
+import { Building2, FileText, Layers, Mail, MapPin, MessageCircle, Phone, ShieldCheck, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -47,8 +47,14 @@ const PostProperty = () => {
     roi: '',
     reraApproved: true,
     documentsVerified: [],
-    isDeveloperListing: false,
-    builderName: ''
+    isDeveloperListing: searchParams.get('type') === 'builder',
+    builderName: '',
+    aboutBuilder: '',
+    builderPhone: '',
+    builderWhatsapp: '',
+    builderEmail: '',
+    builderAddress: '',
+    reraNumber: ''
   });
   const [checkedAmenities, setCheckedAmenities] = useState([]);
   const [hasOtherAmenity, setHasOtherAmenity] = useState(false);
@@ -137,7 +143,13 @@ const PostProperty = () => {
             reraApproved: prop.reraApproved !== false,
             documentsVerified: prop.documentsVerified || [],
             isDeveloperListing: Boolean(prop.isDeveloperListing),
-            builderName: prop.builderName || ''
+            builderName: prop.builderName || '',
+            aboutBuilder: prop.aboutBuilder || '',
+            builderPhone: prop.builderContact?.phone || '',
+            builderWhatsapp: prop.builderContact?.whatsapp || '',
+            builderEmail: prop.builderContact?.email || '',
+            builderAddress: prop.builderContact?.address || '',
+            reraNumber: prop.reraNumber || ''
           });
 
           // Process amenities
@@ -330,7 +342,15 @@ const PostProperty = () => {
           documentsVerified: form.documentsVerified || [],
           reraApproved: form.propertyType === 'farmland' ? false : form.reraApproved,
           isDeveloperListing: form.isDeveloperListing,
-          builderName: form.isDeveloperListing ? form.builderName : ''
+          builderName: form.isDeveloperListing ? form.builderName : '',
+          aboutBuilder: form.isDeveloperListing ? form.aboutBuilder : '',
+          builderContact: form.isDeveloperListing ? {
+            phone: form.builderPhone,
+            whatsapp: form.builderWhatsapp,
+            email: form.builderEmail,
+            address: form.builderAddress
+          } : undefined,
+          reraNumber: form.reraNumber || ''
         }
       });
       setStatus(editId ? 'Your listing has been updated.' : 'Your property is now posted.');
@@ -415,20 +435,109 @@ const PostProperty = () => {
             </div>
 
             {form.isDeveloperListing && (
-              <div className="mt-4 pt-4 border-t border-primary/15">
-                <label className="flex items-center gap-1.5 text-sm font-bold text-text mb-1">
-                  <Building2 size={16} className="text-primary" />
-                  Builder / Company Name <span className="text-primary">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={form.builderName}
-                  onChange={(e) => updateField('builderName', e.target.value)}
-                  placeholder="e.g. DLF, Godrej Properties, BPTP, M3M, Omaxe"
-                  className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none"
-                  required={form.isDeveloperListing}
-                />
-                <p className="mt-1.5 text-xs text-muted">This builder name will be featured as a prominent brand badge on the project card.</p>
+              <div className="mt-4 pt-4 border-t border-primary/15 space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="flex items-center gap-1.5 text-sm font-bold text-text mb-1">
+                      <Building2 size={16} className="text-primary" />
+                      Builder / Company Name <span className="text-primary">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={form.builderName}
+                      onChange={(e) => updateField('builderName', e.target.value)}
+                      placeholder="e.g. DLF, Godrej Properties, BPTP, M3M, Omaxe"
+                      className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none"
+                      required={form.isDeveloperListing}
+                    />
+                  </div>
+                  <div>
+                    <label className="flex items-center gap-1.5 text-sm font-bold text-text mb-1">
+                      <FileText size={16} className="text-primary" />
+                      RERA Registration Number
+                    </label>
+                    <input
+                      type="text"
+                      value={form.reraNumber}
+                      onChange={(e) => updateField('reraNumber', e.target.value)}
+                      placeholder="e.g. UPRERAPRJ12345 / HRERA-PKL-123-2024"
+                      className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-text mb-1">
+                    About Builder / Developer Profile
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={form.aboutBuilder}
+                    onChange={(e) => updateField('aboutBuilder', e.target.value)}
+                    placeholder="Briefly describe the builder's legacy, years of experience, notable completed projects, and quality commitment..."
+                    className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none text-sm"
+                  />
+                  <p className="mt-1 text-xs text-muted">This will appear in the dedicated 'About Builder' section on the project details page.</p>
+                </div>
+
+                <div className="rounded-2xl border border-gray-200 bg-gray-50/60 p-4">
+                  <p className="text-xs font-black uppercase tracking-wider text-muted mb-3">Builder Direct Contact & Sales Office</p>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div>
+                      <label className="flex items-center gap-1 text-xs font-bold text-text mb-1">
+                        <Phone size={13} className="text-primary" />
+                        Sales Contact Phone
+                      </label>
+                      <input
+                        type="tel"
+                        value={form.builderPhone}
+                        onChange={(e) => updateField('builderPhone', e.target.value)}
+                        placeholder="e.g. +91 98765 43210"
+                        className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-sm text-text font-semibold focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1 text-xs font-bold text-text mb-1">
+                        <MessageCircle size={13} className="text-emerald-600" />
+                        WhatsApp Number
+                      </label>
+                      <input
+                        type="tel"
+                        value={form.builderWhatsapp}
+                        onChange={(e) => updateField('builderWhatsapp', e.target.value)}
+                        placeholder="e.g. 919876543210"
+                        className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-sm text-text font-semibold focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1 text-xs font-bold text-text mb-1">
+                        <Mail size={13} className="text-primary" />
+                        Official Email
+                      </label>
+                      <input
+                        type="email"
+                        value={form.builderEmail}
+                        onChange={(e) => updateField('builderEmail', e.target.value)}
+                        placeholder="sales@buildergroup.com"
+                        className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-sm text-text font-semibold focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-3">
+                    <label className="flex items-center gap-1 text-xs font-bold text-text mb-1">
+                      <MapPin size={13} className="text-primary" />
+                      Sales / Site Office Address
+                    </label>
+                    <input
+                      type="text"
+                      value={form.builderAddress}
+                      onChange={(e) => updateField('builderAddress', e.target.value)}
+                      placeholder="e.g. Site Office, Sector 83, Near Expressway"
+                      className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-sm text-text font-semibold focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -475,7 +584,7 @@ const PostProperty = () => {
                 onChange={(value) => updateField('propertyType', value)}
                 options={[
                   { value: 'plot', label: 'Plots / Residential' },
-                  { value: 'farmland', label: 'Farm Land' },
+                  { value: 'farmland', label: 'Farmhouse' },
                   { value: 'industrial land', label: 'Industrial Land' },
                   { value: 'commercial', label: 'Commercial Plots' },
                   { value: 'new projects', label: 'New Projects' }

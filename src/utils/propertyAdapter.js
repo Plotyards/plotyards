@@ -5,8 +5,10 @@ const PROPERTY_TYPE_LABELS = {
   villa: 'Residential',
   apartment: 'Residential',
   commercial: 'Commercial',
-  farmland: 'Farm Land',
-  'farm land': 'Farm Land',
+  farmland: 'Farmhouse',
+  farmhouse: 'Farmhouse',
+  'farm land': 'Farmhouse',
+  'farm house': 'Farmhouse',
   'industrial': 'Industrial Land',
   'industrial land': 'Industrial Land',
   'new projects': 'New Projects',
@@ -17,7 +19,7 @@ export const normalizePropertyType = (type = '') => {
   const normalized = String(type).trim().toLowerCase().replace(/[\s_-]+/g, ' ');
 
   if (['commercial'].includes(normalized)) return 'commercial';
-  if (['farm land', 'farmland', 'farm'].includes(normalized)) return 'farmland';
+  if (['farm land', 'farmland', 'farm', 'farmhouse', 'farm house', 'farmhouses'].includes(normalized)) return 'farmland';
   if (['residential', 'plot', 'plots', 'land', 'villa', 'apartment'].includes(normalized)) return 'plot';
   if (['industrial', 'industrial land'].includes(normalized)) return 'industrial land';
   if (['new projects', 'new project'].includes(normalized)) return 'new projects';
@@ -80,7 +82,15 @@ export const adaptProperty = (property) => {
     tags: property.tags || property.amenities || [],
     photoCount,
     isDeveloperListing: Boolean(property.isDeveloperListing),
-    builderName: property.builderName || property.broker?.brokerProfile?.companyName || property.broker?.name || ''
+    builderName: property.builderName || property.broker?.brokerProfile?.companyName || property.broker?.name || '',
+    aboutBuilder: property.aboutBuilder || '',
+    builderContact: property.builderContact || {
+      phone: property.broker?.phone || '',
+      whatsapp: property.broker?.whatsapp || '',
+      email: property.broker?.email || '',
+      address: property.broker?.brokerProfile?.businessAddress || ''
+    },
+    reraNumber: property.reraNumber || ''
   };
 };
 
