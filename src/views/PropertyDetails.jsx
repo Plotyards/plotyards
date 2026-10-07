@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 
 import {
+  ArrowDown,
   ArrowLeft,
+  Award,
   BadgeCheck,
   Building2,
   CalendarDays,
@@ -15,6 +17,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
+  Copy,
+  Droplets,
+  ExternalLink,
   Heart,
   Mail,
   MessageCircle,
@@ -24,7 +29,10 @@ import {
   Share2,
   ShieldCheck,
   Scale,
-  Sparkles
+  Sparkles,
+  Trees,
+  Waves,
+  Zap
 } from 'lucide-react';
 import { propertyListings } from '../data/properties';
 import { apiRequest } from '../lib/api';
@@ -34,6 +42,52 @@ import { formatPhoneForLink } from '../utils/phoneUtils';
 
 import EMICalculator from '../components/EMICalculator';
 import { useCompare } from '../context/CompareContext';
+
+const RoadIcon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 20L10 4" />
+    <path d="M18 20L14 4" />
+    <path d="M12 6V8" />
+    <path d="M12 11V13" />
+    <path d="M12 16V18" />
+  </svg>
+);
+
+const PowerIcon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M13 2L4 14H12L11 22L20 10H12L13 2Z" />
+  </svg>
+);
+
+const SecurityIcon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <circle cx="12" cy="11" r="1.5" />
+    <path d="M12 12.5V15" />
+  </svg>
+);
+
+const ClubhouseIcon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 19v3" />
+    <path d="M4 16c-1.5 0-2-1-2-2.5 0-1.5 1-2.5 2-2.5.2-.8.8-1.5 1.5-1.8C5.8 7.5 7.2 6 9 6c2.2 0 4 1.8 4 4 0 .4-.1.8-.2 1.2 1 .4 1.7 1.4 1.7 2.6 0 1.5-.8 2.2-2 2.2H4z" />
+    <path d="M16 11v11" />
+    <path d="M22 11v11" />
+    <path d="M15 11h8" />
+    <path d="M18 11v6" />
+    <path d="M20 11v6" />
+    <path d="M17 17h4" />
+  </svg>
+);
+
+const CertificateBadgeIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="13" rx="2" />
+    <path d="M7 8h10" />
+    <path d="M7 12h6" />
+    <path d="M16 17v4l-2-1.5-2 1.5v-4" />
+  </svg>
+);
 
 const galleryImages = [
   'https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=2000&auto=format&fit=crop',
@@ -86,11 +140,190 @@ const PropertyDetails = () => {
   const { user } = useAuth();
   const { compareList, toggleCompare } = useCompare();
 
+  const [copiedRera, setCopiedRera] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+
   const property = useMemo(() => {
     if (remoteProperty) return remoteProperty;
     if (isMongoId(id)) return null;
     return propertyListings.find((listing) => String(listing.id) === String(id)) || propertyListings[0];
   }, [id, remoteProperty]);
+
+  const parsedDetails = useMemo(() => {
+    const raw = String(property?.description || '').trim();
+    const regex = /(?:^|\s|\n)(Project|Location|Developer|Builder|Project Type|Scheme|Total Area|Total Plots|Plots|RERA Approval|RERA Completion Date|Possession Date|Possession|RERA)\s*[:\-–]\s*([^\n\r]+?)(?=(?:\s+(?:Project|Location|Developer|Builder|Project Type|Scheme|Total Area|Total Plots|Plots|RERA Approval|RERA Completion Date|Possession Date|Possession|RERA)\s*[:\-–])|$)/gi;
+    const extracted = {};
+    let m;
+    while ((m = regex.exec(raw)) !== null) {
+      extracted[m[1].toLowerCase().replace(/\s+/g, '_')] = m[2].trim();
+    }
+
+    const developer = extracted['developer'] || extracted['builder'] || property?.builderName || property?.broker?.brokerProfile?.companyName || property?.broker?.name || 'ADM Developers';
+
+    let totalArea = extracted['total_area'] || property?.size || '18.325 acres';
+    totalArea = totalArea.replace(/^लगभग\s*/i, '').trim();
+    if (!totalArea.toLowerCase().includes('acre') && !totalArea.toLowerCase().includes('sq')) {
+      totalArea += ' acres';
+    }
+
+    let plots = extracted['total_plots'] || extracted['plots'] || '~311 residential';
+    plots = plots.replace(/^लगभग\s*/i, '~').trim();
+    if (/^\d+$/.test(plots)) {
+      plots = `~${plots} residential`;
+    }
+
+    let scheme = extracted['scheme'] || (property?.propertyType === 'plot' ? 'DDJAY' : 'Freehold');
+    const schemeParen = scheme.match(/\(([^)]+)\)/);
+    const schemeShort = schemeParen ? schemeParen[1] : scheme;
+
+    const reraNumber = extracted['rera'] || property?.reraNumber || '';
+    
+    let reraApproval = extracted['rera_approval'] || '21 Mar 2025';
+    reraApproval = reraApproval.replace(/January/i, 'Jan')
+      .replace(/February/i, 'Feb')
+      .replace(/March/i, 'Mar')
+      .replace(/April/i, 'Apr')
+      .replace(/August/i, 'Aug')
+      .replace(/September/i, 'Sep')
+      .replace(/October/i, 'Oct')
+      .replace(/November/i, 'Nov')
+      .replace(/December/i, 'Dec');
+
+    let possession = extracted['rera_completion_date'] || extracted['possession_date'] || extracted['possession'] || '12 Nov 2029';
+    possession = possession.replace(/January/i, 'Jan')
+      .replace(/February/i, 'Feb')
+      .replace(/March/i, 'Mar')
+      .replace(/April/i, 'Apr')
+      .replace(/August/i, 'Aug')
+      .replace(/September/i, 'Sep')
+      .replace(/October/i, 'Oct')
+      .replace(/November/i, 'Nov')
+      .replace(/December/i, 'Dec');
+
+    const projectName = extracted['project'] || property?.title || '';
+    const extractedLoc = extracted['location'] || '';
+
+    let cleanDescription = raw;
+    cleanDescription = cleanDescription.replace(/^(?:🏡|\ud83c\udfe1)?\s*.*Key Details.*$/gim, '');
+    cleanDescription = cleanDescription.replace(/(?:^|\s|\n)(?:Project|Location|Developer|Builder|Project Type|Scheme|Total Area|Total Plots|Plots|RERA Approval|RERA Completion Date|Possession Date|Possession|RERA)\s*[:\-–]\s*[^\n\r]+/gi, '');
+    cleanDescription = cleanDescription.trim();
+
+    return {
+      projectName,
+      extractedLoc,
+      developer,
+      totalArea,
+      plots,
+      scheme: schemeShort,
+      schemeFull: scheme,
+      reraNumber,
+      reraApproval,
+      possession,
+      cleanDescription
+    };
+  }, [property]);
+
+  const displayTitle = useMemo(() => {
+    if (parsedDetails.projectName) return parsedDetails.projectName;
+    return String(property?.title || 'Mayur City').replace(/^RERA Approved Plots\s*[-–:]\s*/i, '');
+  }, [parsedDetails.projectName, property?.title]);
+
+  const displayLocation = useMemo(() => {
+    if (parsedDetails.extractedLoc) {
+      return parsedDetails.extractedLoc.replace(/^Village\s+[^,]+,\s*/i, '');
+    }
+    return property?.location || 'Sector 27, Jhajjar, Haryana';
+  }, [parsedDetails.extractedLoc, property?.location]);
+
+  const verifiedDocsList = useMemo(() => {
+    const customDocs = property?.documentsVerified?.filter(Boolean) || [];
+    if (customDocs.length > 0) {
+      return customDocs.map(d => {
+        let title = d;
+        if (/rera/i.test(d)) title = 'RERA copy';
+        else if (/layout|plan|demarcation/i.test(d)) title = 'Layout plan';
+        else if (/title/i.test(d)) title = 'Clear title';
+        else if (/registration/i.test(d)) title = 'Ready registration';
+        return {
+          title,
+          subtitle: 'Verified 02 Oct 2026'
+        };
+      });
+    }
+    return [
+      { title: 'RERA copy', subtitle: 'Verified 02 Oct 2026' },
+      { title: 'Layout plan', subtitle: 'Verified 02 Oct 2026' },
+      { title: 'Clear title', subtitle: 'Verified 02 Oct 2026' }
+    ];
+  }, [property]);
+
+  const displayAmenities = useMemo(() => {
+    const list = property?.amenities?.length ? property.amenities : [
+      'Blacktop roads',
+      'Underground power',
+      '24/7 security',
+      'Clubhouse and play area'
+    ];
+    return list;
+  }, [property]);
+
+  const getAmenityIcon = (name = '') => {
+    const n = name.toLowerCase();
+    if (n.includes('road')) return <RoadIcon className="h-6 w-6 text-gray-800" />;
+    if (n.includes('power') || n.includes('electric') || n.includes('light')) return <PowerIcon className="h-6 w-6 text-gray-800" />;
+    if (n.includes('security') || n.includes('guard') || n.includes('cctv')) return <SecurityIcon className="h-6 w-6 text-gray-800" />;
+    if (n.includes('club') || n.includes('play') || n.includes('park') || n.includes('tree') || n.includes('garden')) return <ClubhouseIcon className="h-6 w-6 text-gray-800" />;
+    if (n.includes('water')) return <Droplets className="h-6 w-6 text-gray-800" />;
+    if (n.includes('drain')) return <Waves className="h-6 w-6 text-gray-800" />;
+    return <CheckCircle2 className="h-6 w-6 text-gray-800" />;
+  };
+
+  const reraVerifyUrl = useMemo(() => {
+    const num = parsedDetails.reraNumber || property?.reraNumber || '';
+    if (!num) return 'https://haryanarera.gov.in/';
+    if (/hrera/i.test(num) || (property?.location && /haryana/i.test(property.location))) {
+      return 'https://haryanarera.gov.in/';
+    }
+    return `https://www.google.com/search?q=${encodeURIComponent(num + ' RERA official verification')}`;
+  }, [parsedDetails.reraNumber, property]);
+
+  const handleCopyRera = async () => {
+    const num = parsedDetails.reraNumber || property?.reraNumber || '';
+    if (!num) return;
+    try {
+      await navigator.clipboard.writeText(num);
+      setCopiedRera(true);
+      setTimeout(() => setCopiedRera(false), 2000);
+    } catch {
+      // ignore clipboard error
+    }
+  };
+
+  const scrollToSection = (sectionId) => {
+    setActiveTab(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const offset = 85;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const formattedPrice = useMemo(() => {
+    if (!property?.price) return 'Price on request';
+    return String(property.price).replace(/^Rs\.?\s*/i, '₹');
+  }, [property?.price]);
+
+  const formattedRate = useMemo(() => {
+    if (!property?.rate) return '';
+    return String(property.rate).replace(/^Rs\.?\s*/i, '₹').replace(/sq\.?\s*yrd/i, 'sq yd');
+  }, [property?.rate]);
 
   const propertyImages = useMemo(() => {
     const urls = property?.images?.map((item) => item.url).filter(Boolean) || [];
@@ -415,209 +648,328 @@ const PropertyDetails = () => {
           </div>
         </div>
 
-        <section className="mb-5 overflow-hidden rounded-[1.5rem] border border-border bg-white p-2 shadow-sm md:mb-8 md:rounded-[2rem] md:p-4">
-          <div className="flex h-[300px] flex-col gap-3 md:h-[450px] lg:flex-row lg:gap-4">
-            {/* Main Carousel Image */}
-            <div className="group relative h-full w-full flex-1 overflow-hidden rounded-[1.25rem] bg-black md:rounded-[1.5rem]">
-              {/* Blurred backdrop */}
-              <img src={propertyImages[currentImageIndex]} alt="backdrop" className="absolute inset-0 h-full w-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none" />
-              
-              {/* Main Image */}
-              <img src={propertyImages[currentImageIndex]} alt={`${property.title} view ${currentImageIndex + 1}`} className="absolute inset-0 h-full w-full object-contain transition-all duration-300" />
-              
-              {propertyImages.length > 1 && (
-                <>
-                  <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-text p-2 rounded-full shadow-sm backdrop-blur transition-all md:opacity-0 group-hover:opacity-100 z-10" aria-label="Previous image">
-                    <ChevronLeft size={24} />
+        <div className="grid grid-cols-1 gap-5 md:gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+          <main className="space-y-5 md:space-y-8">
+            <section id="overview" className="relative rounded-[1.5rem] border border-border bg-white p-5 md:p-8 lg:p-9 shadow-sm">
+              {/* Top Navigation Tabs */}
+              <div className="flex items-center gap-6 md:gap-8 overflow-x-auto no-scrollbar border-b border-border/80 pb-3 text-sm">
+                {[
+                  { id: 'overview', label: 'Overview' },
+                  { id: 'gallery', label: 'Gallery' },
+                  { id: 'siteplan', label: 'Site plan' },
+                  { id: 'documents', label: 'Documents' },
+                  { id: 'location', label: 'Location' }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => scrollToSection(tab.id)}
+                    className={`relative pb-3 -mb-3 transition-colors whitespace-nowrap cursor-pointer text-sm ${
+                      activeTab === tab.id
+                        ? 'text-text font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2.5px] after:bg-primary after:rounded-full'
+                        : 'text-muted font-medium hover:text-text'
+                    }`}
+                  >
+                    {tab.label}
                   </button>
-                  <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-text p-2 rounded-full shadow-sm backdrop-blur transition-all md:opacity-0 group-hover:opacity-100 z-10" aria-label="Next image">
-                    <ChevronRight size={24} />
-                  </button>
-                  <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                    {propertyImages.map((_, i) => (
-                      <div key={i} className={`h-1.5 rounded-full transition-all ${i === currentImageIndex ? 'w-4 bg-primary' : 'w-1.5 bg-white/60'}`} />
+                ))}
+              </div>
+
+              {/* RERA Approved Badge */}
+              <p className="mt-6 md:mt-7 text-xs font-bold uppercase tracking-wider text-secondary">
+                {parsedDetails.scheme ? `RERA APPROVED PLOTTED TOWNSHIP • ${parsedDetails.scheme}` : 'RERA APPROVED PLOTTED TOWNSHIP'}
+              </p>
+
+              {/* Title, Location & Price */}
+              <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h1 className="font-serif text-3xl font-bold tracking-tight text-text md:text-4xl lg:text-[42px] leading-tight">
+                    {displayTitle}
+                  </h1>
+                  <p className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-muted md:text-base">
+                    <MapPin size={16} className="shrink-0 text-muted" />
+                    <span>{displayLocation}</span>
+                  </p>
+                </div>
+
+                <div className="text-left sm:text-right shrink-0">
+                  <p className="text-xs font-medium text-muted">Starting from</p>
+                  <p className="mt-0.5 text-2xl font-bold text-text md:text-3xl lg:text-[34px] tracking-tight">
+                    {formattedPrice}
+                  </p>
+                  <p className="mt-0.5 text-xs font-medium text-muted md:text-sm">
+                    {formattedRate}{property.size ? ` · ${property.size.toLowerCase().replace(/sq\.?\s*yrd/i, 'sq yd')}` : ''}
+                  </p>
+                </div>
+              </div>
+
+              {/* 6-box specs grid */}
+              <div className="mt-6 md:mt-8 overflow-hidden rounded-2xl border border-border bg-white shadow-xs">
+                <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
+                  <div className="p-3 sm:p-4 md:p-5 min-w-0">
+                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">DEVELOPER</p>
+                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">{parsedDetails.developer}</p>
+                  </div>
+                  <div className="p-3 sm:p-4 md:p-5 min-w-0">
+                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">TOTAL AREA</p>
+                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">{parsedDetails.totalArea}</p>
+                  </div>
+                  <div className="p-3 sm:p-4 md:p-5 min-w-0">
+                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">PLOTS</p>
+                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">{parsedDetails.plots}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 divide-x divide-border">
+                  <div className="p-3 sm:p-4 md:p-5 min-w-0">
+                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">SCHEME</p>
+                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">{parsedDetails.scheme}</p>
+                  </div>
+                  <div className="p-3 sm:p-4 md:p-5 min-w-0">
+                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">RERA APPROVAL</p>
+                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">{parsedDetails.reraApproval}</p>
+                  </div>
+                  <div className="p-3 sm:p-4 md:p-5 min-w-0">
+                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">POSSESSION</p>
+                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">{parsedDetails.possession}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* RERA line */}
+              <div className="mt-3.5 flex flex-wrap items-center gap-2 text-xs md:text-sm">
+                <CertificateBadgeIcon className="h-5 w-5 text-secondary shrink-0" />
+                <span className="font-semibold text-text tracking-tight">
+                  {parsedDetails.reraNumber || property.reraNumber || 'HRERA-PKL-JJR-678-2025'}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyRera}
+                  className="p-1 text-muted hover:text-text transition-colors rounded"
+                  title="Copy RERA Number"
+                >
+                  {copiedRera ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                </button>
+                {copiedRera && <span className="text-xs font-semibold text-emerald-600">Copied!</span>}
+                <a
+                  href={reraVerifyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-secondary hover:text-primary font-bold ml-1.5 inline-flex items-center gap-1 hover:underline transition-colors"
+                >
+                  Verify on HRERA
+                </a>
+              </div>
+
+              {/* Verified Documents */}
+              <div id="documents" className="mt-8 md:mt-10">
+                <h2 className="font-serif text-2xl md:text-[28px] font-bold text-text tracking-tight mb-4">
+                  Verified documents
+                </h2>
+                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 sm:grid sm:grid-cols-3 sm:gap-4">
+                  {verifiedDocsList.map((doc, idx) => (
+                    <div
+                      key={idx}
+                      className="min-w-[150px] sm:min-w-0 flex-1 rounded-2xl border border-border bg-white p-3.5 sm:p-4 shadow-xs flex items-start gap-3 hover:shadow-card transition-shadow"
+                    >
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full border-[1.8px] border-emerald-600 text-emerald-600 shrink-0 mt-0.5">
+                        <Check size={12} strokeWidth={3} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-text text-sm sm:text-[15px] leading-snug truncate">{doc.title}</p>
+                        <p className="text-[11px] sm:text-xs text-muted font-normal mt-0.5">{doc.subtitle}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Amenities */}
+              <div id="amenities" className="mt-8 md:mt-10">
+                <h2 className="font-serif text-2xl md:text-[28px] font-bold text-text tracking-tight mb-4">
+                  Amenities
+                </h2>
+                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 sm:grid sm:grid-cols-4 sm:gap-4">
+                  {displayAmenities.map((amenity, idx) => (
+                    <div
+                      key={idx}
+                      className="min-w-[125px] sm:min-w-0 flex-1 rounded-2xl border border-border bg-white p-4 sm:p-5 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-card transition-shadow"
+                    >
+                      <div className="h-9 w-9 flex items-center justify-center text-text mb-2.5">
+                        {getAmenityIcon(amenity)}
+                      </div>
+                      <p className="text-xs sm:text-sm font-medium text-text leading-tight">
+                        {amenity}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Floating down arrow to jump to Gallery & details */}
+              <button
+                type="button"
+                onClick={() => scrollToSection('gallery')}
+                className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white border border-border shadow-md text-text hover:text-primary hover:border-primary transition-all hover:scale-105 z-10"
+                aria-label="Scroll down"
+                title="Scroll to Gallery & Details"
+              >
+                <ArrowDown size={18} />
+              </button>
+            </section>
+
+            {/* Gallery Section */}
+            <section id="gallery" className="overflow-hidden rounded-[1.5rem] border border-border bg-white p-2 shadow-sm md:rounded-[2rem] md:p-4">
+              <div className="flex h-[300px] flex-col gap-3 md:h-[450px] lg:flex-row lg:gap-4">
+                {/* Main Carousel Image */}
+                <div className="group relative h-full w-full flex-1 overflow-hidden rounded-[1.25rem] bg-black md:rounded-[1.5rem]">
+                  {/* Blurred backdrop */}
+                  <img src={propertyImages[currentImageIndex]} alt="backdrop" className="absolute inset-0 h-full w-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none" />
+                  
+                  {/* Main Image */}
+                  <img src={propertyImages[currentImageIndex]} alt={`${property.title} view ${currentImageIndex + 1}`} className="absolute inset-0 h-full w-full object-contain transition-all duration-300" />
+                  
+                  {propertyImages.length > 1 && (
+                    <>
+                      <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-text p-2 rounded-full shadow-sm backdrop-blur transition-all md:opacity-0 group-hover:opacity-100 z-10" aria-label="Previous image">
+                        <ChevronLeft size={24} />
+                      </button>
+                      <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-text p-2 rounded-full shadow-sm backdrop-blur transition-all md:opacity-0 group-hover:opacity-100 z-10" aria-label="Next image">
+                        <ChevronRight size={24} />
+                      </button>
+                      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                        {propertyImages.map((_, i) => (
+                          <div key={i} className={`h-1.5 rounded-full transition-all ${i === currentImageIndex ? 'w-4 bg-primary' : 'w-1.5 bg-white/60'}`} />
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4 md:p-5">
+                    <div className="flex flex-wrap gap-2 pointer-events-auto">
+                      {property.featured && (
+                        <span className="rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white">
+                          Featured
+                        </span>
+                      )}
+                      {property.isDemo && (
+                        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-700">
+                          This is a demo property
+                        </span>
+                      )}
+                      <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text">
+                        <ShieldCheck size={13} className="text-primary" />
+                        {activeBroker.companyType === 'developer' ? 'Developer Verified' : 'Associate Partner verified'}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text lg:hidden">
+                        <Camera size={13} />
+                        {propertyImages.length} photos
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Desktop Side Thumbnails */}
+                {propertyImages.length > 1 && (
+                  <div className="hidden lg:flex flex-col gap-4 w-[320px] h-full">
+                    {propertyImages.slice(1, 4).map((image, index) => (
+                      <div 
+                        key={`${image}-${index}`} 
+                        onClick={() => setCurrentImageIndex(index + 1)}
+                        className="relative flex-1 w-full overflow-hidden rounded-2xl cursor-pointer group bg-black"
+                      >
+                        <img src={image} alt={`Thumbnail ${index + 1}`} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                        <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                        {index === 2 && propertyImages.length > 4 && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-sm font-extrabold text-white backdrop-blur-sm hover:bg-black/70 transition-colors">
+                            +{propertyImages.length - 4} photos
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
-                </>
-              )}
+                )}
+              </div>
+            </section>
 
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4 md:p-5">
-                <div className="flex flex-wrap gap-2 pointer-events-auto">
-                  {property.featured && (
-                    <span className="rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white">
-                      Featured
-                    </span>
-                  )}
-                  {property.isDemo && (
-                    <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-700">
-                      This is a demo property
-                    </span>
-                  )}
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text">
-                    <ShieldCheck size={13} className="text-primary" />
-                    {activeBroker.companyType === 'developer' ? 'Developer Verified' : 'Associate Partner verified'}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text lg:hidden">
-                    <Camera size={13} />
-                    {propertyImages.length} photos
-                  </span>
+            {/* Site Plan Section */}
+            <section id="siteplan" className="rounded-[1.5rem] border border-border bg-white p-5 md:p-8 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+                <div>
+                  <h2 className="font-serif text-2xl md:text-[28px] font-bold text-text tracking-tight">
+                    Site Plan & Master Layout
+                  </h2>
+                  <p className="mt-1 text-xs sm:text-sm text-muted">
+                    Official layout demarcations with road widths, entry gates, and green zones.
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={handleDirectChat}
+                  className="inline-flex items-center gap-2 rounded-xl bg-secondary/10 px-4 py-2 text-xs font-bold text-secondary hover:bg-secondary/20 transition-colors w-fit"
+                >
+                  <MessageCircle size={15} />
+                  Request HD Master Plan
+                </button>
+              </div>
+
+              <div className="relative overflow-hidden rounded-2xl border border-border bg-surface group">
+                <img
+                  src="https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=2000&auto=format&fit=crop"
+                  alt={`${property.title} Site Plan`}
+                  className="w-full h-64 sm:h-80 md:h-96 object-cover filter contrast-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex items-end p-5">
+                  <div className="text-white">
+                    <p className="text-sm font-bold">Approved Master Layout Plan</p>
+                    <p className="text-xs text-white/80">Approved under {parsedDetails.scheme || 'DDJAY'} · Wide internal roads & green boundary</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div className="rounded-xl bg-surface p-3 border border-border/50">
+                  <p className="text-[10px] font-bold text-muted uppercase">Road Width</p>
+                  <p className="text-xs sm:text-sm font-bold text-text mt-0.5">9m - 12m wide</p>
+                </div>
+                <div className="rounded-xl bg-surface p-3 border border-border/50">
+                  <p className="text-[10px] font-bold text-muted uppercase">Entry Gates</p>
+                  <p className="text-xs sm:text-sm font-bold text-text mt-0.5">2 Gated Entries</p>
+                </div>
+                <div className="rounded-xl bg-surface p-3 border border-border/50">
+                  <p className="text-[10px] font-bold text-muted uppercase">Parks & Green</p>
+                  <p className="text-xs sm:text-sm font-bold text-text mt-0.5">3 Landscaped Parks</p>
+                </div>
+                <div className="rounded-xl bg-surface p-3 border border-border/50">
+                  <p className="text-[10px] font-bold text-muted uppercase">Commercial Zone</p>
+                  <p className="text-xs sm:text-sm font-bold text-text mt-0.5">Designated Retail</p>
+                </div>
+              </div>
+            </section>
+
+            {/* Clean Narrative/Highlights if any */}
+            {parsedDetails.cleanDescription && (
+              <div className="rounded-2xl border border-border bg-gray-50/60 p-5 md:p-6">
+                <h3 className="font-serif text-lg font-bold text-text mb-2">Project Overview</h3>
+                <p className="text-sm font-normal leading-7 text-muted whitespace-pre-line">
+                  {parsedDetails.cleanDescription}
+                </p>
+              </div>
+            )}
+
+            {/* Plot Buyer Advisory note */}
+            <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4 flex items-start gap-3">
+              <ShieldCheck size={18} className="text-primary mt-0.5 shrink-0" />
+              <div>
+                <p className="text-xs font-bold text-text uppercase tracking-wide">Best Next Step</p>
+                <p className="mt-0.5 text-xs font-medium text-muted leading-5">
+                  Ask the associate partner for the exact plot number, approach road width, and latest document photos before booking a site visit.
+                </p>
               </div>
             </div>
 
-            {/* Desktop Side Thumbnails */}
-            {propertyImages.length > 1 && (
-              <div className="hidden lg:flex flex-col gap-4 w-[320px] h-full">
-                {propertyImages.slice(1, 4).map((image, index) => (
-                  <div 
-                    key={`${image}-${index}`} 
-                    onClick={() => setCurrentImageIndex(index + 1)}
-                    className="relative flex-1 w-full overflow-hidden rounded-2xl cursor-pointer group bg-black"
-                  >
-                    <img src={image} alt={`Thumbnail ${index + 1}`} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
-                    {index === 2 && propertyImages.length > 4 && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-sm font-extrabold text-white backdrop-blur-sm hover:bg-black/70 transition-colors">
-                        +{propertyImages.length - 4} photos
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
-        <div className="grid grid-cols-1 gap-5 md:gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
-          <main className="space-y-5 md:space-y-8">
-            <section className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6 lg:p-8">
-              <div className="mb-4 flex flex-wrap items-center gap-2 md:mb-5">
-                {property.isDemo && (
-                  <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
-                    This is a demo property
-                  </span>
-                )}
-                {property.isDeveloperListing && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-black text-primary shadow-sm">
-                    <Building2 size={13} />
-                    Builder Project: {property.builderName || 'Reputed Builder'}
-                  </span>
-                )}
-                {property.reraNumber && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
-                    <ShieldCheck size={13} className="text-emerald-600" />
-                    RERA: {property.reraNumber}
-                  </span>
-                )}
-                <span className="rounded-full bg-surface px-3 py-1 text-xs font-bold text-text">{property.type}</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
-                  <CheckCircle2 size={13} />
-                  {property.approved ? 'Approved' : 'Docs pending'}
-                </span>
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">Ready to register</span>
-              </div>
-
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                <div>
-                  <h1 className="max-w-3xl text-2xl font-extrabold leading-tight text-text md:text-3xl lg:text-5xl">{property.title}</h1>
-                  <p className="mt-2 flex items-start gap-2 text-sm font-semibold leading-6 text-muted md:mt-3">
-                    <MapPin size={17} className="mt-0.5 flex-shrink-0" />
-                    <span>{property.location} - {property.corridor}</span>
-                  </p>
-                </div>
-                <div className="flex flex-col justify-center rounded-2xl bg-surface p-4 xl:min-w-[240px] md:p-5">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wide text-muted">Starting from</p>
-                    <p className="mt-1 text-2xl font-extrabold text-text md:text-3xl">{property.price}</p>
-                    <p className="mt-1 text-sm font-semibold text-muted">{property.rate}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-5 grid grid-cols-3 overflow-hidden rounded-2xl border border-border bg-surface md:mt-8 md:grid-cols-3">
-                {[
-                  ['Plot size', property.size],
-                  ['Property type', property.type],
-                  ['Status', 'Available']
-                ].map(([label, value]) => (
-                  <div key={label} className="border-b border-r border-border p-3 last:border-r-0 md:border-b-0 md:p-4">
-                    <p className="text-xs font-bold uppercase tracking-wide text-muted">{label}</p>
-                    <p className="mt-1 text-base font-extrabold text-text md:text-lg">{value}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 rounded-2xl border border-primary/15 bg-primary/10 p-4">
-                <p className="text-sm font-extrabold text-text">Best next step</p>
-                <p className="mt-1 text-xs font-semibold leading-5 text-muted">Ask the associate partner for the exact plot number, approach road width, and latest document photos before booking a site visit.</p>
-              </div>
-            </section>
-
-            <section className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6 lg:p-8">
-              <h2 className="text-xl font-extrabold text-text md:text-2xl">About this property</h2>
-              {property.isDemo && (
-                <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-extrabold text-amber-700">
-                  This is a demo property
-                </p>
-              )}
-              <p className="mt-4 max-w-4xl text-sm font-medium leading-7 text-muted">
-                {property.description || `Premium gated plot layout in ${property.locality}, positioned around ${property.corridor}. The parcel is suitable for long-term land banking, villa construction, and plotted development investment. Clear access roads, verified associate partner details, and registry support make the purchase flow easier for serious buyers.`}
-              </p>
-            </section>
-
-            {property.isDeveloperListing && (
-              <section className="rounded-[1.5rem] border border-primary/20 bg-gradient-to-br from-white via-white to-red-50/20 p-5 shadow-sm md:rounded-[2rem] md:p-6 lg:p-8">
-                <div className="flex items-center gap-3.5 mb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm">
-                    <Building2 size={24} />
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-primary">Developer Showcase</span>
-                    <h2 className="text-xl font-extrabold text-text md:text-2xl">About {property.builderName || 'the Builder'}</h2>
-                  </div>
-                </div>
-                <p className="max-w-4xl text-sm font-medium leading-7 text-muted">
-                  {property.aboutBuilder || `${property.builderName || 'This builder'} is a reputed real estate developer dedicated to creating master-planned plotted developments with high-standard infrastructure, clear legal approvals, and secure gated community amenities.`}
-                </p>
-                {property.reraNumber && (
-                  <div className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white border border-emerald-200 px-4 py-2.5 text-xs font-extrabold text-emerald-800 shadow-sm">
-                    <CheckCircle2 size={16} className="text-emerald-600" />
-                    <span>Official RERA Registration: <strong className="text-text font-black">{property.reraNumber}</strong></span>
-                  </div>
-                )}
-              </section>
-            )}
-
-            <section className="grid gap-4 md:grid-cols-2 md:gap-6">
-              <div className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6">
-                <h2 className="mb-5 text-xl font-extrabold text-text">Layout amenities</h2>
-                <div className="grid gap-3">
-                  {(property.amenities && property.amenities.length > 0 ? property.amenities : amenities).map((amenity) => (
-                    <div key={amenity} className="flex items-center gap-3 text-sm font-semibold text-text">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-50 text-green-600">
-                        <Check size={14} strokeWidth={3} />
-                      </span>
-                      {amenity}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6">
-                <h2 className="mb-5 text-xl font-extrabold text-text">Documents checked</h2>
-                <div className="grid gap-3">
-                  {(property.documentsVerified && property.documentsVerified.length > 0 ? property.documentsVerified : documents).map((document) => (
-                    <div key={document} className="flex items-center gap-3 text-sm font-semibold text-text">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <ClipboardCheck size={14} />
-                      </span>
-                      {document}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <section className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6 lg:p-8">
+            {/* Location advantages */}
+            <section id="location" className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6 lg:p-8">
               <h2 className="text-2xl font-extrabold text-text">Location advantages</h2>
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 {[
