@@ -648,6 +648,80 @@ const PropertyDetails = () => {
           </div>
         </div>
 
+        {/* Top Property Images Banner */}
+        <section id="gallery" className="mb-5 overflow-hidden rounded-[1.5rem] border border-border bg-white p-2 shadow-sm md:mb-8 md:rounded-[2rem] md:p-4">
+          <div className="flex h-[300px] flex-col gap-3 md:h-[450px] lg:flex-row lg:gap-4">
+            {/* Main Carousel Image */}
+            <div className="group relative h-full w-full flex-1 overflow-hidden rounded-[1.25rem] bg-black md:rounded-[1.5rem]">
+              {/* Blurred backdrop */}
+              <img src={propertyImages[currentImageIndex]} alt="backdrop" className="absolute inset-0 h-full w-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none" />
+              
+              {/* Main Image */}
+              <img src={propertyImages[currentImageIndex]} alt={`${property.title} view ${currentImageIndex + 1}`} className="absolute inset-0 h-full w-full object-contain transition-all duration-300" />
+              
+              {propertyImages.length > 1 && (
+                <>
+                  <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-text p-2 rounded-full shadow-sm backdrop-blur transition-all md:opacity-0 group-hover:opacity-100 z-10" aria-label="Previous image">
+                    <ChevronLeft size={24} />
+                  </button>
+                  <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-text p-2 rounded-full shadow-sm backdrop-blur transition-all md:opacity-0 group-hover:opacity-100 z-10" aria-label="Next image">
+                    <ChevronRight size={24} />
+                  </button>
+                  <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                    {propertyImages.map((_, i) => (
+                      <div key={i} className={`h-1.5 rounded-full transition-all ${i === currentImageIndex ? 'w-4 bg-primary' : 'w-1.5 bg-white/60'}`} />
+                    ))}
+                  </div>
+                </>
+              )}
+
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4 md:p-5">
+                <div className="flex flex-wrap gap-2 pointer-events-auto">
+                  {property.featured && (
+                    <span className="rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white">
+                      Featured
+                    </span>
+                  )}
+                  {property.isDemo && (
+                    <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-700">
+                      This is a demo property
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text">
+                    <ShieldCheck size={13} className="text-primary" />
+                    {activeBroker.companyType === 'developer' ? 'Developer Verified' : 'Associate Partner verified'}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text lg:hidden">
+                    <Camera size={13} />
+                    {propertyImages.length} photos
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Side Thumbnails */}
+            {propertyImages.length > 1 && (
+              <div className="hidden lg:flex flex-col gap-4 w-[320px] h-full">
+                {propertyImages.slice(1, 4).map((image, index) => (
+                  <div 
+                    key={`${image}-${index}`} 
+                    onClick={() => setCurrentImageIndex(index + 1)}
+                    className="relative flex-1 w-full overflow-hidden rounded-2xl cursor-pointer group bg-black"
+                  >
+                    <img src={image} alt={`Thumbnail ${index + 1}`} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    {index === 2 && propertyImages.length > 4 && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-sm font-extrabold text-white backdrop-blur-sm hover:bg-black/70 transition-colors">
+                        +{propertyImages.length - 4} photos
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
         <div className="grid grid-cols-1 gap-5 md:gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
           <main className="space-y-5 md:space-y-8">
             <section id="overview" className="relative rounded-[1.5rem] border border-border bg-white p-5 md:p-8 lg:p-9 shadow-sm">
@@ -655,7 +729,6 @@ const PropertyDetails = () => {
               <div className="flex items-center gap-6 md:gap-8 overflow-x-auto no-scrollbar border-b border-border/80 pb-3 text-sm">
                 {[
                   { id: 'overview', label: 'Overview' },
-                  { id: 'gallery', label: 'Gallery' },
                   { id: 'siteplan', label: 'Site plan' },
                   { id: 'documents', label: 'Documents' },
                   { id: 'location', label: 'Location' }
@@ -806,90 +879,16 @@ const PropertyDetails = () => {
                 </div>
               </div>
 
-              {/* Floating down arrow to jump to Gallery & details */}
+              {/* Floating down arrow to jump to Site plan & details */}
               <button
                 type="button"
-                onClick={() => scrollToSection('gallery')}
+                onClick={() => scrollToSection('siteplan')}
                 className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white border border-border shadow-md text-text hover:text-primary hover:border-primary transition-all hover:scale-105 z-10"
                 aria-label="Scroll down"
-                title="Scroll to Gallery & Details"
+                title="Scroll to Site Plan & Details"
               >
                 <ArrowDown size={18} />
               </button>
-            </section>
-
-            {/* Gallery Section */}
-            <section id="gallery" className="overflow-hidden rounded-[1.5rem] border border-border bg-white p-2 shadow-sm md:rounded-[2rem] md:p-4">
-              <div className="flex h-[300px] flex-col gap-3 md:h-[450px] lg:flex-row lg:gap-4">
-                {/* Main Carousel Image */}
-                <div className="group relative h-full w-full flex-1 overflow-hidden rounded-[1.25rem] bg-black md:rounded-[1.5rem]">
-                  {/* Blurred backdrop */}
-                  <img src={propertyImages[currentImageIndex]} alt="backdrop" className="absolute inset-0 h-full w-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none" />
-                  
-                  {/* Main Image */}
-                  <img src={propertyImages[currentImageIndex]} alt={`${property.title} view ${currentImageIndex + 1}`} className="absolute inset-0 h-full w-full object-contain transition-all duration-300" />
-                  
-                  {propertyImages.length > 1 && (
-                    <>
-                      <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-text p-2 rounded-full shadow-sm backdrop-blur transition-all md:opacity-0 group-hover:opacity-100 z-10" aria-label="Previous image">
-                        <ChevronLeft size={24} />
-                      </button>
-                      <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-text p-2 rounded-full shadow-sm backdrop-blur transition-all md:opacity-0 group-hover:opacity-100 z-10" aria-label="Next image">
-                        <ChevronRight size={24} />
-                      </button>
-                      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                        {propertyImages.map((_, i) => (
-                          <div key={i} className={`h-1.5 rounded-full transition-all ${i === currentImageIndex ? 'w-4 bg-primary' : 'w-1.5 bg-white/60'}`} />
-                        ))}
-                      </div>
-                    </>
-                  )}
-
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4 md:p-5">
-                    <div className="flex flex-wrap gap-2 pointer-events-auto">
-                      {property.featured && (
-                        <span className="rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white">
-                          Featured
-                        </span>
-                      )}
-                      {property.isDemo && (
-                        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-700">
-                          This is a demo property
-                        </span>
-                      )}
-                      <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text">
-                        <ShieldCheck size={13} className="text-primary" />
-                        {activeBroker.companyType === 'developer' ? 'Developer Verified' : 'Associate Partner verified'}
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text lg:hidden">
-                        <Camera size={13} />
-                        {propertyImages.length} photos
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Desktop Side Thumbnails */}
-                {propertyImages.length > 1 && (
-                  <div className="hidden lg:flex flex-col gap-4 w-[320px] h-full">
-                    {propertyImages.slice(1, 4).map((image, index) => (
-                      <div 
-                        key={`${image}-${index}`} 
-                        onClick={() => setCurrentImageIndex(index + 1)}
-                        className="relative flex-1 w-full overflow-hidden rounded-2xl cursor-pointer group bg-black"
-                      >
-                        <img src={image} alt={`Thumbnail ${index + 1}`} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                        <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
-                        {index === 2 && propertyImages.length > 4 && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-sm font-extrabold text-white backdrop-blur-sm hover:bg-black/70 transition-colors">
-                            +{propertyImages.length - 4} photos
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
             </section>
 
             {/* Site Plan Section */}
