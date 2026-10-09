@@ -18,8 +18,10 @@ import {
   ChevronRight,
   ClipboardCheck,
   Copy,
+  Download,
   Droplets,
   ExternalLink,
+  FileDown,
   Heart,
   Mail,
   MessageCircle,
@@ -41,6 +43,7 @@ import { useAuth } from '../context/auth';
 import { formatPhoneForLink } from '../utils/phoneUtils';
 
 import EMICalculator from '../components/EMICalculator';
+import BrochureModal from '../components/BrochureModal';
 import { useCompare } from '../context/CompareContext';
 
 const RoadIcon = ({ className = "w-6 h-6" }) => (
@@ -142,6 +145,7 @@ const PropertyDetails = () => {
 
   const [copiedRera, setCopiedRera] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [showBrochureModal, setShowBrochureModal] = useState(false);
 
   const property = useMemo(() => {
     if (remoteProperty) return remoteProperty;
@@ -158,7 +162,27 @@ const PropertyDetails = () => {
       extracted[m[1].toLowerCase().replace(/\s+/g, '_')] = m[2].trim();
     }
 
-    const developer = extracted['developer'] || extracted['builder'] || property?.builderName || property?.broker?.brokerProfile?.companyName || property?.broker?.name || 'ADM Developers';
+    let titleDev = '';
+    const titleStr = String(property?.title || '').trim();
+    const titleMatch = titleStr.match(/^(Uppal|Aayan|DLF|Godrej|BPTP|M3M|Signature\s*Global|Signature|Vatika|Omaxe|Sobha|Prestige|Brigade|Emaar|Lodha|Gaurs|ATS|Supertech|Paras|Bestech|Puri|Hero|Whiteland|Trehan|Central\s*Park)\b/i);
+    if (titleMatch) {
+      const brand = titleMatch[1].trim();
+      const lower = brand.toLowerCase();
+      if (['dlf', 'bptp', 'm3m', 'ats'].includes(lower)) {
+        titleDev = brand.toUpperCase();
+      } else if (lower.includes('group') || lower.includes('properties') || lower.includes('global')) {
+        titleDev = brand;
+      } else {
+        titleDev = `${brand} Group`;
+      }
+    }
+
+    const developer = (property?.builderName && String(property.builderName).trim()) ||
+      extracted['developer'] ||
+      extracted['builder'] ||
+      titleDev ||
+      (property?.isDeveloperListing ? (property?.broker?.brokerProfile?.companyName || property?.broker?.name) : '') ||
+      'Reputed Developer';
 
     let totalArea = extracted['total_area'] || property?.size || '18.325 acres';
     totalArea = totalArea.replace(/^लगभग\s*/i, '').trim();
@@ -443,6 +467,34 @@ const PropertyDetails = () => {
       }
     }
     const message = encodeURIComponent(`Hi, I am interested in your property "${property.title}" listed on Plotyards.`);
+    window.open(`https://wa.me/${formatPhoneForLink(activeBroker.whatsapp || activeBroker.phone)}?text=${message}`, '_blank');
+  };
+
+  const handleDownloadBrochure = () => {
+    setShowBrochureModal(true);
+  };
+
+  const handleRequestBrochureOnWhatsApp = async () => {
+    if (property?.id && isMongoId(property.id)) {
+      try {
+        await apiRequest('/inquiries', {
+          method: 'POST',
+          body: {
+            propertyId: property.id,
+            name: user?.name || 'Guest Buyer',
+            phone: user?.phone || 'Brochure Request',
+            email: user?.email || 'guest@plotyards.com',
+            message: 'User requested official brochure on WhatsApp',
+            isDirectChat: true
+          }
+        });
+      } catch (err) {
+        console.error('Failed to log inquiry:', err);
+      }
+    }
+    const message = encodeURIComponent(
+      `Hi, please share the official PDF brochure, master layout and location distance details for "${property.title}" listed on Plotyards.`
+    );
     window.open(`https://wa.me/${formatPhoneForLink(activeBroker.whatsapp || activeBroker.phone)}?text=${message}`, '_blank');
   };
 
@@ -731,7 +783,7 @@ const PropertyDetails = () => {
                   { id: 'overview', label: 'Overview' },
                   { id: 'siteplan', label: 'Site plan' },
                   { id: 'documents', label: 'Documents' },
-                  { id: 'location', label: 'Location' }
+                  { id: 'brochure', label: 'Brochure' }
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -946,41 +998,79 @@ const PropertyDetails = () => {
               </div>
             </section>
 
-            {/* Clean Narrative/Highlights if any */}
-            {parsedDetails.cleanDescription && (
-              <div className="rounded-2xl border border-border bg-gray-50/60 p-5 md:p-6">
-                <h3 className="font-serif text-lg font-bold text-text mb-2">Project Overview</h3>
-                <p className="text-sm font-normal leading-7 text-muted whitespace-pre-line">
-                  {parsedDetails.cleanDescription}
-                </p>
+            {/* Download Official Brochure & Connectivity Section */}
+            <section id="brochure" className="rounded-[1.5rem] border border-border bg-white p-5 md:p-8 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b border-border">
+                <div>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold text-primary mb-2">
+                    <FileDown size={14} /> Official Documentation
+                  </span>
+                  <h2 className="font-serif text-2xl md:text-[28px] font-bold text-text tracking-tight">
+                    Project Brochure & Location Connectivity
+                  </h2>
+                  <p className="mt-1 text-xs sm:text-sm text-muted">
+                    Download the official project brochure containing verified layout drawings, RERA approvals, unit dimensions & exact landmark distances.
+                  </p>
+                </div>
               </div>
-            )}
 
-            {/* Plot Buyer Advisory note */}
-            <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4 flex items-start gap-3">
-              <ShieldCheck size={18} className="text-primary mt-0.5 shrink-0" />
-              <div>
-                <p className="text-xs font-bold text-text uppercase tracking-wide">Best Next Step</p>
-                <p className="mt-0.5 text-xs font-medium text-muted leading-5">
-                  Ask the associate partner for the exact plot number, approach road width, and latest document photos before booking a site visit.
-                </p>
-              </div>
-            </div>
-
-            {/* Location advantages */}
-            <section id="location" className="rounded-[1.5rem] border border-border bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6 lg:p-8">
-              <h2 className="text-2xl font-extrabold text-text">Location advantages</h2>
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                {[
-                  [Route, property.corridor, 'Primary growth corridor'],
-                  [CalendarDays, 'Immediate', 'Registration support']
-                ].map(([Icon, title, label]) => (
-                  <div key={title} className="rounded-2xl bg-surface p-4">
-                    <Icon size={22} className="text-primary" />
-                    <p className="mt-3 font-extrabold text-text">{title}</p>
-                    <p className="mt-1 text-xs font-semibold text-muted">{label}</p>
+              {/* Location Advantage & Distance to Key Places ("Kon si jagah kitni dur hai") */}
+              <div className="mt-6">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted mb-3">Key Landmark Distances & Connectivity</p>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="rounded-2xl border border-border bg-surface p-4">
+                    <p className="text-xs font-bold text-primary flex items-center gap-1.5">
+                      <Route size={15} /> 5 - 10 Mins
+                    </p>
+                    <p className="mt-1.5 text-sm font-extrabold text-text">Expressway & Highway</p>
+                    <p className="mt-0.5 text-xs text-muted">Direct signal-free connectivity to main arterial highway</p>
                   </div>
-                ))}
+
+                  <div className="rounded-2xl border border-border bg-surface p-4">
+                    <p className="text-xs font-bold text-primary flex items-center gap-1.5">
+                      <Route size={15} /> 15 - 20 Mins
+                    </p>
+                    <p className="mt-1.5 text-sm font-extrabold text-text">Metro & Transit Station</p>
+                    <p className="mt-0.5 text-xs text-muted">Rapid transit station with dedicated parking</p>
+                  </div>
+
+                  <div className="rounded-2xl border border-border bg-surface p-4">
+                    <p className="text-xs font-bold text-primary flex items-center gap-1.5">
+                      <Building2 size={15} /> 10 - 12 Mins
+                    </p>
+                    <p className="mt-1.5 text-sm font-extrabold text-text">Schools & Hospitals</p>
+                    <p className="mt-0.5 text-xs text-muted">Top CBSE/IB schools and multispecialty medical care</p>
+                  </div>
+
+                  <div className="rounded-2xl border border-border bg-surface p-4">
+                    <p className="text-xs font-bold text-primary flex items-center gap-1.5">
+                      <MapPin size={15} /> 35 - 45 Mins
+                    </p>
+                    <p className="mt-1.5 text-sm font-extrabold text-text">Airport / Aerocity</p>
+                    <p className="mt-0.5 text-xs text-muted">Smooth commute via high-speed corridor</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-6 flex flex-wrap items-center gap-3 pt-5 border-t border-border">
+                <button
+                  type="button"
+                  onClick={handleDownloadBrochure}
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 rounded-xl bg-primary px-6 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-rose-600 transition-all cursor-pointer"
+                >
+                  <Download size={18} />
+                  <span>Download Brochure (PDF)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleRequestBrochureOnWhatsApp}
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-emerald-700 transition-all cursor-pointer"
+                >
+                  <MessageCircle size={18} />
+                  <span>Get on WhatsApp</span>
+                </button>
               </div>
             </section>
 
@@ -1159,6 +1249,14 @@ const PropertyDetails = () => {
             </>
         </div>
       </div>
+
+      <BrochureModal
+        isOpen={showBrochureModal}
+        onClose={() => setShowBrochureModal(false)}
+        property={property}
+        activeBroker={activeBroker}
+        parsedDetails={parsedDetails}
+      />
     </div>
   );
 };

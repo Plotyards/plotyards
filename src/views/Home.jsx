@@ -689,7 +689,7 @@ const Home = () => {
                       submitSearch();
                     }
                   }}
-                  placeholder="Search &quot;Shadnagar&quot;, &quot;Devanahalli&quot;, Or Any Locality" 
+                  placeholder="Search by locality, project or city..." 
                   className="bg-transparent border-none outline-none text-text w-full placeholder-gray-400 font-medium text-sm" 
                 />
               </div>
@@ -869,7 +869,7 @@ const Home = () => {
         <div className="-mx-2 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0 md:pb-0">
           {displayBuilderProperties.map((plot) => {
             const imageUrl = plot.image || plot.images?.[0]?.url || 'https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=1032&auto=format&fit=crop';
-            const builderName = plot.builderName || plot.broker?.brokerProfile?.companyName || plot.broker?.name || 'Reputed Builder';
+            const builderName = plot.builderName || (plot.isDeveloperListing ? (plot.broker?.brokerProfile?.companyName || plot.broker?.name) : '') || 'Reputed Developer';
             const linkId = plot.id || plot._id;
             const waNumber = formatPhoneForLink(plot.broker?.whatsapp || plot.broker?.phone || whatsappNumber);
             const waMessage = encodeURIComponent(`Hi, I am interested in your builder project "${plot.title}" by ${builderName} listed on Plotyards.`);

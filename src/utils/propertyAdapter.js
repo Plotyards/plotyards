@@ -82,8 +82,9 @@ export const adaptProperty = (property) => {
     tags: property.tags || property.amenities || [],
     photoCount,
     isDeveloperListing: Boolean(property.isDeveloperListing),
-    builderName: property.builderName || property.broker?.brokerProfile?.companyName || property.broker?.name || '',
+    builderName: property.builderName || (property.isDeveloperListing ? (property.broker?.brokerProfile?.companyName || property.broker?.name) : '') || '',
     aboutBuilder: property.aboutBuilder || '',
+    brochureUrl: property.brochureUrl || '',
     builderContact: property.builderContact || {
       phone: property.broker?.phone || '',
       whatsapp: property.broker?.whatsapp || '',

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Building2, FileText, Layers, Mail, MapPin, MessageCircle, Phone, ShieldCheck, Sparkles } from 'lucide-react';
+import { Building2, FileDown, FileText, Layers, Mail, MapPin, MessageCircle, Phone, ShieldCheck, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -54,7 +54,8 @@ const PostProperty = () => {
     builderWhatsapp: '',
     builderEmail: '',
     builderAddress: '',
-    reraNumber: ''
+    reraNumber: '',
+    brochureUrl: ''
   });
   const [checkedAmenities, setCheckedAmenities] = useState([]);
   const [hasOtherAmenity, setHasOtherAmenity] = useState(false);
@@ -149,7 +150,8 @@ const PostProperty = () => {
             builderWhatsapp: prop.builderContact?.whatsapp || '',
             builderEmail: prop.builderContact?.email || '',
             builderAddress: prop.builderContact?.address || '',
-            reraNumber: prop.reraNumber || ''
+            reraNumber: prop.reraNumber || '',
+            brochureUrl: prop.brochureUrl || ''
           });
 
           // Process amenities
@@ -342,7 +344,7 @@ const PostProperty = () => {
           documentsVerified: form.documentsVerified || [],
           reraApproved: form.propertyType === 'farmland' ? false : form.reraApproved,
           isDeveloperListing: form.isDeveloperListing,
-          builderName: form.isDeveloperListing ? form.builderName : '',
+          builderName: form.builderName?.trim() || '',
           aboutBuilder: form.isDeveloperListing ? form.aboutBuilder : '',
           builderContact: form.isDeveloperListing ? {
             phone: form.builderPhone,
@@ -350,7 +352,8 @@ const PostProperty = () => {
             email: form.builderEmail,
             address: form.builderAddress
           } : undefined,
-          reraNumber: form.reraNumber || ''
+          reraNumber: form.reraNumber || '',
+          brochureUrl: form.brochureUrl?.trim() || ''
         }
       });
       setStatus(editId ? 'Your listing has been updated.' : 'Your property is now posted.');
@@ -405,11 +408,57 @@ const PostProperty = () => {
 
           <div>
             <label className="block text-sm font-bold text-text mb-1">Listing title</label>
-            <input value={form.title} onChange={(event) => updateField('title', event.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="e.g. 300 sqyd plot near Shadnagar ORR" required />
+            <input value={form.title} onChange={(event) => updateField('title', event.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="e.g. 300 sqyd plot in Sector 82, Gurgaon" required />
           </div>
           <div>
             <label className="block text-sm font-bold text-text mb-1">Short description</label>
             <textarea value={form.description} onChange={(event) => updateField('description', event.target.value)} className="min-h-28 w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="Mention approvals, road access, nearby landmarks, payment terms, and anything a buyer should know before calling." />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="flex items-center gap-1.5 text-sm font-bold text-text mb-1">
+                <Building2 size={16} className="text-primary" />
+                Developer / Builder Name
+              </label>
+              <input
+                type="text"
+                value={form.builderName}
+                onChange={(e) => updateField('builderName', e.target.value)}
+                placeholder="e.g. DLF, Uppal Group, Godrej Properties, BPTP"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none"
+              />
+              <p className="mt-1 text-xs text-muted">Original developer or builder of the plotted township.</p>
+            </div>
+            <div>
+              <label className="flex items-center gap-1.5 text-sm font-bold text-text mb-1">
+                <FileText size={16} className="text-primary" />
+                RERA Registration Number
+              </label>
+              <input
+                type="text"
+                value={form.reraNumber}
+                onChange={(e) => updateField('reraNumber', e.target.value)}
+                placeholder="e.g. HRERA-PKL-JJR-678-2025"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none"
+              />
+              <p className="mt-1 text-xs text-muted">RERA approval ID to build buyer trust.</p>
+            </div>
+          </div>
+
+          <div>
+            <label className="flex items-center gap-1.5 text-sm font-bold text-text mb-1">
+              <FileDown size={16} className="text-primary" />
+              Project Brochure Link / PDF (Optional)
+            </label>
+            <input
+              type="url"
+              value={form.brochureUrl}
+              onChange={(e) => updateField('brochureUrl', e.target.value)}
+              placeholder="https://example.com/project-brochure.pdf"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none"
+            />
+            <p className="mt-1 text-xs text-muted">Direct download link for official project brochure or master layout.</p>
           </div>
 
           {/* Builder / Developer Project Feature Box */}
@@ -420,7 +469,7 @@ const PostProperty = () => {
                   <Sparkles size={13} />
                   Homepage Spotlight
                 </span>
-                <h3 className="mt-1 text-base font-extrabold text-text">Builder / Developer Project</h3>
+                <h3 className="mt-1 text-base font-extrabold text-text">Direct Builder / Developer Project Spotlight</h3>
                 <p className="text-xs font-medium text-muted">Showcase this listing in the dedicated "Builder Projects Spotlight" on the Homepage</p>
               </div>
               <label className="relative inline-flex cursor-pointer items-center">
@@ -436,36 +485,6 @@ const PostProperty = () => {
 
             {form.isDeveloperListing && (
               <div className="mt-4 pt-4 border-t border-primary/15 space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <label className="flex items-center gap-1.5 text-sm font-bold text-text mb-1">
-                      <Building2 size={16} className="text-primary" />
-                      Builder / Company Name <span className="text-primary">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={form.builderName}
-                      onChange={(e) => updateField('builderName', e.target.value)}
-                      placeholder="e.g. DLF, Godrej Properties, BPTP, M3M, Omaxe"
-                      className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none"
-                      required={form.isDeveloperListing}
-                    />
-                  </div>
-                  <div>
-                    <label className="flex items-center gap-1.5 text-sm font-bold text-text mb-1">
-                      <FileText size={16} className="text-primary" />
-                      RERA Registration Number
-                    </label>
-                    <input
-                      type="text"
-                      value={form.reraNumber}
-                      onChange={(e) => updateField('reraNumber', e.target.value)}
-                      placeholder="e.g. UPRERAPRJ12345 / HRERA-PKL-123-2024"
-                      className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none"
-                    />
-                  </div>
-                </div>
-
                 <div>
                   <label className="block text-sm font-bold text-text mb-1">
                     About Builder / Developer Profile
@@ -565,7 +584,7 @@ const PostProperty = () => {
             </div>
             <div>
               <label className="block text-sm font-bold text-text mb-1">Locality / area</label>
-              <input value={form.locality} onChange={(event) => updateField('locality', event.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="Shadnagar" required />
+              <input value={form.locality} onChange={(event) => updateField('locality', event.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="e.g. Sector 82, Bilaspur" required />
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-4">

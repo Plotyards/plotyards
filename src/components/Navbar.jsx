@@ -102,7 +102,7 @@ const Navbar = () => {
                     submitSearch();
                   }
                 }}
-                placeholder="Search &quot;Shadnagar&quot;, &quot;Devanahalli&quot;, Or Any Locality" 
+                placeholder="Search by locality, project or city..." 
                 className="bg-transparent border-none outline-none text-sm w-full text-text placeholder-gray-500 font-medium"
               />
               <button
