@@ -81,8 +81,24 @@ export const adaptProperty = (property) => {
     roi: property.roi || '12%',
     tags: property.tags || property.amenities || [],
     photoCount,
-    isDeveloperListing: Boolean(property.isDeveloperListing),
-    builderName: property.builderName || (property.isDeveloperListing ? (property.broker?.brokerProfile?.companyName || property.broker?.name) : '') || '',
+    isDeveloperAccount: Boolean(
+      property.isDeveloperListing ||
+      broker?.companyType === 'developer' ||
+      broker?.brokerProfile?.companyType === 'developer' ||
+      broker?.role === 'developer'
+    ),
+    isDeveloperListing: Boolean(
+      property.isDeveloperListing ||
+      broker?.companyType === 'developer' ||
+      broker?.brokerProfile?.companyType === 'developer' ||
+      broker?.role === 'developer'
+    ),
+    builderName: (
+      property.isDeveloperListing ||
+      broker?.companyType === 'developer' ||
+      broker?.brokerProfile?.companyType === 'developer' ||
+      broker?.role === 'developer'
+    ) ? (property.builderName || broker?.brokerProfile?.companyName || broker?.name || '') : '',
     aboutBuilder: property.aboutBuilder || '',
     brochureUrl: property.brochureUrl || '',
     builderContact: property.builderContact || {

@@ -11,6 +11,13 @@ const BrochureModal = ({ isOpen, onClose, property, activeBroker, parsedDetails 
 
   if (!isOpen || !property) return null;
 
+  const isDeveloperAccount = Boolean(
+    property?.isDeveloperAccount ||
+    property?.isDeveloperListing ||
+    activeBroker?.companyType === 'developer' ||
+    activeBroker?.role === 'developer'
+  );
+
   const handleDirectDownload = () => {
     setDownloading(true);
 
@@ -71,8 +78,8 @@ const BrochureModal = ({ isOpen, onClose, property, activeBroker, parsedDetails 
 
         <div class="specs-grid">
           <div class="spec-card">
-            <div class="spec-title">Developer / Builder</div>
-            <div class="spec-val">${parsedDetails?.developer || 'Uppal Group'}</div>
+            <div class="spec-title">${isDeveloperAccount ? 'Developer / Builder' : 'Listed By'}</div>
+            <div class="spec-val">${isDeveloperAccount ? (parsedDetails?.developer || 'Developer') : 'Associate Partner'}</div>
           </div>
           <div class="spec-card">
             <div class="spec-title">Starting Price</div>
@@ -172,7 +179,7 @@ const BrochureModal = ({ isOpen, onClose, property, activeBroker, parsedDetails 
           {/* Quick Highlight Box */}
           <div className="rounded-2xl border border-border bg-surface p-4 flex flex-col gap-2">
             <div className="flex items-center justify-between text-xs font-semibold text-muted">
-              <span>Developer: <strong className="text-text">{parsedDetails?.developer || 'Reputed Developer'}</strong></span>
+              <span>{isDeveloperAccount ? 'Developer:' : 'Listed By:'} <strong className="text-text">{isDeveloperAccount ? (parsedDetails?.developer || 'Developer') : 'Associate Partner'}</strong></span>
               <span>RERA Approved: <strong className="text-emerald-600">Verified</strong></span>
             </div>
             <p className="text-xs text-muted">

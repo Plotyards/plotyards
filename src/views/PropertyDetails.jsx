@@ -153,6 +153,16 @@ const PropertyDetails = () => {
     return propertyListings.find((listing) => String(listing.id) === String(id)) || propertyListings[0];
   }, [id, remoteProperty]);
 
+  const isDeveloperAccount = useMemo(() => {
+    return Boolean(
+      property?.isDeveloperAccount ||
+      property?.isDeveloperListing ||
+      property?.broker?.companyType === 'developer' ||
+      property?.broker?.brokerProfile?.companyType === 'developer' ||
+      property?.broker?.role === 'developer'
+    );
+  }, [property]);
+
   const parsedDetails = useMemo(() => {
     const raw = String(property?.description || '').trim();
     const regex = /(?:^|\s|\n)(Project|Location|Developer|Builder|Project Type|Scheme|Total Area|Total Plots|Plots|RERA Approval|RERA Completion Date|Possession Date|Possession|RERA)\s*[:\-–]\s*([^\n\r]+?)(?=(?:\s+(?:Project|Location|Developer|Builder|Project Type|Scheme|Total Area|Total Plots|Plots|RERA Approval|RERA Completion Date|Possession Date|Possession|RERA)\s*[:\-–])|$)/gi;
@@ -177,12 +187,15 @@ const PropertyDetails = () => {
       }
     }
 
-    const developer = (property?.builderName && String(property.builderName).trim()) ||
-      extracted['developer'] ||
-      extracted['builder'] ||
-      titleDev ||
-      (property?.isDeveloperListing ? (property?.broker?.brokerProfile?.companyName || property?.broker?.name) : '') ||
-      'Reputed Developer';
+    const developer = isDeveloperAccount
+      ? ((property?.builderName && String(property.builderName).trim()) ||
+         property?.broker?.brokerProfile?.companyName ||
+         property?.broker?.name ||
+         extracted['developer'] ||
+         extracted['builder'] ||
+         titleDev ||
+         'Reputed Developer')
+      : '';
 
     let totalArea = extracted['total_area'] || property?.size || '18.325 acres';
     totalArea = totalArea.replace(/^लगभग\s*/i, '').trim();
@@ -245,7 +258,7 @@ const PropertyDetails = () => {
       possession,
       cleanDescription
     };
-  }, [property]);
+  }, [property, isDeveloperAccount]);
 
   const displayTitle = useMemo(() => {
     if (parsedDetails.projectName) return parsedDetails.projectName;
@@ -741,7 +754,7 @@ const PropertyDetails = () => {
                   )}
                   <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text">
                     <ShieldCheck size={13} className="text-primary" />
-                    {activeBroker.companyType === 'developer' ? 'Developer Verified' : 'Associate Partner verified'}
+                    {isDeveloperAccount ? 'Developer Verified' : 'Associate Partner verified'}
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text lg:hidden">
                     <Camera size={13} />
@@ -832,8 +845,12 @@ const PropertyDetails = () => {
               <div className="mt-6 md:mt-8 overflow-hidden rounded-2xl border border-border bg-white shadow-xs">
                 <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
-                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">DEVELOPER</p>
-                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">{parsedDetails.developer}</p>
+                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">
+                      {isDeveloperAccount ? 'DEVELOPER' : 'LISTED BY'}
+                    </p>
+                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">
+                      {isDeveloperAccount ? (parsedDetails.developer || 'Reputed Developer') : 'Associate Partner'}
+                    </p>
                   </div>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
                     <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">TOTAL AREA</p>
@@ -1081,7 +1098,7 @@ const PropertyDetails = () => {
             <div className="space-y-5 md:sticky md:top-28">
               <div className="rounded-[1.5rem] border border-border bg-white p-4 shadow-card md:rounded-[2rem] md:p-6">
                 <p className="text-xs font-bold uppercase tracking-wide text-muted">
-                  {property.isDeveloperListing ? 'Builder / Developer Sales Desk' : (activeBroker.companyType === 'developer' ? 'Developer Contact' : 'Associate Partner Contact')}
+                  {isDeveloperAccount ? 'Builder / Developer Sales Desk' : 'Associate Partner Contact'}
                 </p>
                 <div className="mt-5 flex items-center gap-4">
                   <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-xl font-extrabold text-white shadow-sm ${property.isDeveloperListing ? 'bg-primary' : 'bg-secondary'}`}>
