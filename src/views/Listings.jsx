@@ -27,7 +27,7 @@ const typeFilterOptions = [
   { value: '', label: 'All types' },
   { value: 'Residential', label: 'Residential' },
   { value: 'Commercial', label: 'Commercial' },
-  { value: 'Farmhouse', label: 'Farmhouse' }
+  { value: 'Farm Land', label: 'Farm Land' }
 ];
 
 const isMongoId = (val) => /^[0-9a-fA-F]{24}$/.test(String(val));
@@ -240,7 +240,7 @@ const Listings = () => {
       nextParams.set('q', nextQuery);
 
       if (/\b(farm|farmland|farm land|farmhouse|farm house|farmhouses)\b/i.test(nextQuery)) {
-        nextParams.set('type', 'Farmhouse');
+        nextParams.set('type', 'Farm Land');
       } else if (/\b(commercial|shop|office)\b/i.test(nextQuery)) {
         nextParams.set('type', 'Commercial');
       } else if (/\b(residential|villa|plots?)\b/i.test(nextQuery)) {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { Building2, FileDown, FileText, Layers, Mail, MapPin, MessageCircle, Phone, ShieldCheck, Sparkles } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Building2, CheckCircle2, ExternalLink, FileDown, FileText, Layers, Loader2, Mail, MapPin, MessageCircle, Phone, ShieldCheck, Sparkles, Trash2, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -68,8 +68,68 @@ const PostProperty = () => {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [uploadConfig, setUploadConfig] = useState({ provider: 'manual', uploadPreset: '', cloudName: '', message: '' });
+  const [brochureUploading, setBrochureUploading] = useState(false);
+  const [brochureFileName, setBrochureFileName] = useState('');
+  const brochureInputRef = useRef(null);
 
   const updateField = (field, value) => setForm((current) => ({ ...current, [field]: value }));
+
+  const handleBrochureUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      alert('Please select a valid PDF file.');
+      return;
+    }
+
+    if (file.size > 30 * 1024 * 1024) {
+      alert('PDF file size should not exceed 30MB.');
+      return;
+    }
+
+    setBrochureUploading(true);
+    setBrochureFileName(file.name);
+
+    try {
+      const activeCloud = uploadConfig.cloudName || 'dw0srvbyz';
+      const activePreset = uploadConfig.uploadPreset || 'plotyard_uploads';
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', activePreset);
+
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${activeCloud}/auto/upload`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.secure_url) {
+        throw new Error(data.error?.message || 'Failed to upload PDF brochure.');
+      }
+
+      updateField('brochureUrl', data.secure_url);
+    } catch (err) {
+      console.error('PDF upload error:', err);
+      alert(err.message || 'Error uploading PDF. You can paste the link manually below.');
+    } finally {
+      setBrochureUploading(false);
+      if (event.target) event.target.value = '';
+    }
+  };
+
+  const getBrochureDisplayName = () => {
+    if (brochureFileName) return brochureFileName;
+    if (!form.brochureUrl) return '';
+    try {
+      const parts = form.brochureUrl.split('/');
+      const lastPart = parts[parts.length - 1];
+      return decodeURIComponent(lastPart.split('?')[0]) || 'Project-Brochure.pdf';
+    } catch {
+      return 'Project-Brochure.pdf';
+    }
+  };
 
   const toggleAmenity = (amenity) => {
     setCheckedAmenities((prev) =>
@@ -446,19 +506,123 @@ const PostProperty = () => {
             </div>
           </div>
 
-          <div>
-            <label className="flex items-center gap-1.5 text-sm font-bold text-text mb-1">
-              <FileDown size={16} className="text-primary" />
-              Project Brochure Link / PDF (Optional)
-            </label>
+          {/* Project Brochure Link / PDF Upload Option */}
+          <div className="rounded-2xl border border-gray-200 bg-gray-50/60 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <label className="flex items-center gap-1.5 text-sm font-bold text-text">
+                <FileDown size={16} className="text-primary" />
+                Project Brochure Link / PDF (Optional)
+              </label>
+              <span className="text-xs font-semibold text-muted bg-white border border-gray-200 px-2.5 py-0.5 rounded-full">
+                Upload PDF or Paste Link
+              </span>
+            </div>
+
+            {/* Hidden file input for PDF */}
             <input
-              type="url"
-              value={form.brochureUrl}
-              onChange={(e) => updateField('brochureUrl', e.target.value)}
-              placeholder="https://example.com/project-brochure.pdf"
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none"
+              type="file"
+              ref={brochureInputRef}
+              onChange={handleBrochureUpload}
+              accept="application/pdf,.pdf"
+              className="hidden"
             />
-            <p className="mt-1 text-xs text-muted">Direct download link for official project brochure or master layout.</p>
+
+            {/* Attached PDF Preview Card */}
+            {form.brochureUrl ? (
+              <div className="mb-3 rounded-xl border border-emerald-200 bg-emerald-50/80 p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white font-black text-xs shadow-xs">
+                    PDF
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+                      <CheckCircle2 size={14} className="text-emerald-600" />
+                      Brochure PDF Attached
+                    </div>
+                    <p className="text-xs text-emerald-700/80 truncate max-w-xs sm:max-w-md font-mono" title={form.brochureUrl}>
+                      {getBrochureDisplayName()}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+                  <a
+                    href={form.brochureUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-2xs"
+                  >
+                    <ExternalLink size={13} />
+                    View PDF
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => brochureInputRef.current?.click()}
+                    disabled={brochureUploading}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-gray-700 border border-gray-200 hover:bg-gray-100 transition-colors"
+                  >
+                    Replace
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateField('brochureUrl', '');
+                      setBrochureFileName('');
+                    }}
+                    className="inline-flex items-center p-1.5 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-100 transition-colors"
+                    title="Remove brochure"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Upload Action Box */
+              <div className="mb-3">
+                <button
+                  type="button"
+                  disabled={brochureUploading}
+                  onClick={() => brochureInputRef.current?.click()}
+                  className="w-full border-2 border-dashed border-primary/30 hover:border-primary bg-white hover:bg-primary/[0.02] transition-colors rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer group text-center"
+                >
+                  {brochureUploading ? (
+                    <div className="flex items-center gap-2 text-primary font-bold text-sm py-2">
+                      <Loader2 size={20} className="animate-spin text-primary" />
+                      Uploading Brochure PDF... Please wait
+                    </div>
+                  ) : (
+                    <>
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                        <Upload size={18} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-text group-hover:text-primary transition-colors">
+                          Click here to Upload PDF from device
+                        </p>
+                        <p className="text-xs text-muted mt-0.5">Supports official brochure or layout map (up to 30 MB)</p>
+                      </div>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* Manual link input toggle / fallback */}
+            <div className="mt-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Or enter / paste direct download link:</span>
+              </div>
+              <input
+                type="url"
+                value={form.brochureUrl}
+                onChange={(e) => updateField('brochureUrl', e.target.value)}
+                placeholder="https://example.com/project-brochure.pdf"
+                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-text font-semibold focus:border-primary focus:outline-none"
+              />
+              <p className="mt-1 text-[11px] text-muted">
+                Direct download link for official project brochure or master layout.
+              </p>
+            </div>
           </div>
 
           {/* Builder / Developer Project Feature Box */}
@@ -603,7 +767,7 @@ const PostProperty = () => {
                 onChange={(value) => updateField('propertyType', value)}
                 options={[
                   { value: 'plot', label: 'Plots / Residential' },
-                  { value: 'farmland', label: 'Farmhouse' },
+                  { value: 'farmland', label: 'Farm Land' },
                   { value: 'industrial land', label: 'Industrial Land' },
                   { value: 'commercial', label: 'Commercial Plots' },
                   { value: 'new projects', label: 'New Projects' }

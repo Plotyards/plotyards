@@ -7,7 +7,7 @@ const FAQ_DATA = [
   {
     category: 'buying',
     question: 'How do I search for plots on Plotyards?',
-    answer: 'Simply use our main search bar on the homepage or listings page! You can search by city name, project name, or locality. Use the sidebar filters to narrow down by price range, property type (Plot, Commercial, Farmhouse), and size.'
+    answer: 'Simply use our main search bar on the homepage or listings page! You can search by city name, project name, or locality. Use the sidebar filters to narrow down by price range, property type (Plot, Commercial, Farm Land), and size.'
   },
   {
     category: 'buying',

@@ -20,7 +20,7 @@ const STATES_CITIES = {
 const CATEGORIES = [
   'Residential Plots',
   'Commercial',
-  'Farmhouse',
+  'Farm Land',
   'Industrial',
   'Villas',
   'Apartments',
@@ -448,7 +448,7 @@ export default function BookMyRealtor() {
                       <div className="grid grid-cols-3 gap-1.5">
                         {((Array.isArray(bp.categoriesServed) && bp.categoriesServed.length > 0)
                           ? bp.categoriesServed
-                          : ['Residential Plots', 'Commercial', 'Farmhouse', 'Industrial', 'Villas', 'Apartments']
+                          : ['Residential Plots', 'Commercial', 'Farm Land', 'Industrial', 'Villas', 'Apartments']
                         ).slice(0, 6).map((catItem, i) => {
                           const IconComponent = getCategoryIcon(catItem);
                           const isMatch = category && category.toLowerCase() === catItem.toLowerCase();
