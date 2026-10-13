@@ -52,6 +52,85 @@ export const adaptProperty = (property) => {
     ? property.images.length 
     : (property.image ? 1 : 0);
 
+  const rawVideos = Array.isArray(property.videos) 
+    ? property.videos 
+    : (property.videoUrl ? [{ url: property.videoUrl, title: 'Video Tour' }] : (property.video ? [{ url: property.video, title: 'Video Tour' }] : []));
+  const videos = rawVideos.map(v => typeof v === 'string' ? { url: v, title: 'Video Tour' } : v).filter(v => Boolean(v?.url));
+  const videoUrl = property.videoUrl || videos[0]?.url || property.video || '';
+  const videoCount = videos.length;
+
+  // Adapt availableSizes & plotSizes
+  let availableSizes = [];
+  if (Array.isArray(property.availableSizes) && property.availableSizes.length > 0) {
+    availableSizes = property.availableSizes.map((item) => {
+      if (typeof item === 'number') {
+        const itemPrice = (sizeValue > 0 && priceValue > 0) ? Math.round((priceValue / sizeValue) * item) : 0;
+        return {
+          size: item,
+          unit: 'Sq. Yrd',
+          price: itemPrice,
+          priceLabel: itemPrice > 9999999 ? `₹${(itemPrice / 10000000).toFixed(2)} Cr` : (itemPrice > 0 ? `₹${(itemPrice / 100000).toFixed(2)} L` : '')
+        };
+      }
+      const s = Number(item.size || item.value) || 0;
+      const p = Number(item.price || item.amount) || ((sizeValue > 0 && priceValue > 0 && s > 0) ? Math.round((priceValue / sizeValue) * s) : 0);
+      const label = item.priceLabel || (p > 9999999 ? `₹${(p / 10000000).toFixed(2)} Cr` : (p > 0 ? `₹${(p / 100000).toFixed(2)} L` : ''));
+      return {
+        size: s,
+        unit: item.unit || 'Sq. Yrd',
+        price: p,
+        priceLabel: label,
+        dimensions: item.dimensions || ''
+      };
+    }).filter(s => s.size > 0);
+  } else if (Array.isArray(property.plotSizes) && property.plotSizes.length > 0) {
+    availableSizes = property.plotSizes.map((s) => {
+      const numMatch = String(s).match(/(\d+(?:\.\d+)?)/);
+      const sizeNum = numMatch ? Number(numMatch[1]) : 0;
+      const itemPrice = (sizeValue > 0 && priceValue > 0 && sizeNum > 0) ? Math.round((priceValue / sizeValue) * sizeNum) : 0;
+      return {
+        size: sizeNum,
+        unit: 'Sq. Yrd',
+        label: String(s),
+        price: itemPrice,
+        priceLabel: itemPrice > 9999999 ? `₹${(itemPrice / 10000000).toFixed(2)} Cr` : (itemPrice > 0 ? `₹${(itemPrice / 100000).toFixed(2)} L` : '')
+      };
+    }).filter(s => s.size > 0);
+  }
+
+  // Description-based size extraction or default variation for multi-plot projects
+  if (availableSizes.length === 0 && sizeValue > 0) {
+    const descMatch = String(property.description || '').match(/(?:plot\s*sizes?|sizes?|available\s*sizes?)\s*[:\-–]\s*([^\n\r]+)/i);
+    if (descMatch) {
+      const extractedNums = descMatch[1].match(/\d+(?:\.\d+)?/g);
+      if (extractedNums && extractedNums.length > 1) {
+        availableSizes = extractedNums.map((n) => {
+          const s = Number(n);
+          const p = (sizeValue > 0 && priceValue > 0) ? Math.round((priceValue / sizeValue) * s) : 0;
+          return {
+            size: s,
+            unit: 'Sq. Yrd',
+            price: p,
+            priceLabel: p > 9999999 ? `₹${(p / 10000000).toFixed(2)} Cr` : (p > 0 ? `₹${(p / 100000).toFixed(2)} L` : '')
+          };
+        }).filter(s => s.size >= 30 && s.size <= 5000);
+      }
+    }
+  }
+
+  // Ensure current property size is in availableSizes if not already
+  if (sizeValue > 0 && !availableSizes.some(s => s.size === sizeValue)) {
+    availableSizes = [
+      {
+        size: sizeValue,
+        unit: 'Sq. Yrd',
+        price: priceValue,
+        priceLabel: priceValue > 9999999 ? `₹${(priceValue / 10000000).toFixed(2)} Cr` : (priceValue > 0 ? `₹${(priceValue / 100000).toFixed(2)} L` : '')
+      },
+      ...availableSizes
+    ].sort((a, b) => a.size - b.size);
+  }
+
   return {
     ...property,
     broker,
@@ -81,6 +160,11 @@ export const adaptProperty = (property) => {
     roi: property.roi || '12%',
     tags: property.tags || property.amenities || [],
     photoCount,
+    videos,
+    videoUrl,
+    videoCount,
+    availableSizes,
+    plotSizes: availableSizes.map(s => `${s.size} ${s.unit || 'Sq. Yrd'}`),
     isDeveloperAccount: Boolean(
       property.isDeveloperListing ||
       broker?.companyType === 'developer' ||

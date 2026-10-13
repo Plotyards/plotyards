@@ -18,7 +18,16 @@ export const propertyListings = [
     roi: '15%',
     approved: true,
     featured: true,
-    image: 'https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=1032&auto=format&fit=crop'
+    image: 'https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=1032&auto=format&fit=crop',
+    videos: [
+      { url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', title: 'Aerial Layout & Plot Tour' }
+    ],
+    availableSizes: [
+      { size: 150, unit: 'Sq. Yrd', price: 2100000, priceLabel: '₹21.00 L', dimensions: "30' x 45'" },
+      { size: 200, unit: 'Sq. Yrd', price: 2800000, priceLabel: '₹28.00 L', dimensions: "33' x 55'" },
+      { size: 250, unit: 'Sq. Yrd', price: 3500000, priceLabel: '₹35.00 L', dimensions: "35' x 64'" },
+      { size: 300, unit: 'Sq. Yrd', price: 4200000, priceLabel: '₹42.00 L', dimensions: "40' x 67.5'" }
+    ]
   },
   {
     id: 2,
@@ -37,7 +46,10 @@ export const propertyListings = [
     roi: '18%',
     approved: true,
     featured: true,
-    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1032&auto=format&fit=crop'
+    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1032&auto=format&fit=crop',
+    videos: [
+      { url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', title: 'Commercial Plot Walkthrough' }
+    ]
   },
   {
     id: 3,

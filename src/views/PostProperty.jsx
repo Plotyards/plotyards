@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
-import { Building2, CheckCircle2, ExternalLink, FileDown, FileText, Layers, Loader2, Mail, MapPin, MessageCircle, Phone, ShieldCheck, Sparkles, Trash2, Upload } from 'lucide-react';
+import { Building2, CheckCircle2, ExternalLink, FileDown, FileText, Layers, Loader2, Mail, MapPin, MessageCircle, Phone, Play, ShieldCheck, Sparkles, Trash2, Upload, Video } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -65,6 +65,13 @@ const PostProperty = () => {
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [videoFiles, setVideoFiles] = useState([]);
+  const [videoPreviews, setVideoPreviews] = useState([]);
+  const [videoUrlInput, setVideoUrlInput] = useState('');
+  const [videoUploading, setVideoUploading] = useState(false);
+  const videoInputRef = useRef(null);
+  const [customPlotSizes, setCustomPlotSizes] = useState([]);
+  const [customSizeInput, setCustomSizeInput] = useState('');
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [uploadConfig, setUploadConfig] = useState({ provider: 'manual', uploadPreset: '', cloudName: '', message: '' });
@@ -242,6 +249,32 @@ const PostProperty = () => {
           } else if (prop.image) {
             setImagePreviews([{ url: prop.image, name: 'Existing Image', isExisting: true }]);
           }
+
+          // Videos
+          if (prop.videos && prop.videos.length > 0) {
+            setVideoPreviews(prop.videos.map((vid) => ({
+              url: typeof vid === 'string' ? vid : vid.url,
+              name: (typeof vid === 'object' && vid.title) || 'Property Walkthrough Video',
+              isExisting: true
+            })));
+          } else if (prop.videoUrl) {
+            setVideoPreviews([{ url: prop.videoUrl, name: 'Property Walkthrough Video', isExisting: true }]);
+            setVideoUrlInput(prop.videoUrl);
+          } else if (prop.video) {
+            setVideoPreviews([{ url: prop.video, name: 'Property Walkthrough Video', isExisting: true }]);
+          }
+
+          // Plot sizes
+          if (Array.isArray(prop.availableSizes) && prop.availableSizes.length > 0) {
+            setCustomPlotSizes(prop.availableSizes.map((s) => Number(s.size || s)).filter(Boolean));
+          } else if (Array.isArray(prop.plotSizes) && prop.plotSizes.length > 0) {
+            setCustomPlotSizes(prop.plotSizes.map((s) => {
+              const match = String(s).match(/\d+/);
+              return match ? Number(match[0]) : 0;
+            }).filter(Boolean));
+          } else if (prop.size?.value) {
+            setCustomPlotSizes([Number(prop.size.value)]);
+          }
         }
       } catch {
         setError('Failed to load property details for editing.');
@@ -318,6 +351,92 @@ const PostProperty = () => {
     }
   };
 
+  const handleVideoFiles = (event) => {
+    const newFiles = Array.from(event.target.files);
+    if (!newFiles.length) return;
+
+    const file = newFiles[0];
+    if (file.size > 100 * 1024 * 1024) {
+      alert("Video file size should not exceed 100MB.");
+      return;
+    }
+
+    setVideoFiles([file]);
+    setVideoPreviews([
+      {
+        url: URL.createObjectURL(file),
+        name: file.name,
+        size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
+        isExisting: false
+      }
+    ]);
+  };
+
+  const removeVideo = (indexToRemove) => {
+    setVideoPreviews((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+    setVideoFiles([]);
+    setVideoUrlInput('');
+    if (videoInputRef.current) videoInputRef.current.value = '';
+  };
+
+  const handleAddVideoUrl = () => {
+    const url = videoUrlInput.trim();
+    if (!url) return;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      alert('Please enter a valid video link starting with https://');
+      return;
+    }
+    setVideoPreviews([
+      {
+        url,
+        name: 'Video Link / YouTube Walkthrough',
+        isExisting: true,
+        isExternal: true
+      }
+    ]);
+  };
+
+  const addPlotSize = (sz) => {
+    const num = Number(sz);
+    if (!num || num <= 0) return;
+    setCustomPlotSizes((prev) => [...new Set([...prev, num])].sort((a, b) => a - b));
+  };
+
+  const removePlotSize = (sz) => {
+    setCustomPlotSizes((prev) => prev.filter((s) => s !== sz));
+  };
+
+  const uploadVideos = async () => {
+    if (!videoFiles.length) return [];
+    const activeCloud = uploadConfig.cloudName || 'dw0srvbyz';
+    const activePreset = uploadConfig.uploadPreset || 'plotyard_uploads';
+
+    const uploaded = [];
+    setVideoUploading(true);
+    try {
+      for (const file of videoFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', activePreset);
+
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${activeCloud}/video/upload`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.secure_url) {
+          throw new Error(data.error?.message || 'Video upload failed. Check format or size.');
+        }
+        uploaded.push({ url: data.secure_url, title: form.title || file.name });
+      }
+    } finally {
+      setVideoUploading(false);
+    }
+
+    return uploaded;
+  };
+
   const uploadImages = async () => {
     if (!imageFiles.length) return [];
     if (uploadConfig.provider !== 'cloudinary' || !uploadConfig.uploadPreset || !uploadConfig.cloudName) {
@@ -367,6 +486,32 @@ const PostProperty = () => {
         .map((img) => ({ url: img.url, alt: img.name || form.title }));
       const images = [...retainedExistingImages, ...newUploadedImages];
 
+      const newUploadedVideos = await uploadVideos();
+      const retainedExistingVideos = videoPreviews
+        .filter((vid) => vid.isExisting)
+        .map((vid) => ({ url: vid.url, title: vid.name || form.title }));
+      const videos = [...retainedExistingVideos, ...newUploadedVideos];
+      const videoUrl = videos[0]?.url || (videoUrlInput.trim() ? videoUrlInput.trim() : '');
+
+      const allSizesList = (customPlotSizes.length > 0)
+        ? customPlotSizes
+        : (form.size ? [Number(form.size)] : []);
+
+      const availableSizes = allSizesList.map((sz) => {
+        const calculatedPrice = (Number(form.price) > 0 && Number(form.size) > 0)
+          ? Math.round((Number(form.price) / Number(form.size)) * sz)
+          : (Number(form.price) || 0);
+        return {
+          size: sz,
+          unit: 'sqyd',
+          price: calculatedPrice,
+          priceLabel: calculatedPrice > 9999999
+            ? `₹${(calculatedPrice / 10000000).toFixed(2)} Cr`
+            : (calculatedPrice > 0 ? `₹${(calculatedPrice / 100000).toFixed(2)} L` : '')
+        };
+      });
+      const plotSizes = allSizesList.map((sz) => `${sz} Sq. Yrd`);
+
       const otherList = hasOtherAmenity && otherAmenities
         ? otherAmenities.split(',').map((item) => item.trim()).filter(Boolean)
         : [];
@@ -398,8 +543,12 @@ const PostProperty = () => {
             value: Number(form.size),
             unit: 'sqyd'
           },
+          availableSizes,
+          plotSizes,
           roi: form.roi || '12%',
           images,
+          videos,
+          videoUrl,
           amenities: allAmenities,
           documentsVerified: form.documentsVerified || [],
           reraApproved: form.propertyType === 'farmland' ? false : form.reraApproved,
@@ -776,6 +925,101 @@ const PostProperty = () => {
               />
             </div>
           </div>
+
+          {/* Multiple Available Plot Sizes for Builders & Townships */}
+          <div className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <label className="flex items-center gap-2 text-sm font-bold text-text">
+                <Layers size={17} className="text-primary" />
+                Available Plot Sizes in this Project (Alag-alag Plot Sizes)
+              </label>
+              <span className="text-xs font-semibold text-muted bg-white px-2.5 py-0.5 rounded-full border border-gray-200">
+                Builder / Multiple Sizes
+              </span>
+            </div>
+            <p className="text-xs text-muted mb-3">
+              Yaha builder ke project ke alag-alag plot sizes add karein (jaise 100, 120, 150, 180 Sq. Yrd). Buyers listing par har size ka option aur pricing dekh payenge.
+            </p>
+
+            {/* Quick Add Buttons */}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className="text-xs font-bold text-muted mr-1">Quick Add:</span>
+              {[100, 120, 135, 150, 180, 200, 250, 300].map((sz) => {
+                const isAdded = customPlotSizes.includes(sz);
+                return (
+                  <button
+                    key={sz}
+                    type="button"
+                    disabled={isAdded}
+                    onClick={() => addPlotSize(sz)}
+                    className={`text-xs px-2.5 py-1 rounded-lg border font-bold transition-all ${
+                      isAdded
+                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-primary hover:text-primary cursor-pointer'
+                    }`}
+                  >
+                    + {sz} Sq Yd
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom Size Input */}
+            <div className="flex gap-2 max-w-sm">
+              <input
+                type="number"
+                value={customSizeInput}
+                onChange={(e) => setCustomSizeInput(e.target.value)}
+                placeholder="Enter size in Sq. Yrd (e.g. 108)"
+                className="flex-1 bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs text-text font-semibold focus:border-primary focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (customSizeInput && Number(customSizeInput) > 0) {
+                    addPlotSize(Number(customSizeInput));
+                    setCustomSizeInput('');
+                  }
+                }}
+                className="px-3.5 py-2 bg-primary text-white text-xs font-bold rounded-xl hover:bg-rose-600 transition-colors cursor-pointer"
+              >
+                Add Size
+              </button>
+            </div>
+
+            {/* Added Sizes Badges */}
+            {customPlotSizes.length > 0 && (
+              <div className="mt-3.5 flex flex-wrap gap-2 pt-3 border-t border-gray-200">
+                {customPlotSizes.map((sz) => {
+                  const estimatedAmount = (Number(form.price) > 0 && Number(form.size) > 0)
+                    ? Math.round((Number(form.price) / Number(form.size)) * sz)
+                    : 0;
+                  const estimatedLabel = estimatedAmount > 9999999
+                    ? `₹${(estimatedAmount / 10000000).toFixed(2)} Cr`
+                    : (estimatedAmount > 0 ? `₹${(estimatedAmount / 100000).toFixed(2)} L` : '');
+
+                  return (
+                    <span
+                      key={sz}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-primary/30 rounded-xl text-xs font-bold text-text shadow-xs"
+                    >
+                      <span className="text-primary">{sz} Sq. Yrd</span>
+                      {estimatedLabel && <span className="text-muted font-normal">({estimatedLabel})</span>}
+                      <button
+                        type="button"
+                        onClick={() => removePlotSize(sz)}
+                        className="ml-1 text-gray-400 hover:text-rose-600 font-bold cursor-pointer"
+                        title="Remove size"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           <div>
             <label className="block text-sm font-bold text-text mb-1">Property photos</label>
             <input
@@ -810,6 +1054,110 @@ const PostProperty = () => {
               </div>
             ) : null}
             <p className="mt-2 text-sm text-muted">Add up to 4 clear photos. Front road, layout, entrance, and plot view work best.</p>
+          </div>
+
+          {/* Property Video Upload */}
+          <div className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <label className="flex items-center gap-2 text-sm font-bold text-text">
+                <Video size={18} className="text-primary" />
+                Property Video / Walkthrough (Photos ke saath video)
+              </label>
+              <span className="text-xs font-semibold text-muted bg-white px-2.5 py-0.5 rounded-full border border-gray-200">
+                Optional
+              </span>
+            </div>
+            <p className="text-xs text-muted mb-3">
+              Upload a layout walkthrough video (MP4, WebM, MOV up to 100MB) OR paste a YouTube link.
+            </p>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {/* File upload button */}
+              <div>
+                <label className="block text-xs font-bold text-text mb-1">Upload video file</label>
+                <input
+                  ref={videoInputRef}
+                  type="file"
+                  accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/*"
+                  onChange={handleVideoFiles}
+                  className="w-full text-xs text-text file:mr-2 file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:text-primary file:font-bold file:rounded-lg file:cursor-pointer"
+                />
+              </div>
+
+              {/* Or paste link */}
+              <div>
+                <label className="block text-xs font-bold text-text mb-1">Or paste YouTube / video link</label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={videoUrlInput}
+                    onChange={(e) => setVideoUrlInput(e.target.value)}
+                    placeholder="https://youtube.com/watch?v=..."
+                    className="flex-1 bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs text-text font-semibold focus:border-primary focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddVideoUrl}
+                    className="px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl hover:bg-black transition-colors cursor-pointer"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Video Previews */}
+            {videoPreviews.length > 0 && (
+              <div className="mt-4 space-y-3">
+                {videoPreviews.map((preview, index) => (
+                  <div key={preview.url} className="relative overflow-hidden rounded-2xl border border-gray-300 bg-black/90 p-3 text-white">
+                    <div className="flex flex-col sm:flex-row items-center gap-3">
+                      <div className="relative w-full sm:w-48 h-28 bg-black rounded-xl overflow-hidden flex items-center justify-center border border-white/10">
+                        {preview.isExternal ? (
+                          <div className="flex flex-col items-center justify-center p-2 text-center text-xs">
+                            <Play size={24} className="text-primary mb-1 fill-current" />
+                            <span className="font-bold truncate max-w-full">External Walkthrough</span>
+                          </div>
+                        ) : (
+                          <video
+                            src={preview.url}
+                            controls
+                            className="w-full h-full object-contain"
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1 w-full flex flex-col justify-between py-1">
+                        <div>
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+                            <CheckCircle2 size={14} />
+                            {preview.isExisting ? 'Ready on listing' : 'Selected for upload'}
+                          </div>
+                          <p className="text-sm font-bold text-white mt-1 truncate">{preview.name}</p>
+                          {preview.size && <p className="text-xs text-gray-400 mt-0.5">Size: {preview.size}</p>}
+                        </div>
+                        <div className="mt-2 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => removeVideo(index)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-xs font-bold transition-colors cursor-pointer"
+                          >
+                            <Trash2 size={12} />
+                            Remove Video
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {videoUploading && (
+              <div className="mt-3 flex items-center gap-2 text-xs font-bold text-primary animate-pulse">
+                <Loader2 size={14} className="animate-spin" />
+                Uploading property walkthrough video to cloud...
+              </div>
+            )}
           </div>
           {/* Layout Amenities Checkboxes */}
           <div className="border-t border-gray-100 pt-5">

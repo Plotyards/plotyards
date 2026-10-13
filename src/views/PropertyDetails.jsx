@@ -23,13 +23,16 @@ import {
   ExternalLink,
   FileDown,
   Heart,
+  Layers,
   Mail,
   MessageCircle,
   MapPin,
   Phone,
+  Play,
   Route,
   Share2,
   ShieldCheck,
+  Video,
   Scale,
   Sparkles,
   Trees,
@@ -127,6 +130,19 @@ const defaultBroker = {
 
 const isMongoId = (val) => /^[0-9a-fA-F]{24}$/.test(String(val));
 
+const getEmbedVideoUrl = (url = '') => {
+  if (!url || typeof url !== 'string') return null;
+  const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
+  if (ytMatch) {
+    return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
+  }
+  const vimeoMatch = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)/i);
+  if (vimeoMatch) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
+  }
+  return null;
+};
+
 const PropertyDetails = () => {
   const { id } = useParams();
   const [isFavorite, setIsFavorite] = useState(false);
@@ -146,6 +162,7 @@ const PropertyDetails = () => {
   const [copiedRera, setCopiedRera] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [showBrochureModal, setShowBrochureModal] = useState(false);
+  const [selectedPlotSize, setSelectedPlotSize] = useState(null);
 
   const property = useMemo(() => {
     if (remoteProperty) return remoteProperty;
@@ -162,6 +179,46 @@ const PropertyDetails = () => {
       property?.broker?.role === 'developer'
     );
   }, [property]);
+
+  const availablePlotSizes = useMemo(() => {
+    if (Array.isArray(property?.availableSizes) && property.availableSizes.length > 0) {
+      return property.availableSizes;
+    }
+    if (Array.isArray(property?.plotSizes) && property.plotSizes.length > 0) {
+      return property.plotSizes.map((s) => {
+        const numMatch = String(s).match(/(\d+(?:\.\d+)?)/);
+        const num = numMatch ? Number(numMatch[1]) : 0;
+        return {
+          size: num,
+          unit: 'Sq. Yrd',
+          priceLabel: ''
+        };
+      }).filter((s) => s.size > 0);
+    }
+    const desc = String(property?.description || '');
+    const sizeMatch = desc.match(/(?:plot\s*sizes?|sizes?|available\s*sizes?)\s*[:\-–]\s*([^\n\r]+)/i);
+    if (sizeMatch) {
+      const nums = sizeMatch[1].match(/\d+/g);
+      if (nums && nums.length > 1) {
+        return nums.map((n) => ({ size: Number(n), unit: 'Sq. Yrd' }));
+      }
+    }
+    if (isDeveloperAccount && property?.sizeValue) {
+      const base = Number(property.sizeValue);
+      const set = [base, Math.round(base * 1.25), Math.round(base * 1.5), Math.round(base * 1.75)];
+      return set.map((s) => ({
+        size: s,
+        unit: 'Sq. Yrd'
+      }));
+    }
+    return [];
+  }, [property, isDeveloperAccount]);
+
+  const activePlotVariant = useMemo(() => {
+    if (!availablePlotSizes.length) return null;
+    if (!selectedPlotSize) return availablePlotSizes[0];
+    return availablePlotSizes.find((s) => s.size === selectedPlotSize) || availablePlotSizes[0];
+  }, [selectedPlotSize, availablePlotSizes]);
 
   const parsedDetails = useMemo(() => {
     const raw = String(property?.description || '').trim();
@@ -357,15 +414,81 @@ const PropertyDetails = () => {
     return String(property.price).replace(/^Rs\.?\s*/i, '₹');
   }, [property?.price]);
 
+  const displayPrice = useMemo(() => {
+    if (selectedPlotSize && activePlotVariant) {
+      if (activePlotVariant.priceLabel) return activePlotVariant.priceLabel;
+      if (activePlotVariant.price > 0) {
+        return activePlotVariant.price > 9999999
+          ? `₹${(activePlotVariant.price / 10000000).toFixed(2)} Cr`
+          : `₹${(activePlotVariant.price / 100000).toFixed(2)} L`;
+      }
+      if (property?.priceValue > 0 && property?.sizeValue > 0) {
+        const computed = Math.round((property.priceValue / property.sizeValue) * activePlotVariant.size);
+        return computed > 9999999
+          ? `₹${(computed / 10000000).toFixed(2)} Cr`
+          : `₹${(computed / 100000).toFixed(2)} L`;
+      }
+    }
+    return formattedPrice;
+  }, [selectedPlotSize, activePlotVariant, formattedPrice, property?.priceValue, property?.sizeValue]);
+
+  const displaySizeLabel = useMemo(() => {
+    if (selectedPlotSize && activePlotVariant) {
+      return `${activePlotVariant.size} ${activePlotVariant.unit || 'sq yd'}`;
+    }
+    return property?.size ? property.size.toLowerCase().replace(/sq\.?\s*yrd/i, 'sq yd') : '';
+  }, [selectedPlotSize, activePlotVariant, property?.size]);
+
   const formattedRate = useMemo(() => {
     if (!property?.rate) return '';
     return String(property.rate).replace(/^Rs\.?\s*/i, '₹').replace(/sq\.?\s*yrd/i, 'sq yd');
   }, [property?.rate]);
 
   const propertyImages = useMemo(() => {
-    const urls = property?.images?.map((item) => item.url).filter(Boolean) || [];
-    return urls.length ? urls : galleryImages;
+    const urls = property?.images?.map((item) => (typeof item === 'string' ? item : item?.url)).filter(Boolean) || [];
+    return urls.length ? urls : (property?.image ? [property.image] : galleryImages);
   }, [property]);
+
+  const propertyVideos = useMemo(() => {
+    const raw = Array.isArray(property?.videos)
+      ? property.videos
+      : (property?.videoUrl ? [{ url: property.videoUrl, title: 'Video Tour' }] : (property?.video ? [{ url: property.video, title: 'Video Tour' }] : []));
+    return raw
+      .map((v, i) => {
+        const url = typeof v === 'string' ? v : v?.url;
+        const title = (typeof v === 'object' && v?.title) ? v.title : `Video Walkthrough ${i + 1}`;
+        return url ? { type: 'video', url, title } : null;
+      })
+      .filter(Boolean);
+  }, [property]);
+
+  const mediaItems = useMemo(() => {
+    const items = [];
+    const imgItems = propertyImages.map((url, i) => ({ type: 'image', url, title: `Photo ${i + 1}` }));
+    if (propertyVideos.length > 0) {
+      if (imgItems.length > 0) {
+        items.push(imgItems[0]);
+        propertyVideos.forEach((v) => items.push(v));
+        imgItems.slice(1).forEach((img) => items.push(img));
+      } else {
+        propertyVideos.forEach((v) => items.push(v));
+      }
+    } else {
+      imgItems.forEach((img) => items.push(img));
+    }
+    return items.length ? items : galleryImages.map((url, i) => ({ type: 'image', url, title: `Photo ${i + 1}` }));
+  }, [propertyImages, propertyVideos]);
+
+  const firstVideoIndex = useMemo(() => {
+    return mediaItems.findIndex((item) => item.type === 'video');
+  }, [mediaItems]);
+
+  const firstPhotoIndex = useMemo(() => {
+    return mediaItems.findIndex((item) => item.type === 'image');
+  }, [mediaItems]);
+
+  const currentMedia = mediaItems[currentImageIndex] || mediaItems[0] || { type: 'image', url: propertyImages[0] };
+  const heroBackdrop = propertyImages[0] || galleryImages[0];
 
   const activeBroker = useMemo(() => {
     const isDev = Boolean(property?.isDeveloperListing);
@@ -411,8 +534,8 @@ const PropertyDetails = () => {
     return () => window.clearTimeout(resetId);
   }, [id]);
 
-  const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % propertyImages.length);
-  const prevImage = () => setCurrentImageIndex((prev) => (prev === 0 ? propertyImages.length - 1 : prev - 1));
+  const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % mediaItems.length);
+  const prevImage = () => setCurrentImageIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1));
 
   useEffect(() => {
     if (!property?.id || !property?.title) return;
@@ -672,32 +795,58 @@ const PropertyDetails = () => {
   } : null;
 
   return (
-    <div className="min-h-screen bg-surface pb-44 pt-4 font-sans md:pb-16 md:pt-28">
+    <div className={`min-h-screen pb-44 pt-4 font-sans md:pb-16 md:pt-28 relative transition-colors duration-300 ${
+      isDeveloperAccount 
+        ? 'bg-[#070a11] text-slate-100 selection:bg-[#d4af37] selection:text-black' 
+        : 'bg-surface text-text'
+    }`}>
+      {/* Developer Luxury Ambient Top Glow */}
+      {isDeveloperAccount && (
+        <div className="absolute top-0 left-0 w-full h-[650px] bg-gradient-to-b from-[#d4af37]/10 via-[#d4af37]/[0.02] to-transparent pointer-events-none" />
+      )}
       
-      <div className="container mx-auto max-w-[1440px] px-6 lg:px-12">
+      <div className="container relative z-10 mx-auto max-w-[1440px] px-6 lg:px-12">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 md:mb-6">
           <Link
             href="/listings"
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-3 py-2 text-xs font-bold text-muted shadow-sm transition-colors hover:border-primary hover:text-primary md:px-4 md:text-sm"
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold shadow-sm transition-all md:px-4 md:text-sm ${
+              isDeveloperAccount
+                ? 'border-[#d4af37]/30 bg-[#0e1422] text-slate-300 hover:border-[#d4af37] hover:text-[#d4af37]'
+                : 'border-border bg-white text-muted hover:border-primary hover:text-primary'
+            }`}
           >
             <ArrowLeft size={17} />
             Back to listings
           </Link>
 
           <div className="flex items-center gap-2">
-            {shareStatus && <span className="text-xs font-bold text-primary">{shareStatus}</span>}
+            {shareStatus && (
+              <span className={`text-xs font-bold ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-primary'}`}>
+                {shareStatus}
+              </span>
+            )}
             <button
               type="button"
               onClick={handleShare}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition-colors hover:border-primary hover:text-primary"
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-sm transition-all ${
+                isDeveloperAccount
+                  ? 'border-[#d4af37]/30 bg-[#0e1422] text-slate-300 hover:border-[#d4af37] hover:text-[#d4af37]'
+                  : 'border-border bg-white text-muted hover:border-primary hover:text-primary'
+              }`}
               aria-label="Share property"
             >
               <Share2 size={18} />
             </button>
             <button
               onClick={() => toggleCompare(property)}
-              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border bg-white shadow-sm transition-colors ${
-                compareList.some(p => String(p.id) === String(property.id)) ? 'border-primary bg-primary text-white' : 'border-border text-muted hover:border-primary hover:text-primary'
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-sm transition-all ${
+                compareList.some(p => String(p.id) === String(property.id))
+                  ? isDeveloperAccount 
+                    ? 'border-[#d4af37] bg-[#d4af37] text-gray-950 font-black'
+                    : 'border-primary bg-primary text-white'
+                  : isDeveloperAccount
+                    ? 'border-[#d4af37]/30 bg-[#0e1422] text-slate-300 hover:border-[#d4af37] hover:text-[#d4af37]'
+                    : 'border-border bg-white text-muted hover:border-primary hover:text-primary'
               }`}
               title="Compare Property"
             >
@@ -705,7 +854,11 @@ const PropertyDetails = () => {
             </button>
             <button
               onClick={handleDirectChat}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white shadow-sm transition-colors hover:border-[#25D366] hover:text-[#25D366] text-muted"
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-sm transition-all ${
+                isDeveloperAccount
+                  ? 'border-emerald-500/40 bg-[#0e1422] text-emerald-400 hover:border-emerald-400 shadow-emerald-500/10'
+                  : 'border-border bg-white text-muted hover:border-[#25D366] hover:text-[#25D366]'
+              }`}
               title="Direct to WhatsApp"
             >
               <MessageCircle size={18} className="text-[#25D366]" />
@@ -713,38 +866,134 @@ const PropertyDetails = () => {
           </div>
         </div>
 
-        {/* Top Property Images Banner */}
-        <section id="gallery" className="mb-5 overflow-hidden rounded-[1.5rem] border border-border bg-white p-2 shadow-sm md:mb-8 md:rounded-[2rem] md:p-4">
-          <div className="flex h-[300px] flex-col gap-3 md:h-[450px] lg:flex-row lg:gap-4">
-            {/* Main Carousel Image */}
+        {/* Top Property Images & Videos Banner */}
+        <section 
+          id="gallery" 
+          className={`mb-5 overflow-hidden rounded-[1.5rem] border p-2 md:mb-8 md:rounded-[2rem] md:p-4 transition-all ${
+            isDeveloperAccount
+              ? 'border-[#d4af37]/30 bg-[#0c111c] shadow-[0_12px_40px_rgba(0,0,0,0.6)]'
+              : 'border-border bg-white shadow-sm'
+          }`}
+        >
+          <div className="flex h-[320px] sm:h-[380px] flex-col gap-3 md:h-[460px] lg:flex-row lg:gap-4">
+            {/* Main Carousel Media Viewport */}
             <div className="group relative h-full w-full flex-1 overflow-hidden rounded-[1.25rem] bg-black md:rounded-[1.5rem]">
               {/* Blurred backdrop */}
-              <img src={propertyImages[currentImageIndex]} alt="backdrop" className="absolute inset-0 h-full w-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none" />
-              
-              {/* Main Image */}
-              <img src={propertyImages[currentImageIndex]} alt={`${property.title} view ${currentImageIndex + 1}`} className="absolute inset-0 h-full w-full object-contain transition-all duration-300" />
-              
-              {propertyImages.length > 1 && (
+              <img
+                src={currentMedia.type === 'image' ? currentMedia.url : heroBackdrop}
+                alt="backdrop"
+                className="absolute inset-0 h-full w-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none"
+              />
+
+              {/* Main Media: Video or Image */}
+              {currentMedia.type === 'video' ? (
+                getEmbedVideoUrl(currentMedia.url) ? (
+                  <iframe
+                    src={getEmbedVideoUrl(currentMedia.url)}
+                    title={currentMedia.title || "Property Video Walkthrough"}
+                    className="absolute inset-0 h-full w-full z-10 border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video
+                    key={currentMedia.url}
+                    src={currentMedia.url}
+                    controls
+                    autoPlay
+                    playsInline
+                    className="absolute inset-0 h-full w-full object-contain z-10 bg-black/90"
+                  />
+                )
+              ) : (
+                <img
+                  key={currentMedia.url}
+                  src={currentMedia.url}
+                  alt={`${property.title} view ${currentImageIndex + 1}`}
+                  className="absolute inset-0 h-full w-full object-contain transition-all duration-300"
+                />
+              )}
+
+              {/* Quick Jump Switchers: Photos / Video Tour */}
+              {propertyVideos.length > 0 && (
+                <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                  {firstPhotoIndex !== -1 && (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentImageIndex(firstPhotoIndex)}
+                      className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black backdrop-blur-md transition-all shadow-md cursor-pointer ${
+                        currentMedia.type === 'image'
+                          ? 'bg-white text-text shadow-black/20 scale-105'
+                          : 'bg-black/60 text-white hover:bg-black/80'
+                      }`}
+                    >
+                      <Camera size={13} />
+                      Photos ({propertyImages.length})
+                    </button>
+                  )}
+                  {firstVideoIndex !== -1 && (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentImageIndex(firstVideoIndex)}
+                      className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black backdrop-blur-md transition-all shadow-md cursor-pointer ${
+                        currentMedia.type === 'video'
+                          ? 'bg-primary text-white shadow-primary/30 ring-2 ring-white/30 scale-105'
+                          : 'bg-black/60 text-white hover:bg-black/80'
+                      }`}
+                    >
+                      <Play size={13} className="fill-current text-white" />
+                      Video Tour ({propertyVideos.length})
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Navigation Arrows & Indicators */}
+              {mediaItems.length > 1 && (
                 <>
-                  <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-text p-2 rounded-full shadow-sm backdrop-blur transition-all md:opacity-0 group-hover:opacity-100 z-10" aria-label="Previous image">
+                  <button
+                    type="button"
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-text p-2 rounded-full shadow-md backdrop-blur transition-all md:opacity-0 group-hover:opacity-100 z-20 cursor-pointer"
+                    aria-label="Previous media"
+                  >
                     <ChevronLeft size={24} />
                   </button>
-                  <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-text p-2 rounded-full shadow-sm backdrop-blur transition-all md:opacity-0 group-hover:opacity-100 z-10" aria-label="Next image">
+                  <button
+                    type="button"
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-text p-2 rounded-full shadow-md backdrop-blur transition-all md:opacity-0 group-hover:opacity-100 z-20 cursor-pointer"
+                    aria-label="Next media"
+                  >
                     <ChevronRight size={24} />
                   </button>
-                  <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                    {propertyImages.map((_, i) => (
-                      <div key={i} className={`h-1.5 rounded-full transition-all ${i === currentImageIndex ? 'w-4 bg-primary' : 'w-1.5 bg-white/60'}`} />
+                  <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
+                    {mediaItems.map((item, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setCurrentImageIndex(i)}
+                        className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                          i === currentImageIndex
+                            ? 'w-4 bg-primary'
+                            : item.type === 'video'
+                            ? 'w-2 bg-amber-400'
+                            : 'w-1.5 bg-white/60'
+                        }`}
+                        title={item.title}
+                      />
                     ))}
                   </div>
                 </>
               )}
 
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4 md:p-5">
-                <div className="flex flex-wrap gap-2 pointer-events-auto">
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-4 md:p-5 z-20">
+                <div className="flex flex-wrap items-center gap-2 pointer-events-auto">
                   {property.featured && (
-                    <span className="rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white">
-                      Featured
+                    <span className={`rounded-full px-3 py-1 text-xs font-extrabold ${
+                      isDeveloperAccount ? 'bg-[#d4af37] text-gray-950 font-black shadow-md' : 'bg-primary text-white'
+                    }`}>
+                      Featured Project
                     </span>
                   )}
                   {property.isDemo && (
@@ -752,36 +1001,88 @@ const PropertyDetails = () => {
                       This is a demo property
                     </span>
                   )}
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text">
-                    <ShieldCheck size={13} className="text-primary" />
-                    {isDeveloperAccount ? 'Developer Verified' : 'Associate Partner verified'}
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold shadow-sm ${
+                    isDeveloperAccount
+                      ? 'bg-gradient-to-r from-[#d4af37]/25 via-[#ffdf00]/20 to-[#d4af37]/25 text-[#f5d77f] border border-[#d4af37]/60 backdrop-blur-md'
+                      : 'bg-white text-text'
+                  }`}>
+                    <ShieldCheck size={14} className={isDeveloperAccount ? 'text-[#d4af37]' : 'text-primary'} />
+                    {isDeveloperAccount ? 'Official Builder Verified' : 'Associate Partner verified'}
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text lg:hidden">
+                  <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-extrabold ${
+                    isDeveloperAccount ? 'bg-black/70 text-slate-200 border border-white/10 backdrop-blur-md' : 'bg-white text-text'
+                  }`}>
                     <Camera size={13} />
                     {propertyImages.length} photos
                   </span>
+                  {propertyVideos.length > 0 && (
+                    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-extrabold shadow-sm ${
+                      isDeveloperAccount 
+                        ? 'bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] text-gray-950 font-black' 
+                        : 'bg-primary text-white'
+                    }`}>
+                      <Play size={11} className={`fill-current ${isDeveloperAccount ? 'text-gray-950' : 'text-white'}`} />
+                      {propertyVideos.length} {propertyVideos.length === 1 ? 'video tour' : 'video tours'}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Desktop Side Thumbnails */}
-            {propertyImages.length > 1 && (
-              <div className="hidden lg:flex flex-col gap-4 w-[320px] h-full">
-                {propertyImages.slice(1, 4).map((image, index) => (
-                  <div 
-                    key={`${image}-${index}`} 
-                    onClick={() => setCurrentImageIndex(index + 1)}
-                    className="relative flex-1 w-full overflow-hidden rounded-2xl cursor-pointer group bg-black"
-                  >
-                    <img src={image} alt={`Thumbnail ${index + 1}`} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
-                    {index === 2 && propertyImages.length > 4 && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-sm font-extrabold text-white backdrop-blur-sm hover:bg-black/70 transition-colors">
-                        +{propertyImages.length - 4} photos
-                      </div>
-                    )}
-                  </div>
-                ))}
+            {mediaItems.length > 1 && (
+              <div className="hidden lg:flex flex-col gap-3.5 w-[320px] h-full">
+                {mediaItems.slice(1, 4).map((item, index) => {
+                  const targetIndex = index + 1;
+                  const isCurrent = currentImageIndex === targetIndex;
+                  return (
+                    <div 
+                      key={`thumb-${item.url}-${index}`} 
+                      onClick={() => setCurrentImageIndex(targetIndex)}
+                      className={`relative flex-1 w-full overflow-hidden rounded-2xl cursor-pointer group bg-black transition-all ${
+                        isCurrent 
+                          ? isDeveloperAccount 
+                            ? 'ring-2 ring-[#d4af37] ring-offset-2 ring-offset-[#0c111c]' 
+                            : 'ring-2 ring-primary ring-offset-2' 
+                          : ''
+                      }`}
+                    >
+                      {item.type === 'video' ? (
+                        <>
+                          <video
+                            src={item.url}
+                            preload="metadata"
+                            muted
+                            playsInline
+                            className="absolute inset-0 h-full w-full object-cover opacity-60 group-hover:opacity-75 transition-all duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-black/35 group-hover:bg-black/15 transition-colors flex flex-col items-center justify-center">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/40 group-hover:scale-110 transition-transform">
+                              <Play size={20} className="fill-current ml-0.5" />
+                            </div>
+                            <span className="mt-1 text-[11px] font-black uppercase tracking-wider text-white drop-shadow">
+                              Video Tour
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <img
+                            src={item.url}
+                            alt={`Thumbnail ${index + 1}`}
+                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+                        </>
+                      )}
+                      {index === 2 && mediaItems.length > 4 && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/65 text-sm font-extrabold text-white backdrop-blur-sm hover:bg-black/75 transition-colors z-20">
+                          +{mediaItems.length - 4} more
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -789,9 +1090,18 @@ const PropertyDetails = () => {
 
         <div className="grid grid-cols-1 gap-5 md:gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
           <main className="space-y-5 md:space-y-8">
-            <section id="overview" className="relative rounded-[1.5rem] border border-border bg-white p-5 md:p-8 lg:p-9 shadow-sm">
+            <section 
+              id="overview" 
+              className={`relative rounded-[1.5rem] border p-5 md:p-8 lg:p-9 transition-all ${
+                isDeveloperAccount
+                  ? 'border-[#d4af37]/25 bg-gradient-to-b from-[#0d1320] via-[#0b101b] to-[#080d16] text-white shadow-[0_12px_45px_rgba(0,0,0,0.5)]'
+                  : 'border-border bg-white shadow-sm'
+              }`}
+            >
               {/* Top Navigation Tabs */}
-              <div className="flex items-center gap-6 md:gap-8 overflow-x-auto no-scrollbar border-b border-border/80 pb-3 text-sm">
+              <div className={`flex items-center gap-6 md:gap-8 overflow-x-auto no-scrollbar border-b pb-3 text-sm ${
+                isDeveloperAccount ? 'border-[#d4af37]/20' : 'border-border/80'
+              }`}>
                 {[
                   { id: 'overview', label: 'Overview' },
                   { id: 'siteplan', label: 'Site plan' },
@@ -804,8 +1114,12 @@ const PropertyDetails = () => {
                     onClick={() => scrollToSection(tab.id)}
                     className={`relative pb-3 -mb-3 transition-colors whitespace-nowrap cursor-pointer text-sm ${
                       activeTab === tab.id
-                        ? 'text-text font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2.5px] after:bg-primary after:rounded-full'
-                        : 'text-muted font-medium hover:text-text'
+                        ? isDeveloperAccount
+                          ? 'text-[#f5d77f] font-black after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2.5px] after:bg-gradient-to-r after:from-[#d4af37] after:to-[#f3e5ab] after:rounded-full'
+                          : 'text-text font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2.5px] after:bg-primary after:rounded-full'
+                        : isDeveloperAccount
+                          ? 'text-slate-400 font-medium hover:text-[#f5d77f]'
+                          : 'text-muted font-medium hover:text-text'
                     }`}
                   >
                     {tab.label}
@@ -813,113 +1127,299 @@ const PropertyDetails = () => {
                 ))}
               </div>
 
-              {/* RERA Approved Badge */}
-              <p className="mt-6 md:mt-7 text-xs font-bold uppercase tracking-wider text-secondary">
-                {parsedDetails.scheme ? `RERA APPROVED PLOTTED TOWNSHIP • ${parsedDetails.scheme}` : 'RERA APPROVED PLOTTED TOWNSHIP'}
-              </p>
+              {/* RERA Approved Badge / Scheme */}
+              {isDeveloperAccount ? (
+                <div className="mt-6 md:mt-7 flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3.5 py-1 text-xs font-black tracking-widest text-[#f5d77f] uppercase shadow-sm">
+                    <Building2 size={13} className="text-[#d4af37]" />
+                    {parsedDetails.scheme ? `OFFICIAL TOWNSHIP • ${parsedDetails.scheme}` : 'OFFICIAL BUILDER TOWNSHIP'}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-950/40 px-3 py-1 text-xs font-bold text-emerald-400">
+                    <CheckCircle2 size={12} /> Direct Builder Inventory
+                  </span>
+                </div>
+              ) : (
+                <p className="mt-6 md:mt-7 text-xs font-bold uppercase tracking-wider text-secondary">
+                  {parsedDetails.scheme ? `RERA APPROVED PLOTTED TOWNSHIP • ${parsedDetails.scheme}` : 'RERA APPROVED PLOTTED TOWNSHIP'}
+                </p>
+              )}
 
               {/* Title, Location & Price */}
-              <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="mt-2.5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h1 className="font-serif text-3xl font-bold tracking-tight text-text md:text-4xl lg:text-[42px] leading-tight">
+                  <h1 className={`font-serif text-3xl font-extrabold tracking-tight md:text-4xl lg:text-[42px] leading-tight ${
+                    isDeveloperAccount ? 'text-white drop-shadow-sm' : 'text-text'
+                  }`}>
                     {displayTitle}
                   </h1>
-                  <p className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-muted md:text-base">
-                    <MapPin size={16} className="shrink-0 text-muted" />
+                  <p className={`mt-1.5 flex items-center gap-1.5 text-sm font-medium md:text-base ${
+                    isDeveloperAccount ? 'text-slate-300' : 'text-muted'
+                  }`}>
+                    <MapPin size={16} className={`shrink-0 ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'}`} />
                     <span>{displayLocation}</span>
                   </p>
                 </div>
 
                 <div className="text-left sm:text-right shrink-0">
-                  <p className="text-xs font-medium text-muted">Starting from</p>
-                  <p className="mt-0.5 text-2xl font-bold text-text md:text-3xl lg:text-[34px] tracking-tight">
-                    {formattedPrice}
+                  <p className={`text-xs font-bold uppercase tracking-wider ${
+                    isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                  }`}>
+                    {selectedPlotSize ? `Selected (${displaySizeLabel})` : 'Starting from'}
                   </p>
-                  <p className="mt-0.5 text-xs font-medium text-muted md:text-sm">
-                    {formattedRate}{property.size ? ` · ${property.size.toLowerCase().replace(/sq\.?\s*yrd/i, 'sq yd')}` : ''}
+                  <p className={`mt-0.5 text-2xl font-black md:text-3xl lg:text-[34px] tracking-tight ${
+                    isDeveloperAccount 
+                      ? 'text-transparent bg-clip-text bg-gradient-to-r from-white via-[#fff1cb] to-[#d4af37]' 
+                      : 'text-text font-bold'
+                  }`}>
+                    {displayPrice}
+                  </p>
+                  <p className={`mt-0.5 text-xs font-medium md:text-sm ${
+                    isDeveloperAccount ? 'text-slate-400' : 'text-muted'
+                  }`}>
+                    {formattedRate}{displaySizeLabel ? ` · ${displaySizeLabel}` : ''}
                   </p>
                 </div>
               </div>
 
               {/* 6-box specs grid */}
-              <div className="mt-6 md:mt-8 overflow-hidden rounded-2xl border border-border bg-white shadow-xs">
-                <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
+              <div className={`mt-6 md:mt-8 overflow-hidden rounded-2xl border transition-all ${
+                isDeveloperAccount
+                  ? 'border-[#d4af37]/25 bg-[#090d16]/90 shadow-lg'
+                  : 'border-border bg-white shadow-xs'
+              }`}>
+                <div className={`grid grid-cols-3 divide-x border-b ${
+                  isDeveloperAccount ? 'divide-[#d4af37]/20 border-[#d4af37]/20' : 'divide-border border-border'
+                }`}>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
-                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">
+                    <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
+                      isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                    }`}>
                       {isDeveloperAccount ? 'DEVELOPER' : 'LISTED BY'}
                     </p>
-                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">
+                    <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
+                      isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                    }`}>
                       {isDeveloperAccount ? (parsedDetails.developer || 'Reputed Developer') : 'Associate Partner'}
                     </p>
                   </div>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
-                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">TOTAL AREA</p>
-                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">{parsedDetails.totalArea}</p>
+                    <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
+                      isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                    }`}>
+                      {availablePlotSizes.length > 1 ? 'PLOT SIZES' : 'TOTAL AREA'}
+                    </p>
+                    <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
+                      isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                    }`}>
+                      {availablePlotSizes.length > 1
+                        ? `${availablePlotSizes[0].size} - ${availablePlotSizes[availablePlotSizes.length - 1].size} Sq. Yrd`
+                        : parsedDetails.totalArea}
+                    </p>
                   </div>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
-                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">PLOTS</p>
-                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">{parsedDetails.plots}</p>
+                    <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
+                      isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                    }`}>PLOTS</p>
+                    <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
+                      isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                    }`}>{parsedDetails.plots}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 divide-x divide-border">
+                <div className={`grid grid-cols-3 divide-x ${
+                  isDeveloperAccount ? 'divide-[#d4af37]/20' : 'divide-border'
+                }`}>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
-                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">SCHEME</p>
-                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">{parsedDetails.scheme}</p>
+                    <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
+                      isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                    }`}>SCHEME</p>
+                    <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
+                      isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                    }`}>{parsedDetails.scheme}</p>
                   </div>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
-                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">RERA APPROVAL</p>
-                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">{parsedDetails.reraApproval}</p>
+                    <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
+                      isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                    }`}>RERA APPROVAL</p>
+                    <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
+                      isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                    }`}>{parsedDetails.reraApproval}</p>
                   </div>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
-                    <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted truncate">POSSESSION</p>
-                    <p className="mt-1 text-xs sm:text-sm md:text-base font-bold text-text truncate">{parsedDetails.possession}</p>
+                    <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
+                      isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                    }`}>POSSESSION</p>
+                    <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
+                      isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                    }`}>{parsedDetails.possession}</p>
                   </div>
                 </div>
               </div>
 
               {/* RERA line */}
               <div className="mt-3.5 flex flex-wrap items-center gap-2 text-xs md:text-sm">
-                <CertificateBadgeIcon className="h-5 w-5 text-secondary shrink-0" />
-                <span className="font-semibold text-text tracking-tight">
+                <CertificateBadgeIcon className={`h-5 w-5 shrink-0 ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-secondary'}`} />
+                <span className={`font-semibold tracking-tight ${isDeveloperAccount ? 'text-slate-100' : 'text-text'}`}>
                   {parsedDetails.reraNumber || property.reraNumber || 'HRERA-PKL-JJR-678-2025'}
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyRera}
-                  className="p-1 text-muted hover:text-text transition-colors rounded"
+                  className={`p-1 transition-colors rounded ${isDeveloperAccount ? 'text-slate-400 hover:text-white' : 'text-muted hover:text-text'}`}
                   title="Copy RERA Number"
                 >
-                  {copiedRera ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                  {copiedRera ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                 </button>
-                {copiedRera && <span className="text-xs font-semibold text-emerald-600">Copied!</span>}
+                {copiedRera && <span className="text-xs font-semibold text-emerald-400">Copied!</span>}
                 <a
                   href={reraVerifyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-secondary hover:text-primary font-bold ml-1.5 inline-flex items-center gap-1 hover:underline transition-colors"
+                  className={`font-bold ml-1.5 inline-flex items-center gap-1 hover:underline transition-colors ${
+                    isDeveloperAccount ? 'text-[#d4af37] hover:text-[#f5d77f]' : 'text-secondary hover:text-primary'
+                  }`}
                 >
                   Verify on HRERA
                 </a>
               </div>
 
+              {/* Available Plot Sizes in this Project */}
+              {availablePlotSizes.length > 0 && (
+                <div className={`mt-6 md:mt-7 rounded-2xl border p-4 sm:p-5 transition-all ${
+                  isDeveloperAccount
+                    ? 'border-[#d4af37]/30 bg-[#090e18] shadow-inner'
+                    : 'border-border bg-gray-50/80'
+                }`}>
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className={`flex h-6 w-6 items-center justify-center rounded-lg ${
+                          isDeveloperAccount ? 'bg-[#d4af37]/20 text-[#d4af37]' : 'bg-primary/10 text-primary'
+                        }`}>
+                          <Layers size={14} />
+                        </span>
+                        <h3 className={`text-sm sm:text-base font-bold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>
+                          Available Plot Sizes (Plot Configurations)
+                        </h3>
+                      </div>
+                      <p className={`mt-0.5 text-xs font-medium ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>
+                        Builder offers different plot sizes in this layout. Select a size to view pricing:
+                      </p>
+                    </div>
+                    {availablePlotSizes.length > 1 && (
+                      <span className={`text-xs font-extrabold px-2.5 py-1 rounded-full ${
+                        isDeveloperAccount
+                          ? 'bg-[#d4af37]/20 text-[#f5d77f] border border-[#d4af37]/40'
+                          : 'bg-primary/10 text-primary'
+                      }`}>
+                        {availablePlotSizes.length} Sizes Available
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                    {availablePlotSizes.map((variant, idx) => {
+                      const isSelected = (activePlotVariant?.size === variant.size);
+                      const computedPrice = variant.price || (
+                        (property.sizeValue > 0 && property.priceValue > 0)
+                          ? Math.round((property.priceValue / property.sizeValue) * variant.size)
+                          : 0
+                      );
+                      const priceDisplay = variant.priceLabel || (
+                        computedPrice > 9999999
+                          ? `₹${(computedPrice / 10000000).toFixed(2)} Cr`
+                          : (computedPrice > 0 ? `₹${(computedPrice / 100000).toFixed(2)} L` : '')
+                      );
+
+                      return (
+                        <button
+                          key={`size-${variant.size}-${idx}`}
+                          type="button"
+                          onClick={() => setSelectedPlotSize(variant.size)}
+                          className={`flex flex-col text-left p-3 rounded-xl border transition-all cursor-pointer ${
+                            isSelected
+                              ? isDeveloperAccount
+                                ? 'border-[#d4af37] bg-gradient-to-br from-[#d4af37]/25 via-[#141b2c] to-[#0f1523] text-white shadow-lg ring-2 ring-[#d4af37]/50 scale-[1.02]'
+                                : 'border-primary bg-white shadow-sm ring-2 ring-primary/20 scale-[1.02]'
+                              : isDeveloperAccount
+                                ? 'border-white/10 bg-[#0d1320] text-slate-300 hover:border-[#d4af37]/40 hover:bg-[#111827]'
+                                : 'border-border bg-white hover:border-gray-300 hover:bg-gray-50/80'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <span className={`text-xs sm:text-sm font-extrabold ${
+                              isSelected 
+                                ? isDeveloperAccount ? 'text-[#f5d77f]' : 'text-primary' 
+                                : isDeveloperAccount ? 'text-white' : 'text-text'
+                            }`}>
+                              {variant.size} {variant.unit || 'Sq. Yd'}
+                            </span>
+                            {isSelected && (
+                              <span className={`h-2 w-2 rounded-full ${
+                                isDeveloperAccount ? 'bg-[#d4af37] shadow-[0_0_8px_#d4af37]' : 'bg-primary'
+                              }`} />
+                            )}
+                          </div>
+                          {priceDisplay && (
+                            <span className={`mt-1 text-xs font-bold ${
+                              isSelected
+                                ? isDeveloperAccount ? 'text-[#f5d77f]' : 'text-primary'
+                                : isDeveloperAccount ? 'text-slate-200' : 'text-gray-900'
+                            }`}>
+                              {priceDisplay}
+                            </span>
+                          )}
+                          {variant.dimensions ? (
+                            <span className={`text-[10px] font-medium mt-0.5 truncate ${
+                              isDeveloperAccount ? 'text-slate-400' : 'text-muted'
+                            }`}>
+                              {variant.dimensions}
+                            </span>
+                          ) : (
+                            <span className={`text-[10px] font-medium mt-0.5 ${
+                              isDeveloperAccount ? 'text-slate-400' : 'text-muted'
+                            }`}>
+                              ~{Math.round(variant.size * 9)} Sq. Ft
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Verified Documents */}
               <div id="documents" className="mt-8 md:mt-10">
-                <h2 className="font-serif text-2xl md:text-[28px] font-bold text-text tracking-tight mb-4">
+                <h2 className={`font-serif text-2xl md:text-[28px] font-bold tracking-tight mb-4 ${
+                  isDeveloperAccount ? 'text-white' : 'text-text'
+                }`}>
                   Verified documents
                 </h2>
                 <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 sm:grid sm:grid-cols-3 sm:gap-4">
                   {verifiedDocsList.map((doc, idx) => (
                     <div
                       key={idx}
-                      className="min-w-[150px] sm:min-w-0 flex-1 rounded-2xl border border-border bg-white p-3.5 sm:p-4 shadow-xs flex items-start gap-3 hover:shadow-card transition-shadow"
+                      className={`min-w-[150px] sm:min-w-0 flex-1 rounded-2xl border p-3.5 sm:p-4 shadow-xs flex items-start gap-3 transition-all ${
+                        isDeveloperAccount
+                          ? 'border-[#d4af37]/20 bg-[#0c121e] hover:border-[#d4af37]/50 hover:bg-[#101726]'
+                          : 'border-border bg-white hover:shadow-card'
+                      }`}
                     >
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full border-[1.8px] border-emerald-600 text-emerald-600 shrink-0 mt-0.5">
+                      <div className={`flex h-5 w-5 items-center justify-center rounded-full border-[1.8px] shrink-0 mt-0.5 ${
+                        isDeveloperAccount 
+                          ? 'border-[#d4af37] text-[#d4af37] bg-[#d4af37]/10' 
+                          : 'border-emerald-600 text-emerald-600'
+                      }`}>
                         <Check size={12} strokeWidth={3} />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-bold text-text text-sm sm:text-[15px] leading-snug truncate">{doc.title}</p>
-                        <p className="text-[11px] sm:text-xs text-muted font-normal mt-0.5">{doc.subtitle}</p>
+                        <p className={`font-bold text-sm sm:text-[15px] leading-snug truncate ${
+                          isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                        }`}>{doc.title}</p>
+                        <p className={`text-[11px] sm:text-xs font-normal mt-0.5 ${
+                          isDeveloperAccount ? 'text-slate-400' : 'text-muted'
+                        }`}>{doc.subtitle}</p>
                       </div>
                     </div>
                   ))}
@@ -928,19 +1428,29 @@ const PropertyDetails = () => {
 
               {/* Amenities */}
               <div id="amenities" className="mt-8 md:mt-10">
-                <h2 className="font-serif text-2xl md:text-[28px] font-bold text-text tracking-tight mb-4">
+                <h2 className={`font-serif text-2xl md:text-[28px] font-bold tracking-tight mb-4 ${
+                  isDeveloperAccount ? 'text-white' : 'text-text'
+                }`}>
                   Amenities
                 </h2>
                 <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 sm:grid sm:grid-cols-4 sm:gap-4">
                   {displayAmenities.map((amenity, idx) => (
                     <div
                       key={idx}
-                      className="min-w-[125px] sm:min-w-0 flex-1 rounded-2xl border border-border bg-white p-4 sm:p-5 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-card transition-shadow"
+                      className={`min-w-[125px] sm:min-w-0 flex-1 rounded-2xl border p-4 sm:p-5 flex flex-col items-center justify-center text-center shadow-xs transition-all ${
+                        isDeveloperAccount
+                          ? 'border-[#d4af37]/20 bg-[#0c121e] hover:border-[#d4af37]/50 hover:bg-[#101726]'
+                          : 'border-border bg-white hover:shadow-card'
+                      }`}
                     >
-                      <div className="h-9 w-9 flex items-center justify-center text-text mb-2.5">
+                      <div className={`h-9 w-9 flex items-center justify-center mb-2.5 ${
+                        isDeveloperAccount ? 'text-[#d4af37]' : 'text-text'
+                      }`}>
                         {getAmenityIcon(amenity)}
                       </div>
-                      <p className="text-xs sm:text-sm font-medium text-text leading-tight">
+                      <p className={`text-xs sm:text-sm font-medium leading-tight ${
+                        isDeveloperAccount ? 'text-slate-200' : 'text-text'
+                      }`}>
                         {amenity}
                       </p>
                     </div>
@@ -952,7 +1462,11 @@ const PropertyDetails = () => {
               <button
                 type="button"
                 onClick={() => scrollToSection('siteplan')}
-                className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white border border-border shadow-md text-text hover:text-primary hover:border-primary transition-all hover:scale-105 z-10"
+                className={`absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border shadow-md transition-all hover:scale-105 z-10 ${
+                  isDeveloperAccount
+                    ? 'bg-[#0e1422] border-[#d4af37]/40 text-[#d4af37] hover:border-[#d4af37] hover:bg-[#d4af37]/20'
+                    : 'bg-white border-border text-text hover:text-primary hover:border-primary'
+                }`}
                 aria-label="Scroll down"
                 title="Scroll to Site Plan & Details"
               >
@@ -961,71 +1475,115 @@ const PropertyDetails = () => {
             </section>
 
             {/* Site Plan Section */}
-            <section id="siteplan" className="rounded-[1.5rem] border border-border bg-white p-5 md:p-8 shadow-sm">
+            <section 
+              id="siteplan" 
+              className={`rounded-[1.5rem] border p-5 md:p-8 transition-all ${
+                isDeveloperAccount
+                  ? 'border-[#d4af37]/25 bg-gradient-to-b from-[#0d1320] to-[#080d16] text-white shadow-2xl'
+                  : 'border-border bg-white shadow-sm'
+              }`}
+            >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
                 <div>
-                  <h2 className="font-serif text-2xl md:text-[28px] font-bold text-text tracking-tight">
+                  <h2 className={`font-serif text-2xl md:text-[28px] font-bold tracking-tight ${
+                    isDeveloperAccount ? 'text-white' : 'text-text'
+                  }`}>
                     Site Plan & Master Layout
                   </h2>
-                  <p className="mt-1 text-xs sm:text-sm text-muted">
+                  <p className={`mt-1 text-xs sm:text-sm ${
+                    isDeveloperAccount ? 'text-slate-300' : 'text-muted'
+                  }`}>
                     Official layout demarcations with road widths, entry gates, and green zones.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={handleDirectChat}
-                  className="inline-flex items-center gap-2 rounded-xl bg-secondary/10 px-4 py-2 text-xs font-bold text-secondary hover:bg-secondary/20 transition-colors w-fit"
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all w-fit ${
+                    isDeveloperAccount
+                      ? 'border border-[#d4af37]/40 bg-[#d4af37]/15 text-[#f5d77f] hover:bg-[#d4af37]/25 shadow-sm'
+                      : 'bg-secondary/10 text-secondary hover:bg-secondary/20'
+                  }`}
                 >
                   <MessageCircle size={15} />
                   Request HD Master Plan
                 </button>
               </div>
 
-              <div className="relative overflow-hidden rounded-2xl border border-border bg-surface group">
+              <div className={`relative overflow-hidden rounded-2xl border group ${
+                isDeveloperAccount ? 'border-[#d4af37]/30 bg-black' : 'border-border bg-surface'
+              }`}>
                 <img
                   src="https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=2000&auto=format&fit=crop"
                   alt={`${property.title} Site Plan`}
                   className="w-full h-64 sm:h-80 md:h-96 object-cover filter contrast-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex items-end p-5">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent flex items-end p-5">
                   <div className="text-white">
-                    <p className="text-sm font-bold">Approved Master Layout Plan</p>
+                    <p className={`text-sm font-bold ${isDeveloperAccount ? 'text-[#f5d77f]' : 'text-white'}`}>
+                      Approved Master Layout Plan
+                    </p>
                     <p className="text-xs text-white/80">Approved under {parsedDetails.scheme || 'DDJAY'} · Wide internal roads & green boundary</p>
                   </div>
                 </div>
               </div>
 
               <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                <div className="rounded-xl bg-surface p-3 border border-border/50">
-                  <p className="text-[10px] font-bold text-muted uppercase">Road Width</p>
-                  <p className="text-xs sm:text-sm font-bold text-text mt-0.5">9m - 12m wide</p>
+                <div className={`rounded-xl p-3 border transition-colors ${
+                  isDeveloperAccount ? 'bg-[#0b101b] border-[#d4af37]/20' : 'bg-surface border border-border/50'
+                }`}>
+                  <p className={`text-[10px] font-bold uppercase ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'}`}>Road Width</p>
+                  <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isDeveloperAccount ? 'text-slate-100' : 'text-text'}`}>9m - 12m wide</p>
                 </div>
-                <div className="rounded-xl bg-surface p-3 border border-border/50">
-                  <p className="text-[10px] font-bold text-muted uppercase">Entry Gates</p>
-                  <p className="text-xs sm:text-sm font-bold text-text mt-0.5">2 Gated Entries</p>
+                <div className={`rounded-xl p-3 border transition-colors ${
+                  isDeveloperAccount ? 'bg-[#0b101b] border-[#d4af37]/20' : 'bg-surface border border-border/50'
+                }`}>
+                  <p className={`text-[10px] font-bold uppercase ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'}`}>Entry Gates</p>
+                  <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isDeveloperAccount ? 'text-slate-100' : 'text-text'}`}>2 Gated Entries</p>
                 </div>
-                <div className="rounded-xl bg-surface p-3 border border-border/50">
-                  <p className="text-[10px] font-bold text-muted uppercase">Parks & Green</p>
-                  <p className="text-xs sm:text-sm font-bold text-text mt-0.5">3 Landscaped Parks</p>
+                <div className={`rounded-xl p-3 border transition-colors ${
+                  isDeveloperAccount ? 'bg-[#0b101b] border-[#d4af37]/20' : 'bg-surface border border-border/50'
+                }`}>
+                  <p className={`text-[10px] font-bold uppercase ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'}`}>Parks & Green</p>
+                  <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isDeveloperAccount ? 'text-slate-100' : 'text-text'}`}>3 Landscaped Parks</p>
                 </div>
-                <div className="rounded-xl bg-surface p-3 border border-border/50">
-                  <p className="text-[10px] font-bold text-muted uppercase">Commercial Zone</p>
-                  <p className="text-xs sm:text-sm font-bold text-text mt-0.5">Designated Retail</p>
+                <div className={`rounded-xl p-3 border transition-colors ${
+                  isDeveloperAccount ? 'bg-[#0b101b] border-[#d4af37]/20' : 'bg-surface border border-border/50'
+                }`}>
+                  <p className={`text-[10px] font-bold uppercase ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'}`}>Commercial Zone</p>
+                  <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isDeveloperAccount ? 'text-slate-100' : 'text-text'}`}>Designated Retail</p>
                 </div>
               </div>
             </section>
 
             {/* Download Official Brochure & Connectivity Section */}
-            <section id="brochure" className="rounded-[1.5rem] border border-border bg-white p-5 md:p-8 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b border-border">
+            <section 
+              id="brochure" 
+              className={`rounded-[1.5rem] border p-5 md:p-8 transition-all ${
+                isDeveloperAccount
+                  ? 'border-[#d4af37]/25 bg-gradient-to-b from-[#0d1320] to-[#080d16] text-white shadow-2xl'
+                  : 'border-border bg-white shadow-sm'
+              }`}
+            >
+              <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b ${
+                isDeveloperAccount ? 'border-[#d4af37]/20' : 'border-border'
+              }`}>
                 <div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold text-primary mb-2">
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold mb-2 ${
+                    isDeveloperAccount
+                      ? 'bg-[#d4af37]/15 border border-[#d4af37]/30 text-[#f5d77f]'
+                      : 'bg-primary/10 text-primary'
+                  }`}>
                     <FileDown size={14} /> Official Documentation
                   </span>
-                  <h2 className="font-serif text-2xl md:text-[28px] font-bold text-text tracking-tight">
+                  <h2 className={`font-serif text-2xl md:text-[28px] font-bold tracking-tight ${
+                    isDeveloperAccount ? 'text-white' : 'text-text'
+                  }`}>
                     Project Brochure & Location Connectivity
                   </h2>
-                  <p className="mt-1 text-xs sm:text-sm text-muted">
+                  <p className={`mt-1 text-xs sm:text-sm ${
+                    isDeveloperAccount ? 'text-slate-300' : 'text-muted'
+                  }`}>
                     Download the official project brochure containing verified layout drawings, RERA approvals, unit dimensions & exact landmark distances.
                   </p>
                 </div>
@@ -1033,48 +1591,74 @@ const PropertyDetails = () => {
 
               {/* Location Advantage & Distance to Key Places ("Kon si jagah kitni dur hai") */}
               <div className="mt-6">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted mb-3">Key Landmark Distances & Connectivity</p>
+                <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${
+                  isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                }`}>
+                  Key Landmark Distances & Connectivity
+                </p>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="rounded-2xl border border-border bg-surface p-4">
-                    <p className="text-xs font-bold text-primary flex items-center gap-1.5">
+                  <div className={`rounded-2xl border p-4 transition-all ${
+                    isDeveloperAccount ? 'border-[#d4af37]/20 bg-[#0c121e] hover:border-[#d4af37]/40' : 'border-border bg-surface'
+                  }`}>
+                    <p className={`text-xs font-bold flex items-center gap-1.5 ${
+                      isDeveloperAccount ? 'text-[#f5d77f]' : 'text-primary'
+                    }`}>
                       <Route size={15} /> 5 - 10 Mins
                     </p>
-                    <p className="mt-1.5 text-sm font-extrabold text-text">Expressway & Highway</p>
-                    <p className="mt-0.5 text-xs text-muted">Direct signal-free connectivity to main arterial highway</p>
+                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>Expressway & Highway</p>
+                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>Direct signal-free connectivity to main arterial highway</p>
                   </div>
 
-                  <div className="rounded-2xl border border-border bg-surface p-4">
-                    <p className="text-xs font-bold text-primary flex items-center gap-1.5">
+                  <div className={`rounded-2xl border p-4 transition-all ${
+                    isDeveloperAccount ? 'border-[#d4af37]/20 bg-[#0c121e] hover:border-[#d4af37]/40' : 'border-border bg-surface'
+                  }`}>
+                    <p className={`text-xs font-bold flex items-center gap-1.5 ${
+                      isDeveloperAccount ? 'text-[#f5d77f]' : 'text-primary'
+                    }`}>
                       <Route size={15} /> 15 - 20 Mins
                     </p>
-                    <p className="mt-1.5 text-sm font-extrabold text-text">Metro & Transit Station</p>
-                    <p className="mt-0.5 text-xs text-muted">Rapid transit station with dedicated parking</p>
+                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>Metro & Transit Station</p>
+                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>Rapid transit station with dedicated parking</p>
                   </div>
 
-                  <div className="rounded-2xl border border-border bg-surface p-4">
-                    <p className="text-xs font-bold text-primary flex items-center gap-1.5">
+                  <div className={`rounded-2xl border p-4 transition-all ${
+                    isDeveloperAccount ? 'border-[#d4af37]/20 bg-[#0c121e] hover:border-[#d4af37]/40' : 'border-border bg-surface'
+                  }`}>
+                    <p className={`text-xs font-bold flex items-center gap-1.5 ${
+                      isDeveloperAccount ? 'text-[#f5d77f]' : 'text-primary'
+                    }`}>
                       <Building2 size={15} /> 10 - 12 Mins
                     </p>
-                    <p className="mt-1.5 text-sm font-extrabold text-text">Schools & Hospitals</p>
-                    <p className="mt-0.5 text-xs text-muted">Top CBSE/IB schools and multispecialty medical care</p>
+                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>Schools & Hospitals</p>
+                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>Top CBSE/IB schools and multispecialty medical care</p>
                   </div>
 
-                  <div className="rounded-2xl border border-border bg-surface p-4">
-                    <p className="text-xs font-bold text-primary flex items-center gap-1.5">
+                  <div className={`rounded-2xl border p-4 transition-all ${
+                    isDeveloperAccount ? 'border-[#d4af37]/20 bg-[#0c121e] hover:border-[#d4af37]/40' : 'border-border bg-surface'
+                  }`}>
+                    <p className={`text-xs font-bold flex items-center gap-1.5 ${
+                      isDeveloperAccount ? 'text-[#f5d77f]' : 'text-primary'
+                    }`}>
                       <MapPin size={15} /> 35 - 45 Mins
                     </p>
-                    <p className="mt-1.5 text-sm font-extrabold text-text">Airport / Aerocity</p>
-                    <p className="mt-0.5 text-xs text-muted">Smooth commute via high-speed corridor</p>
+                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>Airport / Aerocity</p>
+                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>Smooth commute via high-speed corridor</p>
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-6 flex flex-wrap items-center gap-3 pt-5 border-t border-border">
+              <div className={`mt-6 flex flex-wrap items-center gap-3 pt-5 border-t ${
+                isDeveloperAccount ? 'border-[#d4af37]/20' : 'border-border'
+              }`}>
                 <button
                   type="button"
                   onClick={handleDownloadBrochure}
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 rounded-xl bg-primary px-6 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-rose-600 transition-all cursor-pointer"
+                  className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 rounded-xl px-6 py-3.5 text-sm font-black shadow-lg transition-all cursor-pointer ${
+                    isDeveloperAccount
+                      ? 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#c5a059] text-gray-950 shadow-[#d4af37]/25 hover:brightness-105'
+                      : 'bg-primary text-white shadow-sm hover:bg-rose-600'
+                  }`}
                 >
                   <Download size={18} />
                   <span>Download Brochure (PDF)</span>
@@ -1083,7 +1667,7 @@ const PropertyDetails = () => {
                 <button
                   type="button"
                   onClick={handleRequestBrochureOnWhatsApp}
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-emerald-700 transition-all cursor-pointer"
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition-all cursor-pointer"
                 >
                   <MessageCircle size={18} />
                   <span>Get on WhatsApp</span>
@@ -1091,50 +1675,83 @@ const PropertyDetails = () => {
               </div>
             </section>
 
-            <EMICalculator propertyPrice={property.priceValue} propertyPriceStr={property.price} />
+            {!isDeveloperAccount && !property?.isDeveloperListing && (
+              <EMICalculator propertyPrice={property.priceValue} propertyPriceStr={property.price} />
+            )}
           </main>
 
           <aside>
             <div className="space-y-5 md:sticky md:top-28">
-              <div className="rounded-[1.5rem] border border-border bg-white p-4 shadow-card md:rounded-[2rem] md:p-6">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted">
-                  {isDeveloperAccount ? 'Builder / Developer Sales Desk' : 'Associate Partner Contact'}
+              <div className={`p-4 transition-all ${
+                isDeveloperAccount
+                  ? 'rounded-[1.5rem] border-2 border-[#d4af37]/40 bg-gradient-to-b from-[#0e1422] via-[#0b101a] to-[#070b12] p-5 md:rounded-[2rem] md:p-7 shadow-[0_0_50px_rgba(212,175,55,0.12)] text-white'
+                  : 'rounded-[1.5rem] border border-border bg-white shadow-card md:rounded-[2rem] md:p-6'
+              }`}>
+                <p className={`text-xs font-bold uppercase tracking-wide ${
+                  isDeveloperAccount ? 'text-[#d4af37] tracking-widest font-black text-[11px] flex items-center gap-1.5' : 'text-muted'
+                }`}>
+                  {isDeveloperAccount ? (
+                    <>
+                      <Building2 size={13} className="text-[#d4af37]" />
+                      OFFICIAL BUILDER SALES DESK
+                    </>
+                  ) : 'Associate Partner Contact'}
                 </p>
                 <div className="mt-5 flex items-center gap-4">
-                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-xl font-extrabold text-white shadow-sm ${property.isDeveloperListing ? 'bg-primary' : 'bg-secondary'}`}>
+                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-xl font-black shadow-sm ${
+                    isDeveloperAccount
+                      ? 'bg-gradient-to-br from-[#d4af37] via-[#ffd700] to-[#b38728] text-gray-950 text-2xl shadow-[0_0_20px_rgba(212,175,55,0.35)]'
+                      : property.isDeveloperListing ? 'bg-primary text-white' : 'bg-secondary text-white'
+                  }`}>
                     {property.isDeveloperListing ? <Building2 size={26} /> : activeBroker.name.charAt(0)}
                   </div>
                   <div>
-                    <h3 className="flex items-center gap-1 font-extrabold text-text text-base">
+                    <h3 className={`flex items-center gap-1 font-black ${
+                      isDeveloperAccount ? 'text-white text-lg' : 'text-text text-base font-extrabold'
+                    }`}>
                       {activeBroker.name}
-                      <BadgeCheck size={16} className="text-primary flex-shrink-0" />
+                      <BadgeCheck size={18} className={isDeveloperAccount ? 'text-[#d4af37] shrink-0' : 'text-primary shrink-0'} />
                     </h3>
-                    <p className="text-xs font-semibold text-muted">
-                      {property.isDeveloperListing ? 'Verified Builder Direct Listing' : `${activeBroker.properties} active properties`}
+                    <p className={`text-xs font-semibold ${
+                      isDeveloperAccount ? 'text-[#f5d77f]' : 'text-muted'
+                    }`}>
+                      {property.isDeveloperListing ? 'Official Developer Direct Listing' : `${activeBroker.properties} active properties`}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-5 rounded-2xl bg-surface p-4">
-                  <p className="text-sm font-bold text-text">
+                <div className={`mt-5 rounded-2xl p-4 transition-colors ${
+                  isDeveloperAccount
+                    ? 'bg-[#060910] border border-[#d4af37]/20 text-white'
+                    : 'bg-surface'
+                }`}>
+                  <p className={`text-sm font-bold ${
+                    isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                  }`}>
                     {property.isDeveloperListing ? 'Direct Builder Inquiry' : activeBroker.response}
                   </p>
-                  <p className="mt-1 text-xs font-medium text-muted">
+                  <p className={`mt-1 text-xs font-medium ${
+                    isDeveloperAccount ? 'text-slate-400' : 'text-muted'
+                  }`}>
                     {property.isDeveloperListing 
                       ? 'Inquire for official master plans, unit layout drawings, and booking site visits.'
                       : 'Ask for exact plot number, documents, or site visit slots.'}
                   </p>
 
                   {property.isDeveloperListing && activeBroker.address && (
-                    <div className="mt-3 pt-3 border-t border-border/70 flex items-start gap-2 text-xs font-semibold text-text">
-                      <MapPin size={14} className="text-primary mt-0.5 flex-shrink-0" />
+                    <div className={`mt-3 pt-3 border-t flex items-start gap-2 text-xs font-semibold ${
+                      isDeveloperAccount ? 'border-[#d4af37]/20 text-slate-300' : 'border-border/70 text-text'
+                    }`}>
+                      <MapPin size={14} className={`mt-0.5 flex-shrink-0 ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-primary'}`} />
                       <span>{activeBroker.address}</span>
                     </div>
                   )}
 
                   {property.isDeveloperListing && activeBroker.email && (
-                    <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-text">
-                      <Mail size={14} className="text-primary flex-shrink-0" />
+                    <div className={`mt-2 flex items-center gap-2 text-xs font-semibold ${
+                      isDeveloperAccount ? 'text-slate-300' : 'text-text'
+                    }`}>
+                      <Mail size={14} className={`flex-shrink-0 ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-primary'}`} />
                       <span className="truncate">{activeBroker.email}</span>
                     </div>
                   )}
@@ -1144,14 +1761,22 @@ const PropertyDetails = () => {
                   <a
                     href="#"
                     onClick={handleDirectChat}
-                    className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-sm font-extrabold text-white transition-colors hover:bg-[#1ebd5a] shadow-sm"
+                    className={`flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-black text-white transition-all shadow-md ${
+                      isDeveloperAccount
+                        ? 'bg-gradient-to-r from-[#25D366] to-[#1ebd5a] shadow-emerald-500/20 hover:brightness-110'
+                        : 'bg-[#25D366] hover:bg-[#1ebd5a]'
+                    }`}
                   >
                     <MessageCircle size={18} />
                     {property.isDeveloperListing ? 'WhatsApp Builder Desk' : 'Direct to Chat'}
                   </a>
                   <a
                     href={`tel:+${activeBroker.callNumber}`}
-                    className="flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-white text-sm font-extrabold text-text transition-colors hover:border-primary hover:text-primary shadow-sm"
+                    className={`flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-black transition-all shadow-sm ${
+                      isDeveloperAccount
+                        ? 'border-2 border-[#d4af37] bg-transparent text-[#f5d77f] hover:bg-[#d4af37]/15'
+                        : 'border border-border bg-white text-text hover:border-primary hover:text-primary font-extrabold'
+                    }`}
                   >
                     <Phone size={18} />
                     {property.isDeveloperListing ? 'Call Builder Desk' : 'Call Associate Partner'}
@@ -1159,10 +1784,16 @@ const PropertyDetails = () => {
                 </div>
               </div>
 
-              <div className="rounded-[1.5rem] bg-secondary p-5 text-white shadow-sm md:rounded-[2rem] md:p-6">
-                <ShieldCheck size={24} />
+              <div className={`p-5 text-white shadow-sm md:rounded-[2rem] md:p-6 transition-all ${
+                isDeveloperAccount
+                  ? 'rounded-[1.5rem] bg-gradient-to-br from-[#121827] to-[#0d131f] border border-[#d4af37]/25 shadow-lg'
+                  : 'rounded-[1.5rem] bg-secondary'
+              }`}>
+                <ShieldCheck size={24} className={isDeveloperAccount ? 'text-[#d4af37]' : 'text-white'} />
                 <h3 className="mt-4 text-lg font-extrabold">Buyer safety promise</h3>
-                <p className="mt-2 text-sm font-medium leading-6 text-white/75">
+                <p className={`mt-2 text-sm font-medium leading-6 ${
+                  isDeveloperAccount ? 'text-slate-300' : 'text-white/75'
+                }`}>
                   We verify associate partner details and key property signals before showing them to buyers.
                 </p>
               </div>
@@ -1173,10 +1804,15 @@ const PropertyDetails = () => {
         <section className="mt-14">
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-extrabold text-text">Similar properties</h2>
-              <p className="mt-1 text-sm font-medium text-muted">Suggestions based on city, property type, and investment profile.</p>
+              <h2 className={`text-2xl font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>Similar properties</h2>
+              <p className={`mt-1 text-sm font-medium ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>Suggestions based on city, property type, and investment profile.</p>
             </div>
-            <Link href="/listings" className="hidden items-center gap-1 text-sm font-bold text-secondary hover:text-primary sm:flex">
+            <Link 
+              href="/listings" 
+              className={`hidden items-center gap-1 text-sm font-bold sm:flex ${
+                isDeveloperAccount ? 'text-[#d4af37] hover:text-[#f5d77f]' : 'text-secondary hover:text-primary'
+              }`}
+            >
               View all
               <ChevronRight size={16} />
             </Link>
@@ -1187,7 +1823,11 @@ const PropertyDetails = () => {
               <Link
                 key={suggestion.id}
                 href={`/property/${suggestion.id}`}
-                className="group overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
+                className={`group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1 ${
+                  isDeveloperAccount
+                    ? 'border-[#d4af37]/20 bg-[#0d1320] text-white hover:border-[#d4af37]/50 shadow-md hover:shadow-[0_10px_35px_rgba(0,0,0,0.5)]'
+                    : 'border-border bg-white shadow-sm hover:shadow-card'
+                }`}
               >
                 <div className="relative h-52 overflow-hidden">
                   <img
@@ -1217,23 +1857,25 @@ const PropertyDetails = () => {
                     </p>
                   )}
                   <div className="mb-3 flex items-center gap-2">
-                    <span className="rounded-full bg-surface px-3 py-1 text-xs font-bold text-text">{suggestion.type}</span>
+                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${
+                      isDeveloperAccount ? 'bg-[#151d2f] text-slate-300' : 'bg-surface text-text'
+                    }`}>{suggestion.type}</span>
                     <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
                       <CheckCircle2 size={13} />
                       Approved
                     </span>
                   </div>
-                  <h3 className="line-clamp-2 text-lg font-extrabold text-text">{suggestion.title}</h3>
-                  <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-muted">
-                    <MapPin size={15} />
+                  <h3 className={`line-clamp-2 text-lg font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>{suggestion.title}</h3>
+                  <p className={`mt-2 flex items-center gap-1.5 text-sm font-semibold ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>
+                    <MapPin size={15} className={isDeveloperAccount ? 'text-[#d4af37]' : ''} />
                     {suggestion.location}
                   </p>
                   <div className="mt-5 flex items-end justify-between gap-4">
                     <div>
-                      <p className="text-xl font-extrabold text-text">{suggestion.price}</p>
-                      <p className="text-xs font-semibold text-muted">{suggestion.size} - {suggestion.rate}</p>
+                      <p className={`text-xl font-extrabold ${isDeveloperAccount ? 'text-[#f5d77f]' : 'text-text'}`}>{suggestion.price}</p>
+                      <p className={`text-xs font-semibold ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>{suggestion.size} - {suggestion.rate}</p>
                     </div>
-                    <span className="text-sm font-bold text-secondary">Details</span>
+                    <span className={`text-sm font-bold ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-secondary'}`}>Details</span>
                   </div>
                 </div>
               </Link>
@@ -1241,11 +1883,15 @@ const PropertyDetails = () => {
           </div>
         </section>
       </div>
-      <div className="fixed inset-x-0 bottom-[88px] z-40 border-t border-border bg-white/95 px-4 py-3 shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur-xl md:hidden">
+      <div className={`fixed inset-x-0 bottom-[88px] z-40 border-t px-4 py-3 shadow-[0_-12px_30px_rgba(0,0,0,0.3)] backdrop-blur-xl md:hidden transition-all ${
+        isDeveloperAccount
+          ? 'border-[#d4af37]/30 bg-[#070b13]/95 text-white'
+          : 'border-border bg-white/95 text-text'
+      }`}>
         <div className="mx-auto flex max-w-[420px] items-center gap-3">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-extrabold text-text">{activeBroker.name}</p>
-            <p className="text-xs font-semibold text-muted">{activeBroker.response}</p>
+            <p className={`truncate text-sm font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>{activeBroker.name}</p>
+            <p className={`text-xs font-semibold ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'}`}>{activeBroker.response}</p>
           </div>
             <>
               <a
@@ -1258,7 +1904,11 @@ const PropertyDetails = () => {
               </a>
               <a
                 href={`tel:+${activeBroker.callNumber}`}
-                className="flex h-11 min-w-[86px] flex-shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-extrabold text-white shadow-lg shadow-primary/20"
+                className={`flex h-11 min-w-[86px] flex-shrink-0 items-center justify-center gap-2 rounded-full px-4 text-sm font-black shadow-lg ${
+                  isDeveloperAccount
+                    ? 'bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] text-gray-950 shadow-[#d4af37]/25'
+                    : 'bg-primary text-white shadow-primary/20'
+                }`}
               >
                 <Phone size={17} />
                 Call
