@@ -795,58 +795,38 @@ const PropertyDetails = () => {
   } : null;
 
   return (
-    <div className={`min-h-screen pb-44 pt-4 font-sans md:pb-16 md:pt-28 relative transition-colors duration-300 ${
-      isDeveloperAccount 
-        ? 'bg-[#070a11] text-slate-100 selection:bg-[#d4af37] selection:text-black' 
-        : 'bg-surface text-text'
-    }`}>
-      {/* Developer Luxury Ambient Top Glow */}
+    <div className="min-h-screen pb-44 pt-4 font-sans md:pb-16 md:pt-28 relative bg-surface text-text">
+      {/* Subtle builder luxury warm ambient glow */}
       {isDeveloperAccount && (
-        <div className="absolute top-0 left-0 w-full h-[650px] bg-gradient-to-b from-[#d4af37]/10 via-[#d4af37]/[0.02] to-transparent pointer-events-none" />
+        <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-amber-500/[0.04] via-transparent to-transparent pointer-events-none" />
       )}
       
       <div className="container relative z-10 mx-auto max-w-[1440px] px-6 lg:px-12">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 md:mb-6">
           <Link
             href="/listings"
-            className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold shadow-sm transition-all md:px-4 md:text-sm ${
-              isDeveloperAccount
-                ? 'border-[#d4af37]/30 bg-[#0e1422] text-slate-300 hover:border-[#d4af37] hover:text-[#d4af37]'
-                : 'border-border bg-white text-muted hover:border-primary hover:text-primary'
-            }`}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-3 py-2 text-xs font-bold text-muted shadow-sm transition-colors hover:border-primary hover:text-primary md:px-4 md:text-sm"
           >
             <ArrowLeft size={17} />
             Back to listings
           </Link>
 
           <div className="flex items-center gap-2">
-            {shareStatus && (
-              <span className={`text-xs font-bold ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-primary'}`}>
-                {shareStatus}
-              </span>
-            )}
+            {shareStatus && <span className="text-xs font-bold text-primary">{shareStatus}</span>}
             <button
               type="button"
               onClick={handleShare}
-              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-sm transition-all ${
-                isDeveloperAccount
-                  ? 'border-[#d4af37]/30 bg-[#0e1422] text-slate-300 hover:border-[#d4af37] hover:text-[#d4af37]'
-                  : 'border-border bg-white text-muted hover:border-primary hover:text-primary'
-              }`}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white text-muted shadow-sm transition-colors hover:border-primary hover:text-primary"
               aria-label="Share property"
             >
               <Share2 size={18} />
             </button>
             <button
               onClick={() => toggleCompare(property)}
-              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-sm transition-all ${
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border bg-white shadow-sm transition-colors ${
                 compareList.some(p => String(p.id) === String(property.id))
-                  ? isDeveloperAccount 
-                    ? 'border-[#d4af37] bg-[#d4af37] text-gray-950 font-black'
-                    : 'border-primary bg-primary text-white'
-                  : isDeveloperAccount
-                    ? 'border-[#d4af37]/30 bg-[#0e1422] text-slate-300 hover:border-[#d4af37] hover:text-[#d4af37]'
-                    : 'border-border bg-white text-muted hover:border-primary hover:text-primary'
+                  ? 'border-primary bg-primary text-white'
+                  : 'border-border text-muted hover:border-primary hover:text-primary'
               }`}
               title="Compare Property"
             >
@@ -854,11 +834,7 @@ const PropertyDetails = () => {
             </button>
             <button
               onClick={handleDirectChat}
-              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-sm transition-all ${
-                isDeveloperAccount
-                  ? 'border-emerald-500/40 bg-[#0e1422] text-emerald-400 hover:border-emerald-400 shadow-emerald-500/10'
-                  : 'border-border bg-white text-muted hover:border-[#25D366] hover:text-[#25D366]'
-              }`}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-white shadow-sm transition-colors hover:border-[#25D366] hover:text-[#25D366] text-muted"
               title="Direct to WhatsApp"
             >
               <MessageCircle size={18} className="text-[#25D366]" />
@@ -869,10 +845,10 @@ const PropertyDetails = () => {
         {/* Top Property Images & Videos Banner */}
         <section 
           id="gallery" 
-          className={`mb-5 overflow-hidden rounded-[1.5rem] border p-2 md:mb-8 md:rounded-[2rem] md:p-4 transition-all ${
+          className={`mb-5 overflow-hidden rounded-[1.5rem] border p-2 md:mb-8 md:rounded-[2rem] md:p-3.5 transition-all bg-white ${
             isDeveloperAccount
-              ? 'border-[#d4af37]/30 bg-[#0c111c] shadow-[0_12px_40px_rgba(0,0,0,0.6)]'
-              : 'border-border bg-white shadow-sm'
+              ? 'border-amber-200/90 shadow-[0_8px_30px_rgba(212,175,55,0.08)]'
+              : 'border-border shadow-sm'
           }`}
         >
           <div className="flex h-[320px] sm:h-[380px] flex-col gap-3 md:h-[460px] lg:flex-row lg:gap-4">
@@ -990,9 +966,7 @@ const PropertyDetails = () => {
               <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-4 md:p-5 z-20">
                 <div className="flex flex-wrap items-center gap-2 pointer-events-auto">
                   {property.featured && (
-                    <span className={`rounded-full px-3 py-1 text-xs font-extrabold ${
-                      isDeveloperAccount ? 'bg-[#d4af37] text-gray-950 font-black shadow-md' : 'bg-primary text-white'
-                    }`}>
+                    <span className="rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white shadow-sm">
                       Featured Project
                     </span>
                   )}
@@ -1001,27 +975,21 @@ const PropertyDetails = () => {
                       This is a demo property
                     </span>
                   )}
-                  <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold shadow-sm ${
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-extrabold shadow-sm ${
                     isDeveloperAccount
-                      ? 'bg-gradient-to-r from-[#d4af37]/25 via-[#ffdf00]/20 to-[#d4af37]/25 text-[#f5d77f] border border-[#d4af37]/60 backdrop-blur-md'
+                      ? 'bg-white/95 text-slate-900 border border-amber-300 backdrop-blur-md'
                       : 'bg-white text-text'
                   }`}>
-                    <ShieldCheck size={14} className={isDeveloperAccount ? 'text-[#d4af37]' : 'text-primary'} />
+                    <ShieldCheck size={14} className={isDeveloperAccount ? 'text-amber-600' : 'text-primary'} />
                     {isDeveloperAccount ? 'Official Builder Verified' : 'Associate Partner verified'}
                   </span>
-                  <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-extrabold ${
-                    isDeveloperAccount ? 'bg-black/70 text-slate-200 border border-white/10 backdrop-blur-md' : 'bg-white text-text'
-                  }`}>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text shadow-sm">
                     <Camera size={13} />
                     {propertyImages.length} photos
                   </span>
                   {propertyVideos.length > 0 && (
-                    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-extrabold shadow-sm ${
-                      isDeveloperAccount 
-                        ? 'bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] text-gray-950 font-black' 
-                        : 'bg-primary text-white'
-                    }`}>
-                      <Play size={11} className={`fill-current ${isDeveloperAccount ? 'text-gray-950' : 'text-white'}`} />
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white shadow-sm">
+                      <Play size={11} className="fill-current text-white" />
                       {propertyVideos.length} {propertyVideos.length === 1 ? 'video tour' : 'video tours'}
                     </span>
                   )}
@@ -1040,11 +1008,7 @@ const PropertyDetails = () => {
                       key={`thumb-${item.url}-${index}`} 
                       onClick={() => setCurrentImageIndex(targetIndex)}
                       className={`relative flex-1 w-full overflow-hidden rounded-2xl cursor-pointer group bg-black transition-all ${
-                        isCurrent 
-                          ? isDeveloperAccount 
-                            ? 'ring-2 ring-[#d4af37] ring-offset-2 ring-offset-[#0c111c]' 
-                            : 'ring-2 ring-primary ring-offset-2' 
-                          : ''
+                        isCurrent ? 'ring-2 ring-primary ring-offset-2' : ''
                       }`}
                     >
                       {item.type === 'video' ? (
@@ -1094,13 +1058,13 @@ const PropertyDetails = () => {
               id="overview" 
               className={`relative rounded-[1.5rem] border p-5 md:p-8 lg:p-9 transition-all ${
                 isDeveloperAccount
-                  ? 'border-[#d4af37]/25 bg-gradient-to-b from-[#0d1320] via-[#0b101b] to-[#080d16] text-white shadow-[0_12px_45px_rgba(0,0,0,0.5)]'
+                  ? 'border-amber-200/90 bg-white shadow-[0_10px_35px_-5px_rgba(212,175,55,0.08)]'
                   : 'border-border bg-white shadow-sm'
               }`}
             >
               {/* Top Navigation Tabs */}
               <div className={`flex items-center gap-6 md:gap-8 overflow-x-auto no-scrollbar border-b pb-3 text-sm ${
-                isDeveloperAccount ? 'border-[#d4af37]/20' : 'border-border/80'
+                isDeveloperAccount ? 'border-amber-100' : 'border-border/80'
               }`}>
                 {[
                   { id: 'overview', label: 'Overview' },
@@ -1115,10 +1079,10 @@ const PropertyDetails = () => {
                     className={`relative pb-3 -mb-3 transition-colors whitespace-nowrap cursor-pointer text-sm ${
                       activeTab === tab.id
                         ? isDeveloperAccount
-                          ? 'text-[#f5d77f] font-black after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2.5px] after:bg-gradient-to-r after:from-[#d4af37] after:to-[#f3e5ab] after:rounded-full'
+                          ? 'text-amber-900 font-extrabold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2.5px] after:bg-gradient-to-r after:from-amber-500 after:to-amber-600 after:rounded-full'
                           : 'text-text font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2.5px] after:bg-primary after:rounded-full'
                         : isDeveloperAccount
-                          ? 'text-slate-400 font-medium hover:text-[#f5d77f]'
+                          ? 'text-slate-600 font-medium hover:text-amber-800'
                           : 'text-muted font-medium hover:text-text'
                     }`}
                   >
@@ -1130,12 +1094,12 @@ const PropertyDetails = () => {
               {/* RERA Approved Badge / Scheme */}
               {isDeveloperAccount ? (
                 <div className="mt-6 md:mt-7 flex items-center gap-2 flex-wrap">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3.5 py-1 text-xs font-black tracking-widest text-[#f5d77f] uppercase shadow-sm">
-                    <Building2 size={13} className="text-[#d4af37]" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50/90 px-3.5 py-1 text-xs font-black tracking-wider text-amber-900 uppercase shadow-xs">
+                    <Building2 size={13} className="text-amber-600" />
                     {parsedDetails.scheme ? `OFFICIAL TOWNSHIP • ${parsedDetails.scheme}` : 'OFFICIAL BUILDER TOWNSHIP'}
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-950/40 px-3 py-1 text-xs font-bold text-emerald-400">
-                    <CheckCircle2 size={12} /> Direct Builder Inventory
+                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50/90 px-3 py-1 text-xs font-bold text-emerald-800 shadow-xs">
+                    <CheckCircle2 size={12} className="text-emerald-600" /> Direct Builder Inventory
                   </span>
                 </div>
               ) : (
@@ -1147,34 +1111,34 @@ const PropertyDetails = () => {
               {/* Title, Location & Price */}
               <div className="mt-2.5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h1 className={`font-serif text-3xl font-extrabold tracking-tight md:text-4xl lg:text-[42px] leading-tight ${
-                    isDeveloperAccount ? 'text-white drop-shadow-sm' : 'text-text'
+                  <h1 className={`font-serif text-3xl font-extrabold tracking-tight md:text-4xl lg:text-[40px] leading-tight ${
+                    isDeveloperAccount ? 'text-slate-900' : 'text-text'
                   }`}>
                     {displayTitle}
                   </h1>
                   <p className={`mt-1.5 flex items-center gap-1.5 text-sm font-medium md:text-base ${
-                    isDeveloperAccount ? 'text-slate-300' : 'text-muted'
+                    isDeveloperAccount ? 'text-slate-600' : 'text-muted'
                   }`}>
-                    <MapPin size={16} className={`shrink-0 ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'}`} />
+                    <MapPin size={16} className={`shrink-0 ${isDeveloperAccount ? 'text-amber-600' : 'text-muted'}`} />
                     <span>{displayLocation}</span>
                   </p>
                 </div>
 
                 <div className="text-left sm:text-right shrink-0">
                   <p className={`text-xs font-bold uppercase tracking-wider ${
-                    isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                    isDeveloperAccount ? 'text-amber-800' : 'text-muted'
                   }`}>
                     {selectedPlotSize ? `Selected (${displaySizeLabel})` : 'Starting from'}
                   </p>
                   <p className={`mt-0.5 text-2xl font-black md:text-3xl lg:text-[34px] tracking-tight ${
                     isDeveloperAccount 
-                      ? 'text-transparent bg-clip-text bg-gradient-to-r from-white via-[#fff1cb] to-[#d4af37]' 
+                      ? 'text-slate-950 font-black' 
                       : 'text-text font-bold'
                   }`}>
                     {displayPrice}
                   </p>
                   <p className={`mt-0.5 text-xs font-medium md:text-sm ${
-                    isDeveloperAccount ? 'text-slate-400' : 'text-muted'
+                    isDeveloperAccount ? 'text-slate-500' : 'text-muted'
                   }`}>
                     {formattedRate}{displaySizeLabel ? ` · ${displaySizeLabel}` : ''}
                   </p>
@@ -1184,32 +1148,32 @@ const PropertyDetails = () => {
               {/* 6-box specs grid */}
               <div className={`mt-6 md:mt-8 overflow-hidden rounded-2xl border transition-all ${
                 isDeveloperAccount
-                  ? 'border-[#d4af37]/25 bg-[#090d16]/90 shadow-lg'
+                  ? 'border-amber-200/80 bg-slate-50/70 shadow-xs'
                   : 'border-border bg-white shadow-xs'
               }`}>
                 <div className={`grid grid-cols-3 divide-x border-b ${
-                  isDeveloperAccount ? 'divide-[#d4af37]/20 border-[#d4af37]/20' : 'divide-border border-border'
+                  isDeveloperAccount ? 'divide-slate-200/80 border-slate-200/80' : 'divide-border border-border'
                 }`}>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
                     <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
-                      isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                      isDeveloperAccount ? 'text-amber-800' : 'text-muted'
                     }`}>
                       {isDeveloperAccount ? 'DEVELOPER' : 'LISTED BY'}
                     </p>
                     <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
-                      isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                      isDeveloperAccount ? 'text-slate-900 font-extrabold' : 'text-text'
                     }`}>
                       {isDeveloperAccount ? (parsedDetails.developer || 'Reputed Developer') : 'Associate Partner'}
                     </p>
                   </div>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
                     <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
-                      isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                      isDeveloperAccount ? 'text-amber-800' : 'text-muted'
                     }`}>
                       {availablePlotSizes.length > 1 ? 'PLOT SIZES' : 'TOTAL AREA'}
                     </p>
                     <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
-                      isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                      isDeveloperAccount ? 'text-slate-900 font-extrabold' : 'text-text'
                     }`}>
                       {availablePlotSizes.length > 1
                         ? `${availablePlotSizes[0].size} - ${availablePlotSizes[availablePlotSizes.length - 1].size} Sq. Yrd`
@@ -1218,39 +1182,39 @@ const PropertyDetails = () => {
                   </div>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
                     <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
-                      isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                      isDeveloperAccount ? 'text-amber-800' : 'text-muted'
                     }`}>PLOTS</p>
                     <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
-                      isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                      isDeveloperAccount ? 'text-slate-900 font-extrabold' : 'text-text'
                     }`}>{parsedDetails.plots}</p>
                   </div>
                 </div>
 
                 <div className={`grid grid-cols-3 divide-x ${
-                  isDeveloperAccount ? 'divide-[#d4af37]/20' : 'divide-border'
+                  isDeveloperAccount ? 'divide-slate-200/80' : 'divide-border'
                 }`}>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
                     <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
-                      isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                      isDeveloperAccount ? 'text-amber-800' : 'text-muted'
                     }`}>SCHEME</p>
                     <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
-                      isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                      isDeveloperAccount ? 'text-slate-900 font-extrabold' : 'text-text'
                     }`}>{parsedDetails.scheme}</p>
                   </div>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
                     <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
-                      isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                      isDeveloperAccount ? 'text-amber-800' : 'text-muted'
                     }`}>RERA APPROVAL</p>
                     <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
-                      isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                      isDeveloperAccount ? 'text-slate-900 font-extrabold' : 'text-text'
                     }`}>{parsedDetails.reraApproval}</p>
                   </div>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
                     <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
-                      isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                      isDeveloperAccount ? 'text-amber-800' : 'text-muted'
                     }`}>POSSESSION</p>
                     <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
-                      isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                      isDeveloperAccount ? 'text-slate-900 font-extrabold' : 'text-text'
                     }`}>{parsedDetails.possession}</p>
                   </div>
                 </div>
@@ -1258,25 +1222,25 @@ const PropertyDetails = () => {
 
               {/* RERA line */}
               <div className="mt-3.5 flex flex-wrap items-center gap-2 text-xs md:text-sm">
-                <CertificateBadgeIcon className={`h-5 w-5 shrink-0 ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-secondary'}`} />
-                <span className={`font-semibold tracking-tight ${isDeveloperAccount ? 'text-slate-100' : 'text-text'}`}>
+                <CertificateBadgeIcon className={`h-5 w-5 shrink-0 ${isDeveloperAccount ? 'text-amber-600' : 'text-secondary'}`} />
+                <span className={`font-semibold tracking-tight ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>
                   {parsedDetails.reraNumber || property.reraNumber || 'HRERA-PKL-JJR-678-2025'}
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyRera}
-                  className={`p-1 transition-colors rounded ${isDeveloperAccount ? 'text-slate-400 hover:text-white' : 'text-muted hover:text-text'}`}
+                  className={`p-1 transition-colors rounded ${isDeveloperAccount ? 'text-slate-500 hover:text-slate-900' : 'text-muted hover:text-text'}`}
                   title="Copy RERA Number"
                 >
-                  {copiedRera ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                  {copiedRera ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
                 </button>
-                {copiedRera && <span className="text-xs font-semibold text-emerald-400">Copied!</span>}
+                {copiedRera && <span className="text-xs font-semibold text-emerald-600">Copied!</span>}
                 <a
                   href={reraVerifyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`font-bold ml-1.5 inline-flex items-center gap-1 hover:underline transition-colors ${
-                    isDeveloperAccount ? 'text-[#d4af37] hover:text-[#f5d77f]' : 'text-secondary hover:text-primary'
+                    isDeveloperAccount ? 'text-amber-700 hover:text-amber-900' : 'text-secondary hover:text-primary'
                   }`}
                 >
                   Verify on HRERA
@@ -1287,29 +1251,29 @@ const PropertyDetails = () => {
               {availablePlotSizes.length > 0 && (
                 <div className={`mt-6 md:mt-7 rounded-2xl border p-4 sm:p-5 transition-all ${
                   isDeveloperAccount
-                    ? 'border-[#d4af37]/30 bg-[#090e18] shadow-inner'
+                    ? 'border-amber-200/90 bg-gradient-to-br from-amber-50/50 via-white to-amber-50/20 shadow-xs'
                     : 'border-border bg-gray-50/80'
                 }`}>
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                     <div>
                       <div className="flex items-center gap-2">
                         <span className={`flex h-6 w-6 items-center justify-center rounded-lg ${
-                          isDeveloperAccount ? 'bg-[#d4af37]/20 text-[#d4af37]' : 'bg-primary/10 text-primary'
+                          isDeveloperAccount ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'
                         }`}>
                           <Layers size={14} />
                         </span>
-                        <h3 className={`text-sm sm:text-base font-bold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>
+                        <h3 className={`text-sm sm:text-base font-bold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>
                           Available Plot Sizes (Plot Configurations)
                         </h3>
                       </div>
-                      <p className={`mt-0.5 text-xs font-medium ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>
+                      <p className={`mt-0.5 text-xs font-medium ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>
                         Builder offers different plot sizes in this layout. Select a size to view pricing:
                       </p>
                     </div>
                     {availablePlotSizes.length > 1 && (
                       <span className={`text-xs font-extrabold px-2.5 py-1 rounded-full ${
                         isDeveloperAccount
-                          ? 'bg-[#d4af37]/20 text-[#f5d77f] border border-[#d4af37]/40'
+                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
                           : 'bg-primary/10 text-primary'
                       }`}>
                         {availablePlotSizes.length} Sizes Available
@@ -1339,45 +1303,45 @@ const PropertyDetails = () => {
                           className={`flex flex-col text-left p-3 rounded-xl border transition-all cursor-pointer ${
                             isSelected
                               ? isDeveloperAccount
-                                ? 'border-[#d4af37] bg-gradient-to-br from-[#d4af37]/25 via-[#141b2c] to-[#0f1523] text-white shadow-lg ring-2 ring-[#d4af37]/50 scale-[1.02]'
+                                ? 'border-amber-500 bg-white shadow-md ring-2 ring-amber-500/20 scale-[1.02]'
                                 : 'border-primary bg-white shadow-sm ring-2 ring-primary/20 scale-[1.02]'
                               : isDeveloperAccount
-                                ? 'border-white/10 bg-[#0d1320] text-slate-300 hover:border-[#d4af37]/40 hover:bg-[#111827]'
+                                ? 'border-border bg-white text-slate-800 hover:border-amber-300 hover:bg-amber-50/30'
                                 : 'border-border bg-white hover:border-gray-300 hover:bg-gray-50/80'
                           }`}
                         >
                           <div className="flex items-center justify-between w-full">
                             <span className={`text-xs sm:text-sm font-extrabold ${
                               isSelected 
-                                ? isDeveloperAccount ? 'text-[#f5d77f]' : 'text-primary' 
-                                : isDeveloperAccount ? 'text-white' : 'text-text'
+                                ? isDeveloperAccount ? 'text-amber-900' : 'text-primary' 
+                                : isDeveloperAccount ? 'text-slate-900' : 'text-text'
                             }`}>
                               {variant.size} {variant.unit || 'Sq. Yd'}
                             </span>
                             {isSelected && (
                               <span className={`h-2 w-2 rounded-full ${
-                                isDeveloperAccount ? 'bg-[#d4af37] shadow-[0_0_8px_#d4af37]' : 'bg-primary'
+                                isDeveloperAccount ? 'bg-amber-500 shadow-xs' : 'bg-primary'
                               }`} />
                             )}
                           </div>
                           {priceDisplay && (
                             <span className={`mt-1 text-xs font-bold ${
                               isSelected
-                                ? isDeveloperAccount ? 'text-[#f5d77f]' : 'text-primary'
-                                : isDeveloperAccount ? 'text-slate-200' : 'text-gray-900'
+                                ? isDeveloperAccount ? 'text-slate-950 font-black' : 'text-primary'
+                                : isDeveloperAccount ? 'text-slate-700' : 'text-gray-900'
                             }`}>
                               {priceDisplay}
                             </span>
                           )}
                           {variant.dimensions ? (
                             <span className={`text-[10px] font-medium mt-0.5 truncate ${
-                              isDeveloperAccount ? 'text-slate-400' : 'text-muted'
+                              isDeveloperAccount ? 'text-slate-500' : 'text-muted'
                             }`}>
                               {variant.dimensions}
                             </span>
                           ) : (
                             <span className={`text-[10px] font-medium mt-0.5 ${
-                              isDeveloperAccount ? 'text-slate-400' : 'text-muted'
+                              isDeveloperAccount ? 'text-slate-500' : 'text-muted'
                             }`}>
                               ~{Math.round(variant.size * 9)} Sq. Ft
                             </span>
@@ -1392,7 +1356,7 @@ const PropertyDetails = () => {
               {/* Verified Documents */}
               <div id="documents" className="mt-8 md:mt-10">
                 <h2 className={`font-serif text-2xl md:text-[28px] font-bold tracking-tight mb-4 ${
-                  isDeveloperAccount ? 'text-white' : 'text-text'
+                  isDeveloperAccount ? 'text-slate-900' : 'text-text'
                 }`}>
                   Verified documents
                 </h2>
@@ -1402,23 +1366,23 @@ const PropertyDetails = () => {
                       key={idx}
                       className={`min-w-[150px] sm:min-w-0 flex-1 rounded-2xl border p-3.5 sm:p-4 shadow-xs flex items-start gap-3 transition-all ${
                         isDeveloperAccount
-                          ? 'border-[#d4af37]/20 bg-[#0c121e] hover:border-[#d4af37]/50 hover:bg-[#101726]'
+                          ? 'border-amber-200/70 bg-white hover:border-amber-400 hover:shadow-card'
                           : 'border-border bg-white hover:shadow-card'
                       }`}
                     >
                       <div className={`flex h-5 w-5 items-center justify-center rounded-full border-[1.8px] shrink-0 mt-0.5 ${
                         isDeveloperAccount 
-                          ? 'border-[#d4af37] text-[#d4af37] bg-[#d4af37]/10' 
+                          ? 'border-emerald-600 text-emerald-600 bg-emerald-50' 
                           : 'border-emerald-600 text-emerald-600'
                       }`}>
                         <Check size={12} strokeWidth={3} />
                       </div>
                       <div className="min-w-0">
                         <p className={`font-bold text-sm sm:text-[15px] leading-snug truncate ${
-                          isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                          isDeveloperAccount ? 'text-slate-900' : 'text-text'
                         }`}>{doc.title}</p>
                         <p className={`text-[11px] sm:text-xs font-normal mt-0.5 ${
-                          isDeveloperAccount ? 'text-slate-400' : 'text-muted'
+                          isDeveloperAccount ? 'text-slate-500' : 'text-muted'
                         }`}>{doc.subtitle}</p>
                       </div>
                     </div>
@@ -1429,7 +1393,7 @@ const PropertyDetails = () => {
               {/* Amenities */}
               <div id="amenities" className="mt-8 md:mt-10">
                 <h2 className={`font-serif text-2xl md:text-[28px] font-bold tracking-tight mb-4 ${
-                  isDeveloperAccount ? 'text-white' : 'text-text'
+                  isDeveloperAccount ? 'text-slate-900' : 'text-text'
                 }`}>
                   Amenities
                 </h2>
@@ -1439,17 +1403,17 @@ const PropertyDetails = () => {
                       key={idx}
                       className={`min-w-[125px] sm:min-w-0 flex-1 rounded-2xl border p-4 sm:p-5 flex flex-col items-center justify-center text-center shadow-xs transition-all ${
                         isDeveloperAccount
-                          ? 'border-[#d4af37]/20 bg-[#0c121e] hover:border-[#d4af37]/50 hover:bg-[#101726]'
+                          ? 'border-amber-200/70 bg-white hover:border-amber-400 hover:shadow-card'
                           : 'border-border bg-white hover:shadow-card'
                       }`}
                     >
                       <div className={`h-9 w-9 flex items-center justify-center mb-2.5 ${
-                        isDeveloperAccount ? 'text-[#d4af37]' : 'text-text'
+                        isDeveloperAccount ? 'text-amber-600' : 'text-text'
                       }`}>
                         {getAmenityIcon(amenity)}
                       </div>
                       <p className={`text-xs sm:text-sm font-medium leading-tight ${
-                        isDeveloperAccount ? 'text-slate-200' : 'text-text'
+                        isDeveloperAccount ? 'text-slate-800 font-semibold' : 'text-text'
                       }`}>
                         {amenity}
                       </p>
@@ -1464,7 +1428,7 @@ const PropertyDetails = () => {
                 onClick={() => scrollToSection('siteplan')}
                 className={`absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border shadow-md transition-all hover:scale-105 z-10 ${
                   isDeveloperAccount
-                    ? 'bg-[#0e1422] border-[#d4af37]/40 text-[#d4af37] hover:border-[#d4af37] hover:bg-[#d4af37]/20'
+                    ? 'bg-white border-amber-300 text-amber-700 hover:border-amber-500 hover:bg-amber-50'
                     : 'bg-white border-border text-text hover:text-primary hover:border-primary'
                 }`}
                 aria-label="Scroll down"
@@ -1479,19 +1443,19 @@ const PropertyDetails = () => {
               id="siteplan" 
               className={`rounded-[1.5rem] border p-5 md:p-8 transition-all ${
                 isDeveloperAccount
-                  ? 'border-[#d4af37]/25 bg-gradient-to-b from-[#0d1320] to-[#080d16] text-white shadow-2xl'
+                  ? 'border-amber-200/90 bg-white shadow-sm'
                   : 'border-border bg-white shadow-sm'
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
                 <div>
                   <h2 className={`font-serif text-2xl md:text-[28px] font-bold tracking-tight ${
-                    isDeveloperAccount ? 'text-white' : 'text-text'
+                    isDeveloperAccount ? 'text-slate-900' : 'text-text'
                   }`}>
                     Site Plan & Master Layout
                   </h2>
                   <p className={`mt-1 text-xs sm:text-sm ${
-                    isDeveloperAccount ? 'text-slate-300' : 'text-muted'
+                    isDeveloperAccount ? 'text-slate-500' : 'text-muted'
                   }`}>
                     Official layout demarcations with road widths, entry gates, and green zones.
                   </p>
@@ -1501,7 +1465,7 @@ const PropertyDetails = () => {
                   onClick={handleDirectChat}
                   className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all w-fit ${
                     isDeveloperAccount
-                      ? 'border border-[#d4af37]/40 bg-[#d4af37]/15 text-[#f5d77f] hover:bg-[#d4af37]/25 shadow-sm'
+                      ? 'border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 shadow-xs'
                       : 'bg-secondary/10 text-secondary hover:bg-secondary/20'
                   }`}
                 >
@@ -1511,7 +1475,7 @@ const PropertyDetails = () => {
               </div>
 
               <div className={`relative overflow-hidden rounded-2xl border group ${
-                isDeveloperAccount ? 'border-[#d4af37]/30 bg-black' : 'border-border bg-surface'
+                isDeveloperAccount ? 'border-amber-200/80 bg-slate-100' : 'border-border bg-surface'
               }`}>
                 <img
                   src="https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=2000&auto=format&fit=crop"
@@ -1520,7 +1484,7 @@ const PropertyDetails = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent flex items-end p-5">
                   <div className="text-white">
-                    <p className={`text-sm font-bold ${isDeveloperAccount ? 'text-[#f5d77f]' : 'text-white'}`}>
+                    <p className={`text-sm font-bold ${isDeveloperAccount ? 'text-amber-200' : 'text-white'}`}>
                       Approved Master Layout Plan
                     </p>
                     <p className="text-xs text-white/80">Approved under {parsedDetails.scheme || 'DDJAY'} · Wide internal roads & green boundary</p>
@@ -1530,28 +1494,28 @@ const PropertyDetails = () => {
 
               <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                 <div className={`rounded-xl p-3 border transition-colors ${
-                  isDeveloperAccount ? 'bg-[#0b101b] border-[#d4af37]/20' : 'bg-surface border border-border/50'
+                  isDeveloperAccount ? 'bg-amber-50/40 border-amber-200/70' : 'bg-surface border border-border/50'
                 }`}>
-                  <p className={`text-[10px] font-bold uppercase ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'}`}>Road Width</p>
-                  <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isDeveloperAccount ? 'text-slate-100' : 'text-text'}`}>9m - 12m wide</p>
+                  <p className={`text-[10px] font-bold uppercase ${isDeveloperAccount ? 'text-amber-800' : 'text-muted'}`}>Road Width</p>
+                  <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>9m - 12m wide</p>
                 </div>
                 <div className={`rounded-xl p-3 border transition-colors ${
-                  isDeveloperAccount ? 'bg-[#0b101b] border-[#d4af37]/20' : 'bg-surface border border-border/50'
+                  isDeveloperAccount ? 'bg-amber-50/40 border-amber-200/70' : 'bg-surface border border-border/50'
                 }`}>
-                  <p className={`text-[10px] font-bold uppercase ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'}`}>Entry Gates</p>
-                  <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isDeveloperAccount ? 'text-slate-100' : 'text-text'}`}>2 Gated Entries</p>
+                  <p className={`text-[10px] font-bold uppercase ${isDeveloperAccount ? 'text-amber-800' : 'text-muted'}`}>Entry Gates</p>
+                  <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>2 Gated Entries</p>
                 </div>
                 <div className={`rounded-xl p-3 border transition-colors ${
-                  isDeveloperAccount ? 'bg-[#0b101b] border-[#d4af37]/20' : 'bg-surface border border-border/50'
+                  isDeveloperAccount ? 'bg-amber-50/40 border-amber-200/70' : 'bg-surface border border-border/50'
                 }`}>
-                  <p className={`text-[10px] font-bold uppercase ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'}`}>Parks & Green</p>
-                  <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isDeveloperAccount ? 'text-slate-100' : 'text-text'}`}>3 Landscaped Parks</p>
+                  <p className={`text-[10px] font-bold uppercase ${isDeveloperAccount ? 'text-amber-800' : 'text-muted'}`}>Parks & Green</p>
+                  <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>3 Landscaped Parks</p>
                 </div>
                 <div className={`rounded-xl p-3 border transition-colors ${
-                  isDeveloperAccount ? 'bg-[#0b101b] border-[#d4af37]/20' : 'bg-surface border border-border/50'
+                  isDeveloperAccount ? 'bg-amber-50/40 border-amber-200/70' : 'bg-surface border border-border/50'
                 }`}>
-                  <p className={`text-[10px] font-bold uppercase ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'}`}>Commercial Zone</p>
-                  <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isDeveloperAccount ? 'text-slate-100' : 'text-text'}`}>Designated Retail</p>
+                  <p className={`text-[10px] font-bold uppercase ${isDeveloperAccount ? 'text-amber-800' : 'text-muted'}`}>Commercial Zone</p>
+                  <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>Designated Retail</p>
                 </div>
               </div>
             </section>
@@ -1561,28 +1525,28 @@ const PropertyDetails = () => {
               id="brochure" 
               className={`rounded-[1.5rem] border p-5 md:p-8 transition-all ${
                 isDeveloperAccount
-                  ? 'border-[#d4af37]/25 bg-gradient-to-b from-[#0d1320] to-[#080d16] text-white shadow-2xl'
+                  ? 'border-amber-200/90 bg-white shadow-sm'
                   : 'border-border bg-white shadow-sm'
               }`}
             >
               <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b ${
-                isDeveloperAccount ? 'border-[#d4af37]/20' : 'border-border'
+                isDeveloperAccount ? 'border-amber-100' : 'border-border'
               }`}>
                 <div>
                   <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold mb-2 ${
                     isDeveloperAccount
-                      ? 'bg-[#d4af37]/15 border border-[#d4af37]/30 text-[#f5d77f]'
+                      ? 'bg-amber-100 border border-amber-300 text-amber-900'
                       : 'bg-primary/10 text-primary'
                   }`}>
                     <FileDown size={14} /> Official Documentation
                   </span>
                   <h2 className={`font-serif text-2xl md:text-[28px] font-bold tracking-tight ${
-                    isDeveloperAccount ? 'text-white' : 'text-text'
+                    isDeveloperAccount ? 'text-slate-900' : 'text-text'
                   }`}>
                     Project Brochure & Location Connectivity
                   </h2>
                   <p className={`mt-1 text-xs sm:text-sm ${
-                    isDeveloperAccount ? 'text-slate-300' : 'text-muted'
+                    isDeveloperAccount ? 'text-slate-500' : 'text-muted'
                   }`}>
                     Download the official project brochure containing verified layout drawings, RERA approvals, unit dimensions & exact landmark distances.
                   </p>
@@ -1592,71 +1556,71 @@ const PropertyDetails = () => {
               {/* Location Advantage & Distance to Key Places ("Kon si jagah kitni dur hai") */}
               <div className="mt-6">
                 <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${
-                  isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'
+                  isDeveloperAccount ? 'text-amber-800' : 'text-muted'
                 }`}>
                   Key Landmark Distances & Connectivity
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   <div className={`rounded-2xl border p-4 transition-all ${
-                    isDeveloperAccount ? 'border-[#d4af37]/20 bg-[#0c121e] hover:border-[#d4af37]/40' : 'border-border bg-surface'
+                    isDeveloperAccount ? 'border-amber-200/80 bg-amber-50/20 hover:border-amber-400' : 'border-border bg-surface'
                   }`}>
                     <p className={`text-xs font-bold flex items-center gap-1.5 ${
-                      isDeveloperAccount ? 'text-[#f5d77f]' : 'text-primary'
+                      isDeveloperAccount ? 'text-amber-800' : 'text-primary'
                     }`}>
                       <Route size={15} /> 5 - 10 Mins
                     </p>
-                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>Expressway & Highway</p>
-                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>Direct signal-free connectivity to main arterial highway</p>
+                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>Expressway & Highway</p>
+                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>Direct signal-free connectivity to main arterial highway</p>
                   </div>
 
                   <div className={`rounded-2xl border p-4 transition-all ${
-                    isDeveloperAccount ? 'border-[#d4af37]/20 bg-[#0c121e] hover:border-[#d4af37]/40' : 'border-border bg-surface'
+                    isDeveloperAccount ? 'border-amber-200/80 bg-amber-50/20 hover:border-amber-400' : 'border-border bg-surface'
                   }`}>
                     <p className={`text-xs font-bold flex items-center gap-1.5 ${
-                      isDeveloperAccount ? 'text-[#f5d77f]' : 'text-primary'
+                      isDeveloperAccount ? 'text-amber-800' : 'text-primary'
                     }`}>
                       <Route size={15} /> 15 - 20 Mins
                     </p>
-                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>Metro & Transit Station</p>
-                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>Rapid transit station with dedicated parking</p>
+                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>Metro & Transit Station</p>
+                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>Rapid transit station with dedicated parking</p>
                   </div>
 
                   <div className={`rounded-2xl border p-4 transition-all ${
-                    isDeveloperAccount ? 'border-[#d4af37]/20 bg-[#0c121e] hover:border-[#d4af37]/40' : 'border-border bg-surface'
+                    isDeveloperAccount ? 'border-amber-200/80 bg-amber-50/20 hover:border-amber-400' : 'border-border bg-surface'
                   }`}>
                     <p className={`text-xs font-bold flex items-center gap-1.5 ${
-                      isDeveloperAccount ? 'text-[#f5d77f]' : 'text-primary'
+                      isDeveloperAccount ? 'text-amber-800' : 'text-primary'
                     }`}>
                       <Building2 size={15} /> 10 - 12 Mins
                     </p>
-                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>Schools & Hospitals</p>
-                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>Top CBSE/IB schools and multispecialty medical care</p>
+                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>Schools & Hospitals</p>
+                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>Top CBSE/IB schools and multispecialty medical care</p>
                   </div>
 
                   <div className={`rounded-2xl border p-4 transition-all ${
-                    isDeveloperAccount ? 'border-[#d4af37]/20 bg-[#0c121e] hover:border-[#d4af37]/40' : 'border-border bg-surface'
+                    isDeveloperAccount ? 'border-amber-200/80 bg-amber-50/20 hover:border-amber-400' : 'border-border bg-surface'
                   }`}>
                     <p className={`text-xs font-bold flex items-center gap-1.5 ${
-                      isDeveloperAccount ? 'text-[#f5d77f]' : 'text-primary'
+                      isDeveloperAccount ? 'text-amber-800' : 'text-primary'
                     }`}>
                       <MapPin size={15} /> 35 - 45 Mins
                     </p>
-                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>Airport / Aerocity</p>
-                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>Smooth commute via high-speed corridor</p>
+                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>Airport / Aerocity</p>
+                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>Smooth commute via high-speed corridor</p>
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className={`mt-6 flex flex-wrap items-center gap-3 pt-5 border-t ${
-                isDeveloperAccount ? 'border-[#d4af37]/20' : 'border-border'
+                isDeveloperAccount ? 'border-amber-100' : 'border-border'
               }`}>
                 <button
                   type="button"
                   onClick={handleDownloadBrochure}
-                  className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 rounded-xl px-6 py-3.5 text-sm font-black shadow-lg transition-all cursor-pointer ${
+                  className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 rounded-xl px-6 py-3.5 text-sm font-black shadow-md transition-all cursor-pointer ${
                     isDeveloperAccount
-                      ? 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#c5a059] text-gray-950 shadow-[#d4af37]/25 hover:brightness-105'
+                      ? 'bg-slate-900 text-white hover:bg-black shadow-slate-900/10'
                       : 'bg-primary text-white shadow-sm hover:bg-rose-600'
                   }`}
                 >
@@ -1667,7 +1631,7 @@ const PropertyDetails = () => {
                 <button
                   type="button"
                   onClick={handleRequestBrochureOnWhatsApp}
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition-all cursor-pointer"
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-extrabold text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-700 transition-all cursor-pointer"
                 >
                   <MessageCircle size={18} />
                   <span>Get on WhatsApp</span>
@@ -1684,15 +1648,15 @@ const PropertyDetails = () => {
             <div className="space-y-5 md:sticky md:top-28">
               <div className={`p-4 transition-all ${
                 isDeveloperAccount
-                  ? 'rounded-[1.5rem] border-2 border-[#d4af37]/40 bg-gradient-to-b from-[#0e1422] via-[#0b101a] to-[#070b12] p-5 md:rounded-[2rem] md:p-7 shadow-[0_0_50px_rgba(212,175,55,0.12)] text-white'
+                  ? 'rounded-[1.5rem] border-2 border-amber-300/80 bg-gradient-to-b from-white via-amber-50/20 to-white p-5 md:rounded-[2rem] md:p-7 shadow-[0_8px_30px_rgba(212,175,55,0.1)] text-slate-900'
                   : 'rounded-[1.5rem] border border-border bg-white shadow-card md:rounded-[2rem] md:p-6'
               }`}>
                 <p className={`text-xs font-bold uppercase tracking-wide ${
-                  isDeveloperAccount ? 'text-[#d4af37] tracking-widest font-black text-[11px] flex items-center gap-1.5' : 'text-muted'
+                  isDeveloperAccount ? 'text-amber-800 tracking-wider font-extrabold text-[11px] flex items-center gap-1.5' : 'text-muted'
                 }`}>
                   {isDeveloperAccount ? (
                     <>
-                      <Building2 size={13} className="text-[#d4af37]" />
+                      <Building2 size={13} className="text-amber-600" />
                       OFFICIAL BUILDER SALES DESK
                     </>
                   ) : 'Associate Partner Contact'}
@@ -1700,20 +1664,20 @@ const PropertyDetails = () => {
                 <div className="mt-5 flex items-center gap-4">
                   <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-xl font-black shadow-sm ${
                     isDeveloperAccount
-                      ? 'bg-gradient-to-br from-[#d4af37] via-[#ffd700] to-[#b38728] text-gray-950 text-2xl shadow-[0_0_20px_rgba(212,175,55,0.35)]'
+                      ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white text-2xl shadow-md'
                       : property.isDeveloperListing ? 'bg-primary text-white' : 'bg-secondary text-white'
                   }`}>
                     {property.isDeveloperListing ? <Building2 size={26} /> : activeBroker.name.charAt(0)}
                   </div>
                   <div>
                     <h3 className={`flex items-center gap-1 font-black ${
-                      isDeveloperAccount ? 'text-white text-lg' : 'text-text text-base font-extrabold'
+                      isDeveloperAccount ? 'text-slate-900 text-lg' : 'text-text text-base font-extrabold'
                     }`}>
                       {activeBroker.name}
-                      <BadgeCheck size={18} className={isDeveloperAccount ? 'text-[#d4af37] shrink-0' : 'text-primary shrink-0'} />
+                      <BadgeCheck size={18} className={isDeveloperAccount ? 'text-amber-600 shrink-0' : 'text-primary shrink-0'} />
                     </h3>
                     <p className={`text-xs font-semibold ${
-                      isDeveloperAccount ? 'text-[#f5d77f]' : 'text-muted'
+                      isDeveloperAccount ? 'text-amber-800' : 'text-muted'
                     }`}>
                       {property.isDeveloperListing ? 'Official Developer Direct Listing' : `${activeBroker.properties} active properties`}
                     </p>
@@ -1722,16 +1686,16 @@ const PropertyDetails = () => {
 
                 <div className={`mt-5 rounded-2xl p-4 transition-colors ${
                   isDeveloperAccount
-                    ? 'bg-[#060910] border border-[#d4af37]/20 text-white'
+                    ? 'bg-white border border-amber-200/80 text-slate-900 shadow-xs'
                     : 'bg-surface'
                 }`}>
                   <p className={`text-sm font-bold ${
-                    isDeveloperAccount ? 'text-slate-100' : 'text-text'
+                    isDeveloperAccount ? 'text-slate-900' : 'text-text'
                   }`}>
                     {property.isDeveloperListing ? 'Direct Builder Inquiry' : activeBroker.response}
                   </p>
                   <p className={`mt-1 text-xs font-medium ${
-                    isDeveloperAccount ? 'text-slate-400' : 'text-muted'
+                    isDeveloperAccount ? 'text-slate-500' : 'text-muted'
                   }`}>
                     {property.isDeveloperListing 
                       ? 'Inquire for official master plans, unit layout drawings, and booking site visits.'
@@ -1740,18 +1704,18 @@ const PropertyDetails = () => {
 
                   {property.isDeveloperListing && activeBroker.address && (
                     <div className={`mt-3 pt-3 border-t flex items-start gap-2 text-xs font-semibold ${
-                      isDeveloperAccount ? 'border-[#d4af37]/20 text-slate-300' : 'border-border/70 text-text'
+                      isDeveloperAccount ? 'border-amber-100 text-slate-700' : 'border-border/70 text-text'
                     }`}>
-                      <MapPin size={14} className={`mt-0.5 flex-shrink-0 ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-primary'}`} />
+                      <MapPin size={14} className={`mt-0.5 flex-shrink-0 ${isDeveloperAccount ? 'text-amber-600' : 'text-primary'}`} />
                       <span>{activeBroker.address}</span>
                     </div>
                   )}
 
                   {property.isDeveloperListing && activeBroker.email && (
                     <div className={`mt-2 flex items-center gap-2 text-xs font-semibold ${
-                      isDeveloperAccount ? 'text-slate-300' : 'text-text'
+                      isDeveloperAccount ? 'text-slate-700' : 'text-text'
                     }`}>
-                      <Mail size={14} className={`flex-shrink-0 ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-primary'}`} />
+                      <Mail size={14} className={`flex-shrink-0 ${isDeveloperAccount ? 'text-amber-600' : 'text-primary'}`} />
                       <span className="truncate">{activeBroker.email}</span>
                     </div>
                   )}
@@ -1763,7 +1727,7 @@ const PropertyDetails = () => {
                     onClick={handleDirectChat}
                     className={`flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-black text-white transition-all shadow-md ${
                       isDeveloperAccount
-                        ? 'bg-gradient-to-r from-[#25D366] to-[#1ebd5a] shadow-emerald-500/20 hover:brightness-110'
+                        ? 'bg-[#25D366] hover:bg-[#1ebd5a]'
                         : 'bg-[#25D366] hover:bg-[#1ebd5a]'
                     }`}
                   >
@@ -1772,9 +1736,9 @@ const PropertyDetails = () => {
                   </a>
                   <a
                     href={`tel:+${activeBroker.callNumber}`}
-                    className={`flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-black transition-all shadow-sm ${
+                    className={`flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-black transition-all shadow-xs ${
                       isDeveloperAccount
-                        ? 'border-2 border-[#d4af37] bg-transparent text-[#f5d77f] hover:bg-[#d4af37]/15'
+                        ? 'border-2 border-slate-900 bg-slate-900 text-white hover:bg-black font-extrabold'
                         : 'border border-border bg-white text-text hover:border-primary hover:text-primary font-extrabold'
                     }`}
                   >
@@ -1786,10 +1750,10 @@ const PropertyDetails = () => {
 
               <div className={`p-5 text-white shadow-sm md:rounded-[2rem] md:p-6 transition-all ${
                 isDeveloperAccount
-                  ? 'rounded-[1.5rem] bg-gradient-to-br from-[#121827] to-[#0d131f] border border-[#d4af37]/25 shadow-lg'
+                  ? 'rounded-[1.5rem] bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 shadow-md'
                   : 'rounded-[1.5rem] bg-secondary'
               }`}>
-                <ShieldCheck size={24} className={isDeveloperAccount ? 'text-[#d4af37]' : 'text-white'} />
+                <ShieldCheck size={24} className={isDeveloperAccount ? 'text-amber-400' : 'text-white'} />
                 <h3 className="mt-4 text-lg font-extrabold">Buyer safety promise</h3>
                 <p className={`mt-2 text-sm font-medium leading-6 ${
                   isDeveloperAccount ? 'text-slate-300' : 'text-white/75'
@@ -1804,13 +1768,13 @@ const PropertyDetails = () => {
         <section className="mt-14">
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
-              <h2 className={`text-2xl font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>Similar properties</h2>
-              <p className={`mt-1 text-sm font-medium ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>Suggestions based on city, property type, and investment profile.</p>
+              <h2 className={`text-2xl font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>Similar properties</h2>
+              <p className={`mt-1 text-sm font-medium ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>Suggestions based on city, property type, and investment profile.</p>
             </div>
             <Link 
               href="/listings" 
               className={`hidden items-center gap-1 text-sm font-bold sm:flex ${
-                isDeveloperAccount ? 'text-[#d4af37] hover:text-[#f5d77f]' : 'text-secondary hover:text-primary'
+                isDeveloperAccount ? 'text-amber-700 hover:text-amber-900' : 'text-secondary hover:text-primary'
               }`}
             >
               View all
@@ -1825,7 +1789,7 @@ const PropertyDetails = () => {
                 href={`/property/${suggestion.id}`}
                 className={`group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1 ${
                   isDeveloperAccount
-                    ? 'border-[#d4af37]/20 bg-[#0d1320] text-white hover:border-[#d4af37]/50 shadow-md hover:shadow-[0_10px_35px_rgba(0,0,0,0.5)]'
+                    ? 'border-slate-200 bg-white text-slate-900 hover:border-amber-300 shadow-sm hover:shadow-card'
                     : 'border-border bg-white shadow-sm hover:shadow-card'
                 }`}
               >
@@ -1858,24 +1822,24 @@ const PropertyDetails = () => {
                   )}
                   <div className="mb-3 flex items-center gap-2">
                     <span className={`rounded-full px-3 py-1 text-xs font-bold ${
-                      isDeveloperAccount ? 'bg-[#151d2f] text-slate-300' : 'bg-surface text-text'
+                      isDeveloperAccount ? 'bg-amber-50 text-amber-900 border border-amber-200' : 'bg-surface text-text'
                     }`}>{suggestion.type}</span>
                     <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
                       <CheckCircle2 size={13} />
                       Approved
                     </span>
                   </div>
-                  <h3 className={`line-clamp-2 text-lg font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>{suggestion.title}</h3>
-                  <p className={`mt-2 flex items-center gap-1.5 text-sm font-semibold ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>
-                    <MapPin size={15} className={isDeveloperAccount ? 'text-[#d4af37]' : ''} />
+                  <h3 className={`line-clamp-2 text-lg font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>{suggestion.title}</h3>
+                  <p className={`mt-2 flex items-center gap-1.5 text-sm font-semibold ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>
+                    <MapPin size={15} className={isDeveloperAccount ? 'text-amber-600' : ''} />
                     {suggestion.location}
                   </p>
                   <div className="mt-5 flex items-end justify-between gap-4">
                     <div>
-                      <p className={`text-xl font-extrabold ${isDeveloperAccount ? 'text-[#f5d77f]' : 'text-text'}`}>{suggestion.price}</p>
-                      <p className={`text-xs font-semibold ${isDeveloperAccount ? 'text-slate-400' : 'text-muted'}`}>{suggestion.size} - {suggestion.rate}</p>
+                      <p className={`text-xl font-extrabold ${isDeveloperAccount ? 'text-slate-950' : 'text-text'}`}>{suggestion.price}</p>
+                      <p className={`text-xs font-semibold ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>{suggestion.size} - {suggestion.rate}</p>
                     </div>
-                    <span className={`text-sm font-bold ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-secondary'}`}>Details</span>
+                    <span className={`text-sm font-bold ${isDeveloperAccount ? 'text-amber-700' : 'text-secondary'}`}>Details</span>
                   </div>
                 </div>
               </Link>
@@ -1883,9 +1847,9 @@ const PropertyDetails = () => {
           </div>
         </section>
       </div>
-      <div className={`fixed inset-x-0 bottom-[88px] z-40 border-t px-4 py-3 shadow-[0_-12px_30px_rgba(0,0,0,0.3)] backdrop-blur-xl md:hidden transition-all ${
+      <div className={`fixed inset-x-0 bottom-[88px] z-40 border-t px-4 py-3 shadow-[0_-12px_30px_rgba(0,0,0,0.06)] backdrop-blur-xl md:hidden transition-all ${
         isDeveloperAccount
-          ? 'border-[#d4af37]/30 bg-[#070b13]/95 text-white'
+          ? 'border-amber-200/80 bg-white/95 text-slate-900'
           : 'border-border bg-white/95 text-text'
       }`}>
         <div className="mx-auto flex max-w-[420px] items-center gap-3">
