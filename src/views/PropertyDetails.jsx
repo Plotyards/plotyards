@@ -1618,11 +1618,7 @@ const PropertyDetails = () => {
                 <button
                   type="button"
                   onClick={handleDownloadBrochure}
-                  className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 rounded-xl px-6 py-3.5 text-sm font-black shadow-md transition-all cursor-pointer ${
-                    isDeveloperAccount
-                      ? 'bg-slate-900 text-white hover:bg-black shadow-slate-900/10'
-                      : 'bg-primary text-white shadow-sm hover:bg-rose-600'
-                  }`}
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 rounded-xl px-6 py-3.5 text-sm font-black shadow-md transition-all cursor-pointer bg-primary text-white shadow-primary/20 hover:bg-rose-600"
                 >
                   <Download size={18} />
                   <span>Download Brochure (PDF)</span>
@@ -1725,22 +1721,14 @@ const PropertyDetails = () => {
                   <a
                     href="#"
                     onClick={handleDirectChat}
-                    className={`flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-black text-white transition-all shadow-md ${
-                      isDeveloperAccount
-                        ? 'bg-[#25D366] hover:bg-[#1ebd5a]'
-                        : 'bg-[#25D366] hover:bg-[#1ebd5a]'
-                    }`}
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-black text-white transition-all shadow-md bg-[#25D366] hover:bg-[#1ebd5a]"
                   >
                     <MessageCircle size={18} />
                     {property.isDeveloperListing ? 'WhatsApp Builder Desk' : 'Direct to Chat'}
                   </a>
                   <a
                     href={`tel:+${activeBroker.callNumber}`}
-                    className={`flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-black transition-all shadow-xs ${
-                      isDeveloperAccount
-                        ? 'border-2 border-slate-900 bg-slate-900 text-white hover:bg-black font-extrabold'
-                        : 'border border-border bg-white text-text hover:border-primary hover:text-primary font-extrabold'
-                    }`}
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-black transition-all shadow-xs border border-border bg-white text-text hover:border-primary hover:text-primary font-extrabold"
                   >
                     <Phone size={18} />
                     {property.isDeveloperListing ? 'Call Builder Desk' : 'Call Associate Partner'}
@@ -1748,16 +1736,10 @@ const PropertyDetails = () => {
                 </div>
               </div>
 
-              <div className={`p-5 text-white shadow-sm md:rounded-[2rem] md:p-6 transition-all ${
-                isDeveloperAccount
-                  ? 'rounded-[1.5rem] bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 shadow-md'
-                  : 'rounded-[1.5rem] bg-secondary'
-              }`}>
-                <ShieldCheck size={24} className={isDeveloperAccount ? 'text-amber-400' : 'text-white'} />
+              <div className="rounded-[1.5rem] bg-secondary p-5 text-white shadow-sm md:rounded-[2rem] md:p-6 transition-all">
+                <ShieldCheck size={24} className="text-white" />
                 <h3 className="mt-4 text-lg font-extrabold">Buyer safety promise</h3>
-                <p className={`mt-2 text-sm font-medium leading-6 ${
-                  isDeveloperAccount ? 'text-slate-300' : 'text-white/75'
-                }`}>
+                <p className="mt-2 text-sm font-medium leading-6 text-white/75">
                   We verify associate partner details and key property signals before showing them to buyers.
                 </p>
               </div>
@@ -1768,14 +1750,12 @@ const PropertyDetails = () => {
         <section className="mt-14">
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
-              <h2 className={`text-2xl font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>Similar properties</h2>
-              <p className={`mt-1 text-sm font-medium ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>Suggestions based on city, property type, and investment profile.</p>
+              <h2 className="text-2xl font-extrabold text-text">Similar properties</h2>
+              <p className="mt-1 text-sm font-medium text-muted">Suggestions based on city, property type, and investment profile.</p>
             </div>
             <Link 
               href="/listings" 
-              className={`hidden items-center gap-1 text-sm font-bold sm:flex ${
-                isDeveloperAccount ? 'text-amber-700 hover:text-amber-900' : 'text-secondary hover:text-primary'
-              }`}
+              className="hidden items-center gap-1 text-sm font-bold sm:flex text-secondary hover:text-primary"
             >
               View all
               <ChevronRight size={16} />
@@ -1787,11 +1767,7 @@ const PropertyDetails = () => {
               <Link
                 key={suggestion.id}
                 href={`/property/${suggestion.id}`}
-                className={`group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1 ${
-                  isDeveloperAccount
-                    ? 'border-slate-200 bg-white text-slate-900 hover:border-amber-300 shadow-sm hover:shadow-card'
-                    : 'border-border bg-white shadow-sm hover:shadow-card'
-                }`}
+                className="group overflow-hidden rounded-2xl border border-border bg-white shadow-sm hover:shadow-card transition-all duration-300 hover:-translate-y-1"
               >
                 <div className="relative h-52 overflow-hidden">
                   <img
@@ -1821,25 +1797,23 @@ const PropertyDetails = () => {
                     </p>
                   )}
                   <div className="mb-3 flex items-center gap-2">
-                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${
-                      isDeveloperAccount ? 'bg-amber-50 text-amber-900 border border-amber-200' : 'bg-surface text-text'
-                    }`}>{suggestion.type}</span>
+                    <span className="rounded-full bg-surface px-3 py-1 text-xs font-bold text-text">{suggestion.type}</span>
                     <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
                       <CheckCircle2 size={13} />
                       Approved
                     </span>
                   </div>
-                  <h3 className={`line-clamp-2 text-lg font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>{suggestion.title}</h3>
-                  <p className={`mt-2 flex items-center gap-1.5 text-sm font-semibold ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>
-                    <MapPin size={15} className={isDeveloperAccount ? 'text-amber-600' : ''} />
+                  <h3 className="line-clamp-2 text-lg font-extrabold text-text">{suggestion.title}</h3>
+                  <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-muted">
+                    <MapPin size={15} />
                     {suggestion.location}
                   </p>
                   <div className="mt-5 flex items-end justify-between gap-4">
                     <div>
-                      <p className={`text-xl font-extrabold ${isDeveloperAccount ? 'text-slate-950' : 'text-text'}`}>{suggestion.price}</p>
-                      <p className={`text-xs font-semibold ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>{suggestion.size} - {suggestion.rate}</p>
+                      <p className="text-xl font-extrabold text-text">{suggestion.price}</p>
+                      <p className="text-xs font-semibold text-muted">{suggestion.size} - {suggestion.rate}</p>
                     </div>
-                    <span className={`text-sm font-bold ${isDeveloperAccount ? 'text-amber-700' : 'text-secondary'}`}>Details</span>
+                    <span className="text-sm font-bold text-secondary">Details</span>
                   </div>
                 </div>
               </Link>
@@ -1847,15 +1821,11 @@ const PropertyDetails = () => {
           </div>
         </section>
       </div>
-      <div className={`fixed inset-x-0 bottom-[88px] z-40 border-t px-4 py-3 shadow-[0_-12px_30px_rgba(0,0,0,0.06)] backdrop-blur-xl md:hidden transition-all ${
-        isDeveloperAccount
-          ? 'border-amber-200/80 bg-white/95 text-slate-900'
-          : 'border-border bg-white/95 text-text'
-      }`}>
+      <div className="fixed inset-x-0 bottom-[88px] z-40 border-t border-border bg-white/95 text-text px-4 py-3 shadow-[0_-12px_30px_rgba(0,0,0,0.06)] backdrop-blur-xl md:hidden transition-all">
         <div className="mx-auto flex max-w-[420px] items-center gap-3">
           <div className="min-w-0 flex-1">
-            <p className={`truncate text-sm font-extrabold ${isDeveloperAccount ? 'text-white' : 'text-text'}`}>{activeBroker.name}</p>
-            <p className={`text-xs font-semibold ${isDeveloperAccount ? 'text-[#d4af37]' : 'text-muted'}`}>{activeBroker.response}</p>
+            <p className="truncate text-sm font-extrabold text-text">{activeBroker.name}</p>
+            <p className="text-xs font-semibold text-muted">{activeBroker.response}</p>
           </div>
             <>
               <a
@@ -1868,11 +1838,7 @@ const PropertyDetails = () => {
               </a>
               <a
                 href={`tel:+${activeBroker.callNumber}`}
-                className={`flex h-11 min-w-[86px] flex-shrink-0 items-center justify-center gap-2 rounded-full px-4 text-sm font-black shadow-lg ${
-                  isDeveloperAccount
-                    ? 'bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] text-gray-950 shadow-[#d4af37]/25'
-                    : 'bg-primary text-white shadow-primary/20'
-                }`}
+                className="flex h-11 min-w-[86px] flex-shrink-0 items-center justify-center gap-2 rounded-full px-4 text-sm font-black shadow-lg bg-primary text-white shadow-primary/20"
               >
                 <Phone size={17} />
                 Call
