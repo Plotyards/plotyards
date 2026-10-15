@@ -110,10 +110,14 @@ const BrochureModal = ({ isOpen, onClose, property, activeBroker, parsedDetails 
         <div class="section">
           <div class="section-title">Connectivity & Landmark Distances</div>
           <ul style="padding-left: 20px; font-size: 13px; line-height: 1.8; color: #334155;">
-            <li><strong>Expressway & Highway:</strong> 5-10 Mins from major arterial highway & KMP Expressway</li>
-            <li><strong>Transit & Metro Corridor:</strong> 15-20 Mins from nearest rapid transit station</li>
-            <li><strong>Social Infrastructure:</strong> 10-12 Mins to renowned schools, multispecialty hospitals & retail hubs</li>
-            <li><strong>Airport Connectivity:</strong> 40 Mins drive via signal-free express highway</li>
+            ${(property.keyLandmarks && property.keyLandmarks.length > 0)
+              ? property.keyLandmarks.map(lm => `<li><strong>${lm.title || 'Landmark'}:</strong> ${lm.distance ? `${lm.distance} ` : ''}${lm.subtitle ? `— ${lm.subtitle}` : ''}</li>`).join('')
+              : `
+                <li><strong>Expressway & Highway:</strong> 5-10 Mins from major arterial highway & KMP Expressway</li>
+                <li><strong>Transit & Metro Corridor:</strong> 15-20 Mins from nearest rapid transit station</li>
+                <li><strong>Social Infrastructure:</strong> 10-12 Mins to renowned schools, multispecialty hospitals & retail hubs</li>
+                <li><strong>Airport Connectivity:</strong> 40 Mins drive via signal-free express highway</li>
+              `}
           </ul>
         </div>
 

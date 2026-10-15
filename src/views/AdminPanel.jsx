@@ -1,13 +1,93 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { Activity, BarChart3, Building2, CheckCircle2, ChevronLeft, ChevronRight, FileText, Image, Inbox, Megaphone, Plus, Search, ShieldCheck, Sparkles, Star, Trash2, Upload, Users, XCircle, Download } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Activity, BarChart3, Building2, CheckCircle2, ChevronLeft, ChevronRight,
+  FileText, Image, Inbox, Megaphone, Plus, Search, ShieldCheck, Sparkles,
+  Star, Trash2, Upload, Users, XCircle, Download, MapPin, Route, Train,
+  Plane, Hospital, GraduationCap, ShoppingBag, Car, Trees, ArrowUp, ArrowDown,
+  X, Check, AlertCircle, Eye, ExternalLink, RefreshCw
+} from 'lucide-react';
 import { DEFAULT_TOP_CITIES } from '../data/topCities';
 import { apiRequest } from '../lib/api';
 import BlogManager from '../components/BlogManager';
 import { formatPhoneForDisplay } from '../utils/phoneUtils';
+import { buildPhoneticIndex, searchPropertiesPhonetic } from '../utils/phoneticSearch';
 
 const ADMIN_TABLE_PAGE_SIZE = 5;
+const LANDMARK_PAGE_SIZE = 8;
+
+const DEFAULT_LANDMARK_ITEMS = [
+  {
+    distance: '5 - 10 Mins',
+    title: 'Expressway & Highway',
+    subtitle: 'Direct signal-free connectivity to main arterial highway',
+    icon: 'Route'
+  },
+  {
+    distance: '15 - 20 Mins',
+    title: 'Metro & Transit Station',
+    subtitle: 'Rapid transit station with dedicated parking',
+    icon: 'Train'
+  },
+  {
+    distance: '10 - 12 Mins',
+    title: 'Schools & Hospitals',
+    subtitle: 'Top CBSE/IB schools and multispecialty medical care',
+    icon: 'Building2'
+  },
+  {
+    distance: '35 - 45 Mins',
+    title: 'Airport / Aerocity',
+    subtitle: 'Smooth commute via high-speed corridor',
+    icon: 'Plane'
+  }
+];
+
+const AVAILABLE_LANDMARK_ICONS = [
+  { value: 'Route', label: 'Route / Highway' },
+  { value: 'Train', label: 'Metro / Transit Station' },
+  { value: 'Building2', label: 'Civic / Schools / Hubs' },
+  { value: 'Plane', label: 'Airport / Aerocity' },
+  { value: 'Hospital', label: 'Hospital / Healthcare' },
+  { value: 'GraduationCap', label: 'School / University' },
+  { value: 'ShoppingBag', label: 'Shopping / Mall' },
+  { value: 'Car', label: 'Car / Road Link' },
+  { value: 'Trees', label: 'Park / Green Corridor' },
+  { value: 'MapPin', label: 'General Landmark' }
+];
+
+const renderAdminLandmarkIcon = (iconName, size = 15) => {
+  switch (String(iconName || '').toLowerCase()) {
+    case 'train':
+    case 'metro':
+      return <Train size={size} />;
+    case 'school':
+    case 'graduationcap':
+      return <GraduationCap size={size} />;
+    case 'hospital':
+      return <Hospital size={size} />;
+    case 'plane':
+    case 'airport':
+      return <Plane size={size} />;
+    case 'car':
+      return <Car size={size} />;
+    case 'building':
+    case 'building2':
+      return <Building2 size={size} />;
+    case 'shoppingbag':
+    case 'mall':
+      return <ShoppingBag size={size} />;
+    case 'trees':
+    case 'park':
+      return <Trees size={size} />;
+    case 'mappin':
+      return <MapPin size={size} />;
+    case 'route':
+    default:
+      return <Route size={size} />;
+  }
+};
 
 const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
   const reader = new FileReader();
@@ -89,6 +169,13 @@ const AdminPanel = () => {
   const [selectedRealtorToEdit, setSelectedRealtorToEdit] = useState(null);
   const [editingRealtorForm, setEditingRealtorForm] = useState({});
   const [savingRealtor, setSavingRealtor] = useState(false);
+  const [landmarkSearch, setLandmarkSearch] = useState('');
+  const [landmarkPage, setLandmarkPage] = useState(1);
+  const [landmarkFilter, setLandmarkFilter] = useState('all');
+  const [selectedPropertyForLandmarks, setSelectedPropertyForLandmarks] = useState(null);
+  const [editingLandmarks, setEditingLandmarks] = useState([]);
+  const [savingLandmarks, setSavingLandmarks] = useState(false);
+  const [landmarkSuccessMsg, setLandmarkSuccessMsg] = useState('');
 
   const loadAdminData = async () => {
     const [statsData, usersData, pendingBrokersData, announcementData, featurePropertiesData, topCitiesData] = await Promise.all([
@@ -349,6 +436,100 @@ const AdminPanel = () => {
     }
   };
 
+  const handleOpenLandmarkEditor = (property) => {
+    setSelectedPropertyForLandmarks(property);
+    setLandmarkSuccessMsg('');
+    if (Array.isArray(property.keyLandmarks) && property.keyLandmarks.length > 0) {
+      setEditingLandmarks(JSON.parse(JSON.stringify(property.keyLandmarks)));
+    } else {
+      setEditingLandmarks(JSON.parse(JSON.stringify(DEFAULT_LANDMARK_ITEMS)));
+    }
+  };
+
+  const handleCloseLandmarkEditor = () => {
+    setSelectedPropertyForLandmarks(null);
+    setEditingLandmarks([]);
+    setLandmarkSuccessMsg('');
+  };
+
+  const handleAddLandmark = () => {
+    setEditingLandmarks((prev) => [
+      ...prev,
+      { distance: '5 - 10 Mins', title: 'New Landmark', subtitle: 'Direct connectivity corridor', icon: 'Route' }
+    ]);
+  };
+
+  const handleLoadDefaultLandmarks = () => {
+    if (window.confirm('Load standard default landmarks (Expressway, Metro, Schools, Airport)?')) {
+      setEditingLandmarks(JSON.parse(JSON.stringify(DEFAULT_LANDMARK_ITEMS)));
+    }
+  };
+
+  const handleClearAllLandmarks = () => {
+    if (window.confirm('Remove all key landmarks for this property?')) {
+      setEditingLandmarks([]);
+    }
+  };
+
+  const handleRemoveLandmark = (index) => {
+    setEditingLandmarks((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleUpdateLandmarkField = (index, field, value) => {
+    setEditingLandmarks((prev) =>
+      prev.map((lm, idx) => (idx === index ? { ...lm, [field]: value } : lm))
+    );
+  };
+
+  const handleMoveLandmark = (index, direction) => {
+    setEditingLandmarks((prev) => {
+      const targetIdx = index + direction;
+      if (targetIdx < 0 || targetIdx >= prev.length) return prev;
+      const nextList = [...prev];
+      const [moved] = nextList.splice(index, 1);
+      nextList.splice(targetIdx, 0, moved);
+      return nextList;
+    });
+  };
+
+  const handleSaveLandmarks = async () => {
+    if (!selectedPropertyForLandmarks) return;
+    setSavingLandmarks(true);
+    setLandmarkSuccessMsg('');
+    try {
+      const propertyId = selectedPropertyForLandmarks._id;
+      const cleanedLandmarks = editingLandmarks
+        .map((lm) => ({
+          distance: String(lm.distance || '').trim(),
+          title: String(lm.title || '').trim(),
+          subtitle: String(lm.subtitle || '').trim(),
+          icon: String(lm.icon || 'Route').trim()
+        }))
+        .filter((lm) => lm.title || lm.distance);
+
+      const data = await apiRequest(`/properties/${propertyId}`, {
+        method: 'PATCH',
+        body: { keyLandmarks: cleanedLandmarks }
+      });
+
+      const updatedProp = data.property || {
+        ...selectedPropertyForLandmarks,
+        keyLandmarks: cleanedLandmarks
+      };
+
+      setFeatureProperties((current) =>
+        current.map((item) => (item._id === propertyId ? updatedProp : item))
+      );
+      setSelectedPropertyForLandmarks(updatedProp);
+      setEditingLandmarks(cleanedLandmarks);
+      setLandmarkSuccessMsg('✓ Key landmarks successfully updated and saved live to database!');
+    } catch (err) {
+      alert(err.message || 'Failed to save landmarks');
+    } finally {
+      setSavingLandmarks(false);
+    }
+  };
+
   const exportBrokersToCSV = () => {
     if (!filteredBrokers.length) return;
     
@@ -391,6 +572,7 @@ const AdminPanel = () => {
     ['manageBrokers', Users, 'Manage Associate Partners'],
     ['properties', Building2, 'Manage Properties'],
     ['builderProjects', Sparkles, 'Builder Projects'],
+    ['keyLandmarks', MapPin, 'Key Landmarks'],
     ['blogs', FileText, 'Blogs'],
     ['announcement', Megaphone, 'Announcement'],
     ['topCities', Building2, 'Top Cities']
@@ -449,6 +631,45 @@ const AdminPanel = () => {
     (safeBuilderPage - 1) * ADMIN_TABLE_PAGE_SIZE,
     safeBuilderPage * ADMIN_TABLE_PAGE_SIZE
   );
+
+  // Pre-indexed properties for high-performance phonetic search (least time & space complexity)
+  const indexedProperties = useMemo(
+    () => buildPhoneticIndex(featureProperties),
+    [featureProperties]
+  );
+
+  const searchedLandmarkProperties = useMemo(
+    () => searchPropertiesPhonetic(indexedProperties, landmarkSearch),
+    [indexedProperties, landmarkSearch]
+  );
+
+  const filteredLandmarkProperties = useMemo(() => {
+    if (landmarkFilter === 'custom') {
+      return searchedLandmarkProperties.filter(
+        (p) => Array.isArray(p.keyLandmarks) && p.keyLandmarks.length > 0
+      );
+    }
+    if (landmarkFilter === 'default') {
+      return searchedLandmarkProperties.filter(
+        (p) => !Array.isArray(p.keyLandmarks) || p.keyLandmarks.length === 0
+      );
+    }
+    return searchedLandmarkProperties;
+  }, [searchedLandmarkProperties, landmarkFilter]);
+
+  const landmarkPageCount = Math.max(
+    Math.ceil(filteredLandmarkProperties.length / LANDMARK_PAGE_SIZE),
+    1
+  );
+  const safeLandmarkPage = Math.min(landmarkPage, landmarkPageCount);
+  const paginatedLandmarkProperties = filteredLandmarkProperties.slice(
+    (safeLandmarkPage - 1) * LANDMARK_PAGE_SIZE,
+    safeLandmarkPage * LANDMARK_PAGE_SIZE
+  );
+
+  const totalCustomLandmarksCount = featureProperties.filter(
+    (p) => Array.isArray(p.keyLandmarks) && p.keyLandmarks.length > 0
+  ).length;
 
   return (
     <div className="min-h-screen bg-surface pt-32 pb-12">
@@ -939,6 +1160,245 @@ const AdminPanel = () => {
                   />
                 </div>
               </div>
+            ) : activeTab === 'keyLandmarks' ? (
+              <div className="grid gap-6">
+                {/* Header & Stats Banner */}
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <h2 className="text-2xl font-extrabold text-text flex items-center gap-2.5">
+                      <MapPin size={26} className="text-primary" />
+                      Key Landmark Distances & Connectivity
+                    </h2>
+                    <p className="mt-1 text-sm font-medium text-muted">
+                      Manage location advantage, travel times, and landmark connectivity for every property listing. Click any property to add, edit, or remove landmarks.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="rounded-xl border border-border bg-white px-4 py-2 shadow-sm text-center">
+                      <p className="text-[11px] font-bold text-muted uppercase tracking-wider">Custom Configured</p>
+                      <p className="text-lg font-black text-emerald-600">{totalCustomLandmarksCount}</p>
+                    </div>
+                    <div className="rounded-xl border border-border bg-white px-4 py-2 shadow-sm text-center">
+                      <p className="text-[11px] font-bold text-muted uppercase tracking-wider">Default Landmarks</p>
+                      <p className="text-lg font-black text-slate-700">{featureProperties.length - totalCustomLandmarksCount}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phonetic Search & Quick Filters */}
+                <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm space-y-4">
+                  <div className="flex flex-col md:flex-row gap-3 md:items-center justify-between">
+                    <div className="relative flex-1">
+                      <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+                      <input
+                        type="text"
+                        value={landmarkSearch}
+                        onChange={(e) => {
+                          setLandmarkSearch(e.target.value);
+                          setLandmarkPage(1);
+                        }}
+                        placeholder="Search properties by title, locality, city, builder (Phonetic: e.g. Aayan, Noida, Gurgaon, Expressway...)"
+                        className="w-full rounded-xl border border-border bg-surface pl-11 pr-10 py-3 text-sm font-semibold text-text outline-none focus:border-primary focus:bg-white transition-all"
+                      />
+                      {landmarkSearch && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLandmarkSearch('');
+                            setLandmarkPage(1);
+                          }}
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted hover:text-text p-1"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
+                    </div>
+                    <div className="inline-flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200/80 px-3.5 py-2 text-xs font-bold text-amber-800">
+                      <Sparkles size={14} className="text-amber-600 shrink-0" />
+                      <span>Phonetic & Typo-tolerant Search Enabled</span>
+                    </div>
+                  </div>
+
+                  {/* Filter chips */}
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => { setLandmarkFilter('all'); setLandmarkPage(1); }}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                        landmarkFilter === 'all'
+                          ? 'bg-primary text-white shadow-sm'
+                          : 'bg-surface text-muted hover:bg-slate-200/60'
+                      }`}
+                    >
+                      All Properties ({searchedLandmarkProperties.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setLandmarkFilter('custom'); setLandmarkPage(1); }}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                        landmarkFilter === 'custom'
+                          ? 'bg-emerald-600 text-white shadow-sm'
+                          : 'bg-surface text-muted hover:bg-slate-200/60'
+                      }`}
+                    >
+                      Custom Landmarks Configured ({searchedLandmarkProperties.filter(p => Array.isArray(p.keyLandmarks) && p.keyLandmarks.length > 0).length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setLandmarkFilter('default'); setLandmarkPage(1); }}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                        landmarkFilter === 'default'
+                          ? 'bg-slate-800 text-white shadow-sm'
+                          : 'bg-surface text-muted hover:bg-slate-200/60'
+                      }`}
+                    >
+                      Default Landmarks ({searchedLandmarkProperties.filter(p => !Array.isArray(p.keyLandmarks) || p.keyLandmarks.length === 0).length})
+                    </button>
+                  </div>
+                </div>
+
+                {/* Property Listings Cards Grid */}
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+                  {paginatedLandmarkProperties.map((property) => {
+                    const hasCustom = Array.isArray(property.keyLandmarks) && property.keyLandmarks.length > 0;
+                    const displayLandmarks = hasCustom ? property.keyLandmarks : DEFAULT_LANDMARK_ITEMS;
+                    const isSelected = selectedPropertyForLandmarks?._id === property._id;
+                    const imageUrl = property.images?.[0]?.url || '/hero-bg.jpg';
+
+                    return (
+                      <div
+                        key={property._id}
+                        className={`group flex flex-col justify-between overflow-hidden rounded-2xl border bg-white shadow-sm transition-all duration-200 hover:shadow-md ${
+                          isSelected
+                            ? 'border-primary ring-2 ring-primary/20 bg-rose-50/10'
+                            : 'border-black/10 hover:border-black/20'
+                        }`}
+                      >
+                        {/* Property Image & Status overlay */}
+                        <div className="relative aspect-[16/10] w-full bg-slate-100 overflow-hidden">
+                          <img
+                            src={imageUrl}
+                            alt={property.title}
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            onError={(e) => { e.currentTarget.src = '/hero-bg.jpg'; }}
+                          />
+                          <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5">
+                            <span className="rounded-lg bg-black/60 backdrop-blur-md px-2 py-0.5 text-[11px] font-extrabold capitalize text-white">
+                              {property.propertyType || property.type || 'Plot'}
+                            </span>
+                            {property.isDeveloperListing && (
+                              <span className="rounded-lg bg-primary/90 backdrop-blur-md px-2 py-0.5 text-[10px] font-extrabold text-white">
+                                Builder Spotlight
+                              </span>
+                            )}
+                          </div>
+                          <div className="absolute bottom-2.5 right-2.5">
+                            <span className={`rounded-lg px-2 py-0.5 text-[10px] font-extrabold uppercase shadow-sm ${
+                              hasCustom ? 'bg-emerald-500 text-white' : 'bg-slate-900/80 backdrop-blur-md text-white'
+                            }`}>
+                              {hasCustom ? `${property.keyLandmarks.length} Custom Landmarks` : 'Default 4 Landmarks'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Property Content */}
+                        <div className="flex flex-1 flex-col justify-between p-4">
+                          <div>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-xs font-bold text-primary truncate">
+                                {property.price?.label || 'Price on request'}
+                              </span>
+                              {property.size?.value && (
+                                <span className="text-[11px] font-semibold text-muted">
+                                  {property.size.value} Sq. Yrd
+                                </span>
+                              )}
+                            </div>
+
+                            <h3 className="mt-1.5 text-sm font-extrabold text-text line-clamp-2 leading-snug" title={property.title}>
+                              {property.title}
+                            </h3>
+
+                            <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-muted truncate">
+                              <MapPin size={13} className="shrink-0 text-slate-400" />
+                              {[property.location?.locality, property.location?.city].filter(Boolean).join(', ') || 'N/A'}
+                            </p>
+
+                            {/* Landmarks Preview Chips */}
+                            <div className="mt-3.5 space-y-1.5 rounded-xl bg-surface p-2.5 border border-black/5">
+                              <p className="text-[10px] font-extrabold uppercase tracking-wider text-muted">
+                                Active Connectivity Preview:
+                              </p>
+                              <div className="space-y-1">
+                                {displayLandmarks.slice(0, 3).map((lm, idx) => (
+                                  <div key={idx} className="flex items-center gap-1.5 text-xs">
+                                    <span className="text-primary shrink-0">{renderAdminLandmarkIcon(lm.icon, 13)}</span>
+                                    <span className="font-bold text-text truncate text-[11px]">{lm.title}</span>
+                                    <span className="ml-auto text-[10px] font-semibold text-muted shrink-0">{lm.distance}</span>
+                                  </div>
+                                ))}
+                                {displayLandmarks.length > 3 && (
+                                  <p className="text-[10px] font-bold text-muted pt-0.5">
+                                    +{displayLandmarks.length - 3} more landmarks
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Action Button */}
+                          <div className="mt-4 pt-3 border-t border-black/10">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenLandmarkEditor(property)}
+                              className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black shadow-sm transition-all ${
+                                isSelected
+                                  ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                  : 'bg-primary text-white hover:bg-rose-600'
+                              }`}
+                            >
+                              <MapPin size={14} />
+                              {hasCustom ? 'Change Key Landmarks' : 'Add Key Landmarks'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {!paginatedLandmarkProperties.length && (
+                    <div className="col-span-full rounded-2xl border border-dashed border-black/20 bg-white p-12 text-center">
+                      <MapPin size={36} className="mx-auto text-muted/50 mb-3" />
+                      <p className="text-base font-extrabold text-text">No properties found</p>
+                      <p className="mt-1 text-sm font-medium text-muted">
+                        No property matched "{landmarkSearch}". Try searching phonetically (e.g. Aayan, Noida, Gurgaon, Expressway).
+                      </p>
+                      {landmarkSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setLandmarkSearch('')}
+                          className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-surface px-4 py-2 text-xs font-extrabold text-text hover:bg-slate-200"
+                        >
+                          Clear Search
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Pagination */}
+                {filteredLandmarkProperties.length > LANDMARK_PAGE_SIZE && (
+                  <div className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
+                    <PaginationControls
+                      page={safeLandmarkPage}
+                      pageCount={landmarkPageCount}
+                      pageSize={LANDMARK_PAGE_SIZE}
+                      totalItems={filteredLandmarkProperties.length}
+                      onPageChange={setLandmarkPage}
+                    />
+                  </div>
+                )}
+              </div>
             ) : activeTab === 'blogs' ? (
               <BlogManager
                 canCreate
@@ -1393,6 +1853,286 @@ const AdminPanel = () => {
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Key Landmarks Manager Modal */}
+      {selectedPropertyForLandmarks && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm overflow-y-auto">
+          <div className="relative my-8 w-full max-w-4xl rounded-3xl bg-white shadow-2xl border border-black/10 overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-gray-100 bg-surface px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
+                  <MapPin size={22} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-text">
+                    Manage Key Landmarks: {selectedPropertyForLandmarks.title}
+                  </h3>
+                  <p className="text-xs font-semibold text-muted">
+                    {[selectedPropertyForLandmarks.location?.locality, selectedPropertyForLandmarks.location?.city].filter(Boolean).join(', ') || 'Property Location'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseLandmarkEditor}
+                className="rounded-xl p-2 text-muted hover:bg-black/5 hover:text-text transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="max-h-[75vh] overflow-y-auto p-6 space-y-6">
+              {/* Quick Actions Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <div>
+                  <p className="text-xs font-extrabold text-text">
+                    Landmarks Configuration ({editingLandmarks.length} Total)
+                  </p>
+                  <p className="text-[11px] font-medium text-muted">
+                    Add or modify distance cards (e.g. Expressway, Metro, Schools, Airport).
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleAddLandmark}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-black text-white hover:bg-rose-600 transition-colors shadow-sm"
+                  >
+                    <Plus size={14} /> Add Landmark
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleLoadDefaultLandmarks}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors shadow-sm"
+                  >
+                    <RefreshCw size={13} /> Load 4 Defaults
+                  </button>
+                  {editingLandmarks.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleClearAllLandmarks}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 transition-colors"
+                    >
+                      <Trash2 size={13} /> Clear All
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Editable Landmark Items */}
+              <div className="space-y-3.5">
+                {editingLandmarks.map((lm, index) => (
+                  <div
+                    key={index}
+                    className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm hover:border-black/20 transition-all space-y-3"
+                  >
+                    <div className="flex items-center justify-between border-b border-black/5 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary/10 text-xs font-black text-primary">
+                          #{index + 1}
+                        </span>
+                        <span className="text-xs font-extrabold text-text">
+                          {lm.title || `Landmark ${index + 1}`}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          disabled={index === 0}
+                          onClick={() => handleMoveLandmark(index, -1)}
+                          className="rounded-lg p-1.5 text-muted hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent"
+                          title="Move Up"
+                        >
+                          <ArrowUp size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={index === editingLandmarks.length - 1}
+                          onClick={() => handleMoveLandmark(index, 1)}
+                          className="rounded-lg p-1.5 text-muted hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent"
+                          title="Move Down"
+                        >
+                          <ArrowDown size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveLandmark(index)}
+                          className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 transition-colors ml-1"
+                          title="Delete Landmark"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-12">
+                      {/* Icon Selector */}
+                      <div className="sm:col-span-3">
+                        <label className="block text-[11px] font-bold text-muted mb-1">Icon</label>
+                        <select
+                          value={lm.icon || 'Route'}
+                          onChange={(e) => handleUpdateLandmarkField(index, 'icon', e.target.value)}
+                          className="w-full rounded-xl border border-gray-200 bg-surface px-3 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                        >
+                          {AVAILABLE_LANDMARK_ICONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Distance / Time */}
+                      <div className="sm:col-span-3">
+                        <label className="block text-[11px] font-bold text-muted mb-1">Distance / Time</label>
+                        <input
+                          type="text"
+                          value={lm.distance || ''}
+                          onChange={(e) => handleUpdateLandmarkField(index, 'distance', e.target.value)}
+                          placeholder="e.g. 5 - 10 Mins"
+                          className="w-full rounded-xl border border-gray-200 bg-surface px-3 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                        />
+                      </div>
+
+                      {/* Title */}
+                      <div className="sm:col-span-6">
+                        <label className="block text-[11px] font-bold text-muted mb-1">Landmark Title</label>
+                        <input
+                          type="text"
+                          value={lm.title || ''}
+                          onChange={(e) => handleUpdateLandmarkField(index, 'title', e.target.value)}
+                          placeholder="e.g. Expressway & Highway"
+                          className="w-full rounded-xl border border-gray-200 bg-surface px-3 py-2 text-xs font-bold text-text outline-none focus:border-primary"
+                        />
+                      </div>
+
+                      {/* Subtitle / Description */}
+                      <div className="sm:col-span-12">
+                        <label className="block text-[11px] font-bold text-muted mb-1">Subtitle / Details</label>
+                        <input
+                          type="text"
+                          value={lm.subtitle || ''}
+                          onChange={(e) => handleUpdateLandmarkField(index, 'subtitle', e.target.value)}
+                          placeholder="e.g. Direct signal-free connectivity to main arterial highway"
+                          className="w-full rounded-xl border border-gray-200 bg-surface px-3 py-2 text-xs font-medium text-text outline-none focus:border-primary"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {!editingLandmarks.length && (
+                  <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center bg-gray-50/50">
+                    <p className="text-xs font-bold text-muted">No landmarks added yet.</p>
+                    <p className="text-xs text-muted mt-1">
+                      Click "+ Add Landmark" to write a custom landmark or "Load 4 Defaults" to start with standard connectivity.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleAddLandmark}
+                      className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-extrabold text-white hover:bg-rose-600"
+                    >
+                      <Plus size={14} /> Add First Landmark
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* LIVE PREVIEW SECTION (Matches exact property page view) */}
+              <div className="rounded-2xl border border-amber-200/80 bg-amber-50/30 p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-extrabold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                    <Eye size={15} /> Live Appearance Preview on Website
+                  </p>
+                  <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                    Real-time Preview
+                  </span>
+                </div>
+
+                <div className="pt-2">
+                  <p className="text-xs font-bold uppercase tracking-wider mb-3 text-muted">
+                    Key Landmark Distances & Connectivity
+                  </p>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    {editingLandmarks.map((lm, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-2xl border border-border bg-surface p-4 transition-all"
+                      >
+                        <p className="text-xs font-bold flex items-center gap-1.5 text-primary">
+                          {renderAdminLandmarkIcon(lm.icon, 15)} {lm.distance || 'Nearby'}
+                        </p>
+                        <p className="mt-1.5 text-sm font-extrabold text-text">
+                          {lm.title || 'Untitled Landmark'}
+                        </p>
+                        {lm.subtitle && (
+                          <p className="mt-0.5 text-xs text-muted">
+                            {lm.subtitle}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                    {!editingLandmarks.length && (
+                      <div className="col-span-full py-4 text-center text-xs font-semibold text-muted italic">
+                        Empty landmarks list. (Website will fall back to 4 standard defaults).
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Success Message Banner */}
+              {landmarkSuccessMsg && (
+                <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3.5 flex items-center gap-2.5 text-emerald-800 text-xs font-bold animate-in fade-in">
+                  <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+                  <span>{landmarkSuccessMsg}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-6 py-4">
+              <a
+                href={`/property/${selectedPropertyForLandmarks._id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-bold text-muted hover:text-text transition-colors"
+              >
+                <ExternalLink size={13} /> View Live Property Page
+              </a>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleCloseLandmarkEditor}
+                  className="rounded-xl border border-gray-300 bg-white px-5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  disabled={savingLandmarks}
+                  onClick={handleSaveLandmarks}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2 text-xs font-black text-white hover:bg-rose-600 shadow-md transition-all disabled:opacity-50"
+                >
+                  {savingLandmarks ? (
+                    <>
+                      <RefreshCw size={14} className="animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Check size={14} />
+                      Save Key Landmarks
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

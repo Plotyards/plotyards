@@ -37,7 +37,13 @@ import {
   Sparkles,
   Trees,
   Waves,
-  Zap
+  Zap,
+  Car,
+  GraduationCap,
+  Hospital,
+  Plane,
+  ShoppingBag,
+  Train
 } from 'lucide-react';
 import { propertyListings } from '../data/properties';
 import { apiRequest } from '../lib/api';
@@ -72,6 +78,65 @@ const SecurityIcon = ({ className = "w-6 h-6" }) => (
     <path d="M12 12.5V15" />
   </svg>
 );
+
+const DEFAULT_KEY_LANDMARKS = [
+  {
+    distance: '5 - 10 Mins',
+    title: 'Expressway & Highway',
+    subtitle: 'Direct signal-free connectivity to main arterial highway',
+    icon: 'Route'
+  },
+  {
+    distance: '15 - 20 Mins',
+    title: 'Metro & Transit Station',
+    subtitle: 'Rapid transit station with dedicated parking',
+    icon: 'Train'
+  },
+  {
+    distance: '10 - 12 Mins',
+    title: 'Schools & Hospitals',
+    subtitle: 'Top CBSE/IB schools and multispecialty medical care',
+    icon: 'Building2'
+  },
+  {
+    distance: '35 - 45 Mins',
+    title: 'Airport / Aerocity',
+    subtitle: 'Smooth commute via high-speed corridor',
+    icon: 'Plane'
+  }
+];
+
+const renderLandmarkIcon = (iconName, size = 15) => {
+  switch (String(iconName || '').toLowerCase()) {
+    case 'train':
+    case 'metro':
+      return <Train size={size} />;
+    case 'school':
+    case 'graduationcap':
+      return <GraduationCap size={size} />;
+    case 'hospital':
+      return <Hospital size={size} />;
+    case 'plane':
+    case 'airport':
+      return <Plane size={size} />;
+    case 'car':
+      return <Car size={size} />;
+    case 'building':
+    case 'building2':
+      return <Building2 size={size} />;
+    case 'shoppingbag':
+    case 'mall':
+      return <ShoppingBag size={size} />;
+    case 'trees':
+    case 'park':
+      return <Trees size={size} />;
+    case 'mappin':
+      return <MapPin size={size} />;
+    case 'route':
+    default:
+      return <Route size={size} />;
+  }
+};
 
 const ClubhouseIcon = ({ className = "w-6 h-6" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -1554,62 +1619,45 @@ const PropertyDetails = () => {
               </div>
 
               {/* Location Advantage & Distance to Key Places ("Kon si jagah kitni dur hai") */}
-              <div className="mt-6">
-                <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${
-                  isDeveloperAccount ? 'text-amber-800' : 'text-muted'
-                }`}>
-                  Key Landmark Distances & Connectivity
-                </p>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className={`rounded-2xl border p-4 transition-all ${
-                    isDeveloperAccount ? 'border-amber-200/80 bg-amber-50/20 hover:border-amber-400' : 'border-border bg-surface'
-                  }`}>
-                    <p className={`text-xs font-bold flex items-center gap-1.5 ${
-                      isDeveloperAccount ? 'text-amber-800' : 'text-primary'
-                    }`}>
-                      <Route size={15} /> 5 - 10 Mins
-                    </p>
-                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>Expressway & Highway</p>
-                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>Direct signal-free connectivity to main arterial highway</p>
-                  </div>
+              {(() => {
+                const landmarksToDisplay = (property?.keyLandmarks && property.keyLandmarks.length > 0)
+                  ? property.keyLandmarks
+                  : DEFAULT_KEY_LANDMARKS;
 
-                  <div className={`rounded-2xl border p-4 transition-all ${
-                    isDeveloperAccount ? 'border-amber-200/80 bg-amber-50/20 hover:border-amber-400' : 'border-border bg-surface'
-                  }`}>
-                    <p className={`text-xs font-bold flex items-center gap-1.5 ${
-                      isDeveloperAccount ? 'text-amber-800' : 'text-primary'
+                return (
+                  <div className="mt-6">
+                    <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${
+                      isDeveloperAccount ? 'text-amber-800' : 'text-muted'
                     }`}>
-                      <Route size={15} /> 15 - 20 Mins
+                      Key Landmark Distances & Connectivity
                     </p>
-                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>Metro & Transit Station</p>
-                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>Rapid transit station with dedicated parking</p>
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                      {landmarksToDisplay.map((lm, idx) => (
+                        <div
+                          key={idx}
+                          className={`rounded-2xl border p-4 transition-all ${
+                            isDeveloperAccount ? 'border-amber-200/80 bg-amber-50/20 hover:border-amber-400' : 'border-border bg-surface'
+                          }`}
+                        >
+                          <p className={`text-xs font-bold flex items-center gap-1.5 ${
+                            isDeveloperAccount ? 'text-amber-800' : 'text-primary'
+                          }`}>
+                            {renderLandmarkIcon(lm.icon, 15)} {lm.distance || 'Nearby'}
+                          </p>
+                          <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>
+                            {lm.title}
+                          </p>
+                          {lm.subtitle && (
+                            <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>
+                              {lm.subtitle}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-
-                  <div className={`rounded-2xl border p-4 transition-all ${
-                    isDeveloperAccount ? 'border-amber-200/80 bg-amber-50/20 hover:border-amber-400' : 'border-border bg-surface'
-                  }`}>
-                    <p className={`text-xs font-bold flex items-center gap-1.5 ${
-                      isDeveloperAccount ? 'text-amber-800' : 'text-primary'
-                    }`}>
-                      <Building2 size={15} /> 10 - 12 Mins
-                    </p>
-                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>Schools & Hospitals</p>
-                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>Top CBSE/IB schools and multispecialty medical care</p>
-                  </div>
-
-                  <div className={`rounded-2xl border p-4 transition-all ${
-                    isDeveloperAccount ? 'border-amber-200/80 bg-amber-50/20 hover:border-amber-400' : 'border-border bg-surface'
-                  }`}>
-                    <p className={`text-xs font-bold flex items-center gap-1.5 ${
-                      isDeveloperAccount ? 'text-amber-800' : 'text-primary'
-                    }`}>
-                      <MapPin size={15} /> 35 - 45 Mins
-                    </p>
-                    <p className={`mt-1.5 text-sm font-extrabold ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>Airport / Aerocity</p>
-                    <p className={`mt-0.5 text-xs ${isDeveloperAccount ? 'text-slate-500' : 'text-muted'}`}>Smooth commute via high-speed corridor</p>
-                  </div>
-                </div>
-              </div>
+                );
+              })()}
 
               {/* Action Buttons */}
               <div className={`mt-6 flex flex-wrap items-center gap-3 pt-5 border-t ${
