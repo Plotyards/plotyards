@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Lightbulb, Loader2, PlusSquare, Search, User, UserCheck, X } from 'lucide-react';
+import { Building2, Home, Loader2, PlusSquare, Search, User, UserCheck, X } from 'lucide-react';
 import { useAuth } from '../context/auth';
 import VerifyDocumentModal from './VerifyDocumentModal';
 function CalendarClockIcon({ size = 26, className = "" }) {
@@ -42,7 +42,7 @@ const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/listings', label: 'Explore', icon: Search },
   { href: '/book-my-realtor', label: 'Book Realtor', icon: CalendarClockIcon, isPrimary: true },
-  { href: '/blogs', label: 'Spotlight', icon: Lightbulb }
+  { href: '/builder', label: 'Builder', icon: Building2 }
 ];
 
 const MobileBottomNav = () => {

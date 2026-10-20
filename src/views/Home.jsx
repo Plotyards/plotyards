@@ -843,7 +843,7 @@ const Home = () => {
       </section>
 
       {/* Builder Projects Spotlight Section */}
-      <section className="px-6 py-9 md:py-12 lg:px-12 max-w-[1400px] mx-auto">
+      <section id="builder" className="px-6 py-9 md:py-12 lg:px-12 max-w-[1400px] mx-auto scroll-mt-20">
         <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-primary">
@@ -858,7 +858,7 @@ const Home = () => {
             </p>
           </div>
           <Link
-            href="/listings?type=Residential"
+            href="/builder"
             className="inline-flex items-center gap-1.5 text-sm font-extrabold text-primary hover:text-rose-700 transition-colors"
           >
             Explore all builder plots <ArrowRight size={16} />
