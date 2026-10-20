@@ -1,13 +1,90 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
-import { Building2, CheckCircle2, ExternalLink, FileDown, FileText, Layers, Loader2, Mail, MapPin, MessageCircle, Phone, Play, ShieldCheck, Sparkles, Trash2, Upload, Video } from 'lucide-react';
+import {
+  Building2, CheckCircle2, ExternalLink, FileDown, FileText, Layers, Loader2,
+  Mail, MapPin, MessageCircle, Phone, Play, ShieldCheck, Sparkles, Trash2,
+  Upload, Video, Plus, Route, Train, Plane, Hospital, GraduationCap,
+  ShoppingBag, Car, Trees, Eye, RefreshCw, X
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import DropdownSelect from '../components/DropdownSelect';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
+
+const DEFAULT_KEY_LANDMARKS_PRESET = [
+  {
+    distance: '5 - 10 Mins',
+    title: 'Expressway & Highway',
+    subtitle: 'Direct signal-free connectivity to main arterial highway',
+    icon: 'Route'
+  },
+  {
+    distance: '15 - 20 Mins',
+    title: 'Metro & Transit Station',
+    subtitle: 'Rapid transit station with dedicated parking',
+    icon: 'Train'
+  },
+  {
+    distance: '10 - 12 Mins',
+    title: 'Schools & Hospitals',
+    subtitle: 'Top CBSE/IB schools and multispecialty medical care',
+    icon: 'Building2'
+  },
+  {
+    distance: '35 - 45 Mins',
+    title: 'Airport / Aerocity',
+    subtitle: 'Smooth commute via high-speed corridor',
+    icon: 'Plane'
+  }
+];
+
+const AVAILABLE_LANDMARK_ICONS = [
+  { value: 'Route', label: 'Route / Highway' },
+  { value: 'Train', label: 'Metro / Transit Station' },
+  { value: 'Building2', label: 'Schools / Civic / Hubs' },
+  { value: 'Plane', label: 'Airport / Aerocity' },
+  { value: 'Hospital', label: 'Hospital / Healthcare' },
+  { value: 'GraduationCap', label: 'School / University' },
+  { value: 'ShoppingBag', label: 'Shopping / Mall' },
+  { value: 'Car', label: 'Highway / Road Link' },
+  { value: 'Trees', label: 'Park / Green Corridor' },
+  { value: 'MapPin', label: 'General Landmark' }
+];
+
+const renderPostLandmarkIcon = (iconName, size = 15) => {
+  switch (String(iconName || '').toLowerCase()) {
+    case 'train':
+    case 'metro':
+      return <Train size={size} />;
+    case 'school':
+    case 'graduationcap':
+      return <GraduationCap size={size} />;
+    case 'hospital':
+      return <Hospital size={size} />;
+    case 'plane':
+    case 'airport':
+      return <Plane size={size} />;
+    case 'car':
+      return <Car size={size} />;
+    case 'building':
+    case 'building2':
+      return <Building2 size={size} />;
+    case 'shoppingbag':
+    case 'mall':
+      return <ShoppingBag size={size} />;
+    case 'trees':
+    case 'park':
+      return <Trees size={size} />;
+    case 'mappin':
+      return <MapPin size={size} />;
+    case 'route':
+    default:
+      return <Route size={size} />;
+  }
+};
 
 const DEFAULT_AMENITIES = [
   'Blacktop roads',
@@ -55,8 +132,12 @@ const PostProperty = () => {
     builderEmail: '',
     builderAddress: '',
     reraNumber: '',
-    brochureUrl: ''
+    brochureUrl: '',
+    sitePlanUrl: ''
   });
+  const [keyLandmarks, setKeyLandmarks] = useState([]);
+  const [sitePlanUploading, setSitePlanUploading] = useState(false);
+  const sitePlanInputRef = useRef(null);
   const [checkedAmenities, setCheckedAmenities] = useState([]);
   const [hasOtherAmenity, setHasOtherAmenity] = useState(false);
   const [otherAmenities, setOtherAmenities] = useState('');
@@ -136,6 +217,73 @@ const PostProperty = () => {
     } catch {
       return 'Project-Brochure.pdf';
     }
+  };
+
+  const handleSitePlanUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (PNG, JPG, WebP) for the site plan.');
+      return;
+    }
+
+    setSitePlanUploading(true);
+    try {
+      const activeCloud = uploadConfig.cloudName || 'dw0srvbyz';
+      const activePreset = uploadConfig.uploadPreset || 'plotyard_uploads';
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', activePreset);
+
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${activeCloud}/image/upload`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.secure_url) {
+        throw new Error(data.error?.message || 'Failed to upload site plan image.');
+      }
+
+      updateField('sitePlanUrl', data.secure_url);
+    } catch (err) {
+      console.error('Site plan upload error:', err);
+      const reader = new FileReader();
+      reader.onload = () => {
+        updateField('sitePlanUrl', reader.result);
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setSitePlanUploading(false);
+      if (event.target) event.target.value = '';
+    }
+  };
+
+  const handleAddLandmark = () => {
+    setKeyLandmarks((prev) => [
+      ...prev,
+      { distance: '5 - 10 Mins', title: '', subtitle: '', icon: 'Route' }
+    ]);
+  };
+
+  const handleLoadDefaultLandmarks = () => {
+    setKeyLandmarks(JSON.parse(JSON.stringify(DEFAULT_KEY_LANDMARKS_PRESET)));
+  };
+
+  const handleClearAllLandmarks = () => {
+    setKeyLandmarks([]);
+  };
+
+  const handleRemoveLandmark = (index) => {
+    setKeyLandmarks((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleUpdateLandmarkField = (index, field, value) => {
+    setKeyLandmarks((prev) =>
+      prev.map((lm, idx) => (idx === index ? { ...lm, [field]: value } : lm))
+    );
   };
 
   const toggleAmenity = (amenity) => {
@@ -218,8 +366,15 @@ const PostProperty = () => {
             builderEmail: prop.builderContact?.email || '',
             builderAddress: prop.builderContact?.address || '',
             reraNumber: prop.reraNumber || '',
-            brochureUrl: prop.brochureUrl || ''
+            brochureUrl: prop.brochureUrl || '',
+            sitePlanUrl: prop.sitePlanUrl || prop.sitePlan || ''
           });
+
+          if (Array.isArray(prop.keyLandmarks) && prop.keyLandmarks.length > 0) {
+            setKeyLandmarks(prop.keyLandmarks);
+          } else {
+            setKeyLandmarks([]);
+          }
 
           // Process amenities
           const amenities = prop.amenities || [];
@@ -562,7 +717,16 @@ const PostProperty = () => {
             address: form.builderAddress
           } : undefined,
           reraNumber: form.reraNumber || '',
-          brochureUrl: form.brochureUrl?.trim() || ''
+          brochureUrl: form.brochureUrl?.trim() || '',
+          sitePlanUrl: form.sitePlanUrl?.trim() || '',
+          keyLandmarks: keyLandmarks
+            .map((lm) => ({
+              distance: String(lm.distance || '').trim(),
+              title: String(lm.title || '').trim(),
+              subtitle: String(lm.subtitle || '').trim(),
+              icon: String(lm.icon || 'Route').trim()
+            }))
+            .filter((lm) => lm.title || lm.distance)
         }
       });
       setStatus(editId ? 'Your listing has been updated.' : 'Your property is now posted.');
@@ -1159,6 +1323,245 @@ const PostProperty = () => {
               </div>
             )}
           </div>
+
+          {/* Site Plan & Master Layout */}
+          <div className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <label className="flex items-center gap-2 text-sm font-bold text-text">
+                <Layers size={18} className="text-primary" />
+                Site Plan & Master Layout (साइट प्लान / मास्टर लेआउट नक्शा)
+              </label>
+              <span className="text-xs font-semibold text-muted bg-white px-2.5 py-0.5 rounded-full border border-gray-200">
+                Optional
+              </span>
+            </div>
+            <p className="text-xs text-muted mb-3">
+              Upload project layout, plot demarcation, or sector master plan image (PNG, JPG, WebP) or paste an image link. This appears in the 'Site Plan & Master Layout' section.
+            </p>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs font-bold text-text mb-1">Upload site plan image</label>
+                <input
+                  ref={sitePlanInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/*"
+                  onChange={handleSitePlanUpload}
+                  className="w-full text-xs text-text file:mr-2 file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:text-primary file:font-bold file:rounded-lg file:cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-text mb-1">Or paste image URL / link</label>
+                <input
+                  type="url"
+                  value={form.sitePlanUrl}
+                  onChange={(e) => updateField('sitePlanUrl', e.target.value)}
+                  placeholder="https://example.com/siteplan.jpg"
+                  className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs text-text font-semibold focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {sitePlanUploading && (
+              <div className="mt-3 flex items-center gap-2 text-xs font-bold text-primary animate-pulse">
+                <Loader2 size={14} className="animate-spin" />
+                Uploading site plan to cloud...
+              </div>
+            )}
+
+            {form.sitePlanUrl && (
+              <div className="mt-4 relative overflow-hidden rounded-2xl border border-gray-300 bg-slate-900 p-3 text-white">
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="relative w-full sm:w-48 h-32 bg-slate-950 rounded-xl overflow-hidden flex items-center justify-center border border-white/10 shrink-0">
+                    <img
+                      src={form.sitePlanUrl}
+                      alt="Site Plan Preview"
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.currentTarget.src = '/hero-bg.jpg'; }}
+                    />
+                  </div>
+                  <div className="flex-1 w-full flex flex-col justify-between py-1">
+                    <div>
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+                        <CheckCircle2 size={14} />
+                        Site plan ready on listing
+                      </div>
+                      <p className="text-sm font-bold text-white mt-1">Official Master Layout Plan</p>
+                      <p className="text-xs text-gray-300 mt-0.5 truncate max-w-md">{form.sitePlanUrl}</p>
+                    </div>
+                    <div className="mt-3 flex items-center gap-2">
+                      <a
+                        href={form.sitePlanUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-white/20 text-white hover:bg-white/30 text-xs font-bold transition-colors"
+                      >
+                        <ExternalLink size={12} /> View Full
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => updateField('sitePlanUrl', '')}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        <Trash2 size={12} /> Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Key Landmark Distances & Connectivity */}
+          <div className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+              <div>
+                <label className="flex items-center gap-2 text-sm font-bold text-text">
+                  <Route size={18} className="text-primary" />
+                  Key Landmark Distances & Connectivity (आस-पास की जरूरी जगहें और दूरी)
+                </label>
+                <p className="text-xs text-muted mt-0.5">
+                  Specify travel times / distances to expressway, metro, schools, hospitals, airport, etc.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleAddLandmark}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-rose-600 transition-colors shadow-xs cursor-pointer"
+                >
+                  <Plus size={13} /> Add Landmark
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLoadDefaultLandmarks}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors shadow-xs cursor-pointer"
+                >
+                  <RefreshCw size={12} /> Load 4 Standard Defaults
+                </button>
+                {keyLandmarks.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClearAllLandmarks}
+                    className="inline-flex items-center gap-1 rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer"
+                  >
+                    <Trash2 size={12} /> Clear
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* List of Editable Landmarks */}
+            {keyLandmarks.length > 0 ? (
+              <div className="mt-3 space-y-3">
+                {keyLandmarks.map((lm, idx) => (
+                  <div key={idx} className="rounded-xl border border-gray-200 bg-white p-3.5 shadow-xs space-y-2.5">
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-md bg-primary/10 text-[11px] font-black text-primary">
+                          #{idx + 1}
+                        </span>
+                        <span className="text-xs font-bold text-text">
+                          {lm.title || `Landmark ${idx + 1}`}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveLandmark(idx)}
+                        className="text-gray-400 hover:text-rose-600 transition-colors p-1 cursor-pointer"
+                        title="Remove Landmark"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+
+                    <div className="grid gap-2.5 sm:grid-cols-12">
+                      {/* Icon */}
+                      <div className="sm:col-span-3">
+                        <label className="block text-[11px] font-bold text-muted mb-1">Icon</label>
+                        <select
+                          value={lm.icon || 'Route'}
+                          onChange={(e) => handleUpdateLandmarkField(idx, 'icon', e.target.value)}
+                          className="w-full rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs font-bold text-text outline-none focus:border-primary"
+                        >
+                          {AVAILABLE_LANDMARK_ICONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Distance */}
+                      <div className="sm:col-span-3">
+                        <label className="block text-[11px] font-bold text-muted mb-1">Distance / Time</label>
+                        <input
+                          type="text"
+                          value={lm.distance || ''}
+                          onChange={(e) => handleUpdateLandmarkField(idx, 'distance', e.target.value)}
+                          placeholder="e.g. 5 - 10 Mins"
+                          className="w-full rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs font-bold text-text outline-none focus:border-primary"
+                        />
+                      </div>
+
+                      {/* Title */}
+                      <div className="sm:col-span-6">
+                        <label className="block text-[11px] font-bold text-muted mb-1">Landmark Title</label>
+                        <input
+                          type="text"
+                          value={lm.title || ''}
+                          onChange={(e) => handleUpdateLandmarkField(idx, 'title', e.target.value)}
+                          placeholder="e.g. Expressway & Highway"
+                          className="w-full rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs font-bold text-text outline-none focus:border-primary"
+                        />
+                      </div>
+
+                      {/* Subtitle */}
+                      <div className="sm:col-span-12">
+                        <label className="block text-[11px] font-bold text-muted mb-1">Subtitle / Connectivity Details</label>
+                        <input
+                          type="text"
+                          value={lm.subtitle || ''}
+                          onChange={(e) => handleUpdateLandmarkField(idx, 'subtitle', e.target.value)}
+                          placeholder="e.g. Direct signal-free connectivity to main arterial highway"
+                          className="w-full rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-text outline-none focus:border-primary"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Live Preview Card Grid */}
+                <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-3.5 space-y-2">
+                  <p className="text-[11px] font-extrabold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                    <Eye size={13} /> Live Preview on Listing Page:
+                  </p>
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                    {keyLandmarks.map((lm, idx) => (
+                      <div key={idx} className="rounded-lg border border-amber-200/80 bg-white p-2.5 shadow-xs">
+                        <p className="text-[11px] font-bold flex items-center gap-1 text-primary">
+                          {renderPostLandmarkIcon(lm.icon, 13)} {lm.distance || 'Nearby'}
+                        </p>
+                        <p className="mt-1 text-xs font-bold text-text truncate">
+                          {lm.title || 'Landmark'}
+                        </p>
+                        {lm.subtitle && (
+                          <p className="text-[10px] text-muted truncate mt-0.5">{lm.subtitle}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-3 rounded-xl border border-dashed border-gray-300 p-5 text-center bg-white/60">
+                <p className="text-xs font-bold text-muted">No custom landmarks added.</p>
+                <p className="text-[11px] text-muted mt-0.5">Click "Load 4 Standard Defaults" or "+ Add Landmark" to set key distances.</p>
+              </div>
+            )}
+          </div>
+
           {/* Layout Amenities Checkboxes */}
           <div className="border-t border-gray-100 pt-5">
             <label className="block text-sm font-bold text-text mb-3">What buyers get in this layout</label>

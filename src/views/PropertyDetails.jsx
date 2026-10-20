@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 
@@ -33,6 +33,8 @@ import {
   Share2,
   ShieldCheck,
   Video,
+  Volume2,
+  VolumeX,
   Scale,
   Sparkles,
   Trees,
@@ -195,15 +197,15 @@ const defaultBroker = {
 
 const isMongoId = (val) => /^[0-9a-fA-F]{24}$/.test(String(val));
 
-const getEmbedVideoUrl = (url = '') => {
+const getEmbedVideoUrl = (url = '', muted = true) => {
   if (!url || typeof url !== 'string') return null;
   const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
   if (ytMatch) {
-    return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
+    return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=${muted ? 1 : 0}&enablejsapi=1&playsinline=1&rel=0`;
   }
   const vimeoMatch = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)/i);
   if (vimeoMatch) {
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=${muted ? 1 : 0}`;
   }
   return null;
 };
@@ -220,6 +222,8 @@ const PropertyDetails = () => {
   const [stats, setStats] = useState({ totalProperties: 0, totalBrokers: 0 });
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef(null);
   const navigate = useRouter();
   const { user } = useAuth();
   const { compareList, toggleCompare } = useCompare();
@@ -531,13 +535,10 @@ const PropertyDetails = () => {
     const items = [];
     const imgItems = propertyImages.map((url, i) => ({ type: 'image', url, title: `Photo ${i + 1}` }));
     if (propertyVideos.length > 0) {
-      if (imgItems.length > 0) {
-        items.push(imgItems[0]);
-        propertyVideos.forEach((v) => items.push(v));
-        imgItems.slice(1).forEach((img) => items.push(img));
-      } else {
-        propertyVideos.forEach((v) => items.push(v));
-      }
+      // Video is 1st number pe
+      propertyVideos.forEach((v) => items.push(v));
+      // Then images start after video
+      imgItems.forEach((img) => items.push(img));
     } else {
       imgItems.forEach((img) => items.push(img));
     }
@@ -554,6 +555,54 @@ const PropertyDetails = () => {
 
   const currentMedia = mediaItems[currentImageIndex] || mediaItems[0] || { type: 'image', url: propertyImages[0] };
   const heroBackdrop = propertyImages[0] || galleryImages[0];
+
+  const sideThumbnails = useMemo(() => {
+    return mediaItems
+      .map((item, index) => ({ item, index }))
+      .filter(({ index }) => index !== currentImageIndex)
+      .slice(0, 3);
+  }, [mediaItems, currentImageIndex]);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+      if (currentMedia.type === 'video') {
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Autoplay policy handled
+          });
+        }
+      }
+    }
+  }, [isMuted, currentImageIndex, currentMedia]);
+
+  const toggleMute = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+    if (videoRef.current) {
+      videoRef.current.muted = nextMuted;
+      if (!nextMuted) {
+        videoRef.current.volume = 1.0;
+        videoRef.current.play().catch(() => {});
+      }
+    }
+    const iframe = document.getElementById('property-embed-video');
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage(
+        JSON.stringify({
+          event: 'command',
+          func: nextMuted ? 'mute' : 'unMute',
+          args: []
+        }),
+        '*'
+      );
+    }
+  };
 
   const activeBroker = useMemo(() => {
     const isDev = Boolean(property?.isDeveloperListing);
@@ -928,9 +977,11 @@ const PropertyDetails = () => {
 
               {/* Main Media: Video or Image */}
               {currentMedia.type === 'video' ? (
-                getEmbedVideoUrl(currentMedia.url) ? (
+                getEmbedVideoUrl(currentMedia.url, isMuted) ? (
                   <iframe
-                    src={getEmbedVideoUrl(currentMedia.url)}
+                    id="property-embed-video"
+                    key={`${currentMedia.url}-${isMuted}`}
+                    src={getEmbedVideoUrl(currentMedia.url, isMuted)}
                     title={currentMedia.title || "Property Video Walkthrough"}
                     className="absolute inset-0 h-full w-full z-10 border-0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -938,11 +989,14 @@ const PropertyDetails = () => {
                   />
                 ) : (
                   <video
+                    ref={videoRef}
                     key={currentMedia.url}
                     src={currentMedia.url}
                     controls
                     autoPlay
+                    muted={isMuted}
                     playsInline
+                    onEnded={nextImage}
                     className="absolute inset-0 h-full w-full object-contain z-10 bg-black/90"
                   />
                 )
@@ -953,6 +1007,29 @@ const PropertyDetails = () => {
                   alt={`${property.title} view ${currentImageIndex + 1}`}
                   className="absolute inset-0 h-full w-full object-contain transition-all duration-300"
                 />
+              )}
+
+              {/* In-box Unmute / Mute Toggle Button */}
+              {currentMedia.type === 'video' && (
+                <button
+                  type="button"
+                  onClick={toggleMute}
+                  className="absolute top-4 left-4 z-30 flex items-center gap-2 rounded-full bg-black/75 hover:bg-black/90 text-white px-3.5 py-1.5 text-xs font-bold backdrop-blur-md transition-all shadow-lg border border-white/25 hover:border-white/50 hover:scale-105 active:scale-95 cursor-pointer"
+                  aria-label={isMuted ? "Unmute video" : "Mute video"}
+                  title={isMuted ? "Click to Unmute" : "Click to Mute"}
+                >
+                  {isMuted ? (
+                    <>
+                      <VolumeX size={15} className="text-red-400 animate-pulse" />
+                      <span>Unmute</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 size={15} className="text-emerald-400" />
+                      <span>Mute</span>
+                    </>
+                  )}
+                </button>
               )}
 
               {/* Quick Jump Switchers: Photos / Video Tour */}
@@ -1029,48 +1106,70 @@ const PropertyDetails = () => {
               )}
 
               <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-4 md:p-5 z-20">
-                <div className="flex flex-wrap items-center gap-2 pointer-events-auto">
-                  {property.featured && (
-                    <span className="rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white shadow-sm">
-                      Featured Project
+                <div className="flex flex-wrap items-center justify-between gap-2 pointer-events-auto">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {property.featured && (
+                      <span className="rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white shadow-sm">
+                        Featured Project
+                      </span>
+                    )}
+                    {property.isDemo && (
+                      <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-700">
+                        This is a demo property
+                      </span>
+                    )}
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-extrabold shadow-sm ${
+                      isDeveloperAccount
+                        ? 'bg-white/95 text-slate-900 border border-amber-300 backdrop-blur-md'
+                        : 'bg-white text-text'
+                    }`}>
+                      <ShieldCheck size={14} className={isDeveloperAccount ? 'text-amber-600' : 'text-primary'} />
+                      {isDeveloperAccount ? 'Official Builder Verified' : 'Associate Partner verified'}
                     </span>
-                  )}
-                  {property.isDemo && (
-                    <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-700">
-                      This is a demo property
+                    <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text shadow-sm">
+                      <Camera size={13} />
+                      {propertyImages.length} photos
                     </span>
-                  )}
-                  <span className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-extrabold shadow-sm ${
-                    isDeveloperAccount
-                      ? 'bg-white/95 text-slate-900 border border-amber-300 backdrop-blur-md'
-                      : 'bg-white text-text'
-                  }`}>
-                    <ShieldCheck size={14} className={isDeveloperAccount ? 'text-amber-600' : 'text-primary'} />
-                    {isDeveloperAccount ? 'Official Builder Verified' : 'Associate Partner verified'}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-text shadow-sm">
-                    <Camera size={13} />
-                    {propertyImages.length} photos
-                  </span>
-                  {propertyVideos.length > 0 && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white shadow-sm">
-                      <Play size={11} className="fill-current text-white" />
-                      {propertyVideos.length} {propertyVideos.length === 1 ? 'video tour' : 'video tours'}
-                    </span>
+                    {propertyVideos.length > 0 && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white shadow-sm">
+                        <Play size={11} className="fill-current text-white" />
+                        {propertyVideos.length} {propertyVideos.length === 1 ? 'video tour' : 'video tours'}
+                      </span>
+                    )}
+                  </div>
+
+                  {currentMedia.type === 'video' && (
+                    <button
+                      type="button"
+                      onClick={toggleMute}
+                      className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-white/95 hover:bg-white text-slate-900 px-3.5 py-1.5 text-xs font-extrabold backdrop-blur-md transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer ml-auto"
+                      title={isMuted ? "Click to Unmute" : "Click to Mute"}
+                    >
+                      {isMuted ? (
+                        <>
+                          <VolumeX size={15} className="text-red-500" />
+                          <span>Unmute</span>
+                        </>
+                      ) : (
+                        <>
+                          <Volume2 size={15} className="text-emerald-600" />
+                          <span>Mute</span>
+                        </>
+                      )}
+                    </button>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Desktop Side Thumbnails */}
-            {mediaItems.length > 1 && (
+            {sideThumbnails.length > 0 && (
               <div className="hidden lg:flex flex-col gap-3.5 w-[320px] h-full">
-                {mediaItems.slice(1, 4).map((item, index) => {
-                  const targetIndex = index + 1;
+                {sideThumbnails.map(({ item, index: targetIndex }, slotIndex) => {
                   const isCurrent = currentImageIndex === targetIndex;
                   return (
                     <div 
-                      key={`thumb-${item.url}-${index}`} 
+                      key={`thumb-${item.url}-${targetIndex}`} 
                       onClick={() => setCurrentImageIndex(targetIndex)}
                       className={`relative flex-1 w-full overflow-hidden rounded-2xl cursor-pointer group bg-black transition-all ${
                         isCurrent ? 'ring-2 ring-primary ring-offset-2' : ''
@@ -1098,13 +1197,13 @@ const PropertyDetails = () => {
                         <>
                           <img
                             src={item.url}
-                            alt={`Thumbnail ${index + 1}`}
+                            alt={`Thumbnail ${targetIndex + 1}`}
                             className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                           />
                           <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
                         </>
                       )}
-                      {index === 2 && mediaItems.length > 4 && (
+                      {slotIndex === 2 && mediaItems.length > 4 && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/65 text-sm font-extrabold text-white backdrop-blur-sm hover:bg-black/75 transition-colors z-20">
                           +{mediaItems.length - 4} more
                         </div>
@@ -1543,9 +1642,11 @@ const PropertyDetails = () => {
                 isDeveloperAccount ? 'border-amber-200/80 bg-slate-100' : 'border-border bg-surface'
               }`}>
                 <img
-                  src="https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=2000&auto=format&fit=crop"
+                  src={property.sitePlanUrl || property.sitePlan || "https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=2000&auto=format&fit=crop"}
                   alt={`${property.title} Site Plan`}
-                  className="w-full h-64 sm:h-80 md:h-96 object-cover filter contrast-105"
+                  className="w-full h-64 sm:h-80 md:h-96 object-cover filter contrast-105 cursor-pointer hover:scale-[1.01] transition-transform"
+                  onClick={() => window.open(property.sitePlanUrl || property.sitePlan || "https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=2000&auto=format&fit=crop", '_blank')}
+                  title="Click to view full HD site plan"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent flex items-end p-5">
                   <div className="text-white">

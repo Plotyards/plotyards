@@ -185,6 +185,8 @@ export const adaptProperty = (property) => {
     ) ? (property.builderName || broker?.brokerProfile?.companyName || broker?.name || '') : '',
     aboutBuilder: property.aboutBuilder || '',
     brochureUrl: property.brochureUrl || '',
+    sitePlanUrl: property.sitePlanUrl || property.sitePlan || '',
+    keyLandmarks: Array.isArray(property.keyLandmarks) ? property.keyLandmarks : [],
     builderContact: property.builderContact || {
       phone: property.broker?.phone || '',
       whatsapp: property.broker?.whatsapp || '',

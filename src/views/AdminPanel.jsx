@@ -176,6 +176,11 @@ const AdminPanel = () => {
   const [editingLandmarks, setEditingLandmarks] = useState([]);
   const [savingLandmarks, setSavingLandmarks] = useState(false);
   const [landmarkSuccessMsg, setLandmarkSuccessMsg] = useState('');
+  const [editingSitePlanUrl, setEditingSitePlanUrl] = useState('');
+  const [savingSitePlan, setSavingSitePlan] = useState(false);
+  const [sitePlanUploading, setSitePlanUploading] = useState(false);
+  const [sitePlanSuccessMsg, setSitePlanSuccessMsg] = useState('');
+  const [modalActiveSubTab, setModalActiveSubTab] = useState('landmarks');
 
   const loadAdminData = async () => {
     const [statsData, usersData, pendingBrokersData, announcementData, featurePropertiesData, topCitiesData] = await Promise.all([
@@ -436,9 +441,12 @@ const AdminPanel = () => {
     }
   };
 
-  const handleOpenLandmarkEditor = (property) => {
+  const handleOpenLandmarkEditor = (property, initialTab = 'landmarks') => {
     setSelectedPropertyForLandmarks(property);
+    setModalActiveSubTab(initialTab);
     setLandmarkSuccessMsg('');
+    setSitePlanSuccessMsg('');
+    setEditingSitePlanUrl(property.sitePlanUrl || property.sitePlan || '');
     if (Array.isArray(property.keyLandmarks) && property.keyLandmarks.length > 0) {
       setEditingLandmarks(JSON.parse(JSON.stringify(property.keyLandmarks)));
     } else {
@@ -450,6 +458,68 @@ const AdminPanel = () => {
     setSelectedPropertyForLandmarks(null);
     setEditingLandmarks([]);
     setLandmarkSuccessMsg('');
+    setEditingSitePlanUrl('');
+    setSitePlanSuccessMsg('');
+  };
+
+  const handleSitePlanFileAdmin = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSitePlanUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'plotyard_uploads');
+
+      const response = await fetch('https://api.cloudinary.com/v1_1/dw0srvbyz/image/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      if (response.ok && data.secure_url) {
+        setEditingSitePlanUrl(data.secure_url);
+        return;
+      }
+      throw new Error(data?.error?.message || 'Upload failed');
+    } catch {
+      try {
+        const dataUrl = await readFileAsDataUrl(file);
+        setEditingSitePlanUrl(dataUrl);
+      } catch {
+        alert('Failed to read image file');
+      }
+    } finally {
+      setSitePlanUploading(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  const handleSaveSitePlan = async () => {
+    if (!selectedPropertyForLandmarks) return;
+    setSavingSitePlan(true);
+    setSitePlanSuccessMsg('');
+    try {
+      const propertyId = selectedPropertyForLandmarks._id;
+      const data = await apiRequest(`/properties/${propertyId}`, {
+        method: 'PATCH',
+        body: { sitePlanUrl: editingSitePlanUrl.trim() }
+      });
+
+      const updatedProp = data.property || {
+        ...selectedPropertyForLandmarks,
+        sitePlanUrl: editingSitePlanUrl.trim()
+      };
+
+      setFeatureProperties((current) =>
+        current.map((item) => (item._id === propertyId ? updatedProp : item))
+      );
+      setSelectedPropertyForLandmarks(updatedProp);
+      setSitePlanSuccessMsg('✓ Site plan successfully updated and saved live to database!');
+    } catch (err) {
+      alert(err.message || 'Failed to save site plan');
+    } finally {
+      setSavingSitePlan(false);
+    }
   };
 
   const handleAddLandmark = () => {
@@ -572,7 +642,7 @@ const AdminPanel = () => {
     ['manageBrokers', Users, 'Manage Associate Partners'],
     ['properties', Building2, 'Manage Properties'],
     ['builderProjects', Sparkles, 'Builder Projects'],
-    ['keyLandmarks', MapPin, 'Key Landmarks'],
+    ['keyLandmarks', MapPin, 'Key Landmarks & Site Plan'],
     ['blogs', FileText, 'Blogs'],
     ['announcement', Megaphone, 'Announcement'],
     ['topCities', Building2, 'Top Cities']
@@ -980,6 +1050,24 @@ const AdminPanel = () => {
                                 </a>
                                 <button
                                   type="button"
+                                  onClick={() => handleOpenLandmarkEditor(property, 'siteplan')}
+                                  className={`inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-bold shadow-sm transition-colors border ${property.sitePlanUrl ? 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                                  title="Add or update Site Plan layout"
+                                >
+                                  <Image size={13} />
+                                  Site Plan
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenLandmarkEditor(property, 'landmarks')}
+                                  className={`inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-bold shadow-sm transition-colors border ${Array.isArray(property.keyLandmarks) && property.keyLandmarks.length > 0 ? 'border-teal-300 bg-teal-50 text-teal-700 hover:bg-teal-100' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                                  title="Add or update Key Landmark distances"
+                                >
+                                  <MapPin size={13} />
+                                  Landmarks
+                                </button>
+                                <button
+                                  type="button"
                                   onClick={() => toggleFeatureProperty(property)}
                                   className={`inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition-colors ${property.featured ? 'bg-amber-600 text-white hover:bg-amber-700' : 'border border-amber-200 bg-white text-amber-700 hover:bg-amber-50'}`}
                                 >
@@ -1105,6 +1193,24 @@ const AdminPanel = () => {
                                 >
                                   Edit
                                 </a>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenLandmarkEditor(property, 'siteplan')}
+                                  className={`inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-bold shadow-sm transition-colors border ${property.sitePlanUrl ? 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                                  title="Add or update Site Plan layout"
+                                >
+                                  <Image size={13} />
+                                  Site Plan
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenLandmarkEditor(property, 'landmarks')}
+                                  className={`inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-bold shadow-sm transition-colors border ${Array.isArray(property.keyLandmarks) && property.keyLandmarks.length > 0 ? 'border-teal-300 bg-teal-50 text-teal-700 hover:bg-teal-100' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                                  title="Add or update Key Landmark distances"
+                                >
+                                  <MapPin size={13} />
+                                  Landmarks
+                                </button>
                                 <button
                                   type="button"
                                   onClick={() => toggleDeveloperProperty(property)}
@@ -1346,20 +1452,43 @@ const AdminPanel = () => {
                             </div>
                           </div>
 
-                          {/* Action Button */}
-                          <div className="mt-4 pt-3 border-t border-black/10">
-                            <button
-                              type="button"
-                              onClick={() => handleOpenLandmarkEditor(property)}
-                              className={`w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black shadow-sm transition-all ${
-                                isSelected
-                                  ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                                  : 'bg-primary text-white hover:bg-rose-600'
-                              }`}
-                            >
-                              <MapPin size={14} />
-                              {hasCustom ? 'Change Key Landmarks' : 'Add Key Landmarks'}
-                            </button>
+                          {/* Site Plan & Action Buttons */}
+                          <div className="mt-4 pt-3 border-t border-black/10 space-y-2">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-[11px] font-bold text-muted">Master Layout:</span>
+                              {property.sitePlanUrl ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                                  <Check size={11} /> Site Plan Ready
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                                  No Site Plan
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenLandmarkEditor(property, 'siteplan')}
+                                className="inline-flex items-center justify-center gap-1 rounded-xl px-2.5 py-2 text-xs font-bold border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-all shadow-sm"
+                              >
+                                <Image size={13} />
+                                {property.sitePlanUrl ? 'Edit Site Plan' : '+ Site Plan'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenLandmarkEditor(property, 'landmarks')}
+                                className={`inline-flex items-center justify-center gap-1 rounded-xl px-2.5 py-2 text-xs font-black shadow-sm transition-all ${
+                                  isSelected
+                                    ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                    : 'bg-primary text-white hover:bg-rose-600'
+                                }`}
+                              >
+                                <MapPin size={13} />
+                                {hasCustom ? 'Edit Landmarks' : '+ Landmarks'}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1865,11 +1994,11 @@ const AdminPanel = () => {
             <div className="flex items-center justify-between border-b border-gray-100 bg-surface px-6 py-4">
               <div className="flex items-center gap-3">
                 <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
-                  <MapPin size={22} />
+                  {modalActiveSubTab === 'siteplan' ? <Image size={22} /> : <MapPin size={22} />}
                 </div>
                 <div>
                   <h3 className="text-lg font-black text-text">
-                    Manage Key Landmarks: {selectedPropertyForLandmarks.title}
+                    {modalActiveSubTab === 'siteplan' ? 'Site Plan & Master Layout' : 'Key Landmark Distances'}: {selectedPropertyForLandmarks.title}
                   </h3>
                   <p className="text-xs font-semibold text-muted">
                     {[selectedPropertyForLandmarks.location?.locality, selectedPropertyForLandmarks.location?.city].filter(Boolean).join(', ') || 'Property Location'}
@@ -1885,9 +2014,171 @@ const AdminPanel = () => {
               </button>
             </div>
 
+            {/* Modal Sub-Tabs Switcher */}
+            <div className="flex border-b border-gray-200 bg-surface px-6 pt-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setModalActiveSubTab('siteplan')}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 text-xs font-black rounded-t-xl transition-all border-b-2 ${
+                  modalActiveSubTab === 'siteplan'
+                    ? 'border-indigo-600 text-indigo-700 bg-white shadow-sm'
+                    : 'border-transparent text-muted hover:text-text'
+                }`}
+              >
+                <Image size={15} />
+                Site Plan & Master Layout
+                {selectedPropertyForLandmarks.sitePlanUrl ? (
+                  <span className="ml-1.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 font-extrabold">
+                    ✓ Attached
+                  </span>
+                ) : (
+                  <span className="ml-1.5 rounded-full bg-slate-200 text-slate-600 text-[10px] px-1.5 py-0.5 font-bold">
+                    None
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setModalActiveSubTab('landmarks')}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 text-xs font-black rounded-t-xl transition-all border-b-2 ${
+                  modalActiveSubTab === 'landmarks'
+                    ? 'border-primary text-primary bg-white shadow-sm'
+                    : 'border-transparent text-muted hover:text-text'
+                }`}
+              >
+                <MapPin size={15} />
+                Key Landmarks & Distances
+                <span className="ml-1.5 rounded-full bg-primary/10 text-primary text-[10px] px-2 py-0.5 font-extrabold">
+                  {editingLandmarks.length}
+                </span>
+              </button>
+            </div>
+
             {/* Modal Body */}
             <div className="max-h-[75vh] overflow-y-auto p-6 space-y-6">
-              {/* Quick Actions Bar */}
+              {modalActiveSubTab === 'siteplan' ? (
+                /* SITE PLAN TAB */
+                <div className="space-y-6">
+                  {/* Info Banner */}
+                  <div className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4">
+                    <h4 className="text-sm font-extrabold text-indigo-950 flex items-center gap-2">
+                      <Image size={18} className="text-indigo-600" />
+                      Property Site Plan & Master Layout Map
+                    </h4>
+                    <p className="mt-1 text-xs font-medium text-indigo-900/80 leading-relaxed">
+                      Upload high-resolution architectural layout, master floor plan, or boundary map. Buyers will be able to view, zoom, and inspect the masterplan directly on the property details page.
+                    </p>
+                  </div>
+
+                  {/* Input controls */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {/* File upload option */}
+                    <div className="rounded-2xl border border-dashed border-indigo-200 bg-white p-5 text-center flex flex-col items-center justify-center">
+                      <div className="h-12 w-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 mb-2">
+                        <Upload size={22} />
+                      </div>
+                      <p className="text-xs font-extrabold text-text">Upload Layout Image File</p>
+                      <p className="text-[11px] font-medium text-muted mt-0.5">PNG, JPG, WEBP up to 15MB</p>
+                      <label className="mt-3 cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-indigo-700 transition-colors">
+                        <Upload size={13} />
+                        {sitePlanUploading ? 'Uploading Image...' : 'Choose Layout File'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleSitePlanFileAdmin}
+                          className="hidden"
+                          disabled={sitePlanUploading}
+                        />
+                      </label>
+                    </div>
+
+                    {/* Image URL option */}
+                    <div className="rounded-2xl border border-black/10 bg-white p-5 flex flex-col justify-between">
+                      <div>
+                        <label className="block text-xs font-extrabold text-text mb-1.5">
+                          Or Paste Direct Image URL:
+                        </label>
+                        <input
+                          type="url"
+                          value={editingSitePlanUrl}
+                          onChange={(e) => setEditingSitePlanUrl(e.target.value)}
+                          placeholder="https://example.com/images/master-siteplan.jpg"
+                          className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-text outline-none focus:border-indigo-600 transition-colors"
+                        />
+                        <p className="mt-1.5 text-[11px] font-medium text-muted">
+                          Supports hosted image URLs from Cloudinary, S3, Google Drive, or builder CDN.
+                        </p>
+                      </div>
+
+                      {editingSitePlanUrl && (
+                        <div className="mt-4 flex items-center justify-between pt-3 border-t border-black/5">
+                          <span className="text-[11px] font-bold text-emerald-600">✓ Image link active</span>
+                          <button
+                            type="button"
+                            onClick={() => setEditingSitePlanUrl('')}
+                            className="text-xs font-bold text-rose-600 hover:text-rose-700"
+                          >
+                            Clear / Remove
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Preview Section */}
+                  <div className="rounded-2xl border border-black/10 bg-surface p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-extrabold uppercase tracking-wider text-text flex items-center gap-1.5">
+                        <Eye size={15} className="text-indigo-600" /> Live Site Plan Preview
+                      </p>
+                      {editingSitePlanUrl && (
+                        <a
+                          href={editingSitePlanUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[11px] font-bold text-indigo-600 hover:underline inline-flex items-center gap-1"
+                        >
+                          <ExternalLink size={12} /> View Full HD Image
+                        </a>
+                      )}
+                    </div>
+
+                    {editingSitePlanUrl ? (
+                      <div className="relative overflow-hidden rounded-xl border border-black/10 bg-white p-2">
+                        <img
+                          src={editingSitePlanUrl}
+                          alt="Site Plan Master Layout Preview"
+                          className="max-h-[380px] w-full rounded-lg object-contain bg-slate-50"
+                        />
+                        <div className="mt-2 flex items-center justify-between px-2 text-[11px] font-semibold text-muted">
+                          <span>Master Layout Ready</span>
+                          <span className="text-emerald-600 font-bold">HD Zoom Enabled on Website</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-black/15 bg-white py-12 text-center">
+                        <Image size={36} className="mx-auto text-muted/40 mb-2" />
+                        <p className="text-xs font-bold text-text">No site plan uploaded yet</p>
+                        <p className="text-[11px] font-medium text-muted mt-0.5">
+                          Upload an image above or paste a URL to preview and save the layout.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Success Message Banner */}
+                  {sitePlanSuccessMsg && (
+                    <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3.5 flex items-center gap-2.5 text-emerald-800 text-xs font-bold animate-in fade-in">
+                      <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+                      <span>{sitePlanSuccessMsg}</span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* LANDMARKS TAB */
+                <div className="space-y-6">
+                  {/* Quick Actions Bar */}
               <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                 <div>
                   <p className="text-xs font-extrabold text-text">
@@ -2093,6 +2384,8 @@ const AdminPanel = () => {
                   <span>{landmarkSuccessMsg}</span>
                 </div>
               )}
+                </div>
+              )}
             </div>
 
             {/* Modal Footer */}
@@ -2113,24 +2406,46 @@ const AdminPanel = () => {
                 >
                   Close
                 </button>
-                <button
-                  type="button"
-                  disabled={savingLandmarks}
-                  onClick={handleSaveLandmarks}
-                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2 text-xs font-black text-white hover:bg-rose-600 shadow-md transition-all disabled:opacity-50"
-                >
-                  {savingLandmarks ? (
-                    <>
-                      <RefreshCw size={14} className="animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Check size={14} />
-                      Save Key Landmarks
-                    </>
-                  )}
-                </button>
+
+                {modalActiveSubTab === 'siteplan' ? (
+                  <button
+                    type="button"
+                    disabled={savingSitePlan}
+                    onClick={handleSaveSitePlan}
+                    className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2 text-xs font-black text-white hover:bg-indigo-700 shadow-md transition-all disabled:opacity-50"
+                  >
+                    {savingSitePlan ? (
+                      <>
+                        <RefreshCw size={14} className="animate-spin" />
+                        Saving Site Plan...
+                      </>
+                    ) : (
+                      <>
+                        <Check size={14} />
+                        Save Site Plan
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={savingLandmarks}
+                    onClick={handleSaveLandmarks}
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2 text-xs font-black text-white hover:bg-rose-600 shadow-md transition-all disabled:opacity-50"
+                  >
+                    {savingLandmarks ? (
+                      <>
+                        <RefreshCw size={14} className="animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Check size={14} />
+                        Save Key Landmarks
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>
