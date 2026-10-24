@@ -104,7 +104,7 @@ const BrochureModal = ({ isOpen, onClose, property, activeBroker, parsedDetails 
         </div>
 
         <div class="rera-box">
-          ✓ Official RERA Number: <strong>${parsedDetails?.reraNumber || property.reraNumber || 'HRERA-PKL-JJR-678-2025'}</strong> — Freehold Plotted Township
+          ${(parsedDetails?.reraNumber || property.reraNumber) ? `✓ Official RERA Number: <strong>${parsedDetails?.reraNumber || property.reraNumber}</strong>` : '✓ Official Verified Listing'}
         </div>
 
         <div class="section">

@@ -5,7 +5,8 @@ import {
   Building2, CheckCircle2, ExternalLink, FileDown, FileText, Layers, Loader2,
   Mail, MapPin, MessageCircle, Phone, Play, ShieldCheck, Sparkles, Trash2,
   Upload, Video, Plus, Route, Train, Plane, Hospital, GraduationCap,
-  ShoppingBag, Car, Trees, Eye, RefreshCw, X
+  ShoppingBag, Car, Trees, Eye, RefreshCw, X,
+  FileCheck2, GitFork, ScrollText, BadgeCheck, Check
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -97,12 +98,63 @@ const DEFAULT_AMENITIES = [
   'Children play area'
 ];
 
-const DEFAULT_DOCUMENTS = [
-  'RERA approval copy',
-  'Clear title verification',
-  'Layout and plot demarcation',
-  'Ready registration support'
+const VERIFICATION_OPTIONS = [
+  {
+    id: 'Verified Land Documents',
+    title: 'Verified Land Documents',
+    pill: 'Documents verified',
+    pillType: 'green',
+    desc: 'Ownership/title documents check karne ke baad use karein.',
+    icon: FileCheck2
+  },
+  {
+    id: 'CLU Approved',
+    title: 'CLU Approved',
+    pill: 'Permission-specific',
+    pillType: 'gray',
+    desc: 'Sirf tab jab relevant land-use conversion permission available ho.',
+    tags: ['Haryana', '+1'],
+    icon: GitFork
+  },
+  {
+    id: 'DTCP Licensed / Approved',
+    title: 'DTCP Licensed / Approved',
+    desc: 'Sirf applicable DTCP licence ya approval wale project ke liye.',
+    icon: ShieldCheck
+  },
+  {
+    id: 'RERA Registered',
+    title: 'RERA Registered',
+    desc: 'Agar project ko RERA registration required hai aur valid registration hai, tabhi badge lagayein.',
+    tags: ['Haryana', '+1'],
+    icon: CheckCircle2
+  },
+  {
+    id: 'Registry Available',
+    title: 'Registry Available',
+    desc: 'Sale deed/registry document available hone par hi use karein. Iska matlab automatically clear title ya all approvals hona nahi hai.',
+    icon: ScrollText
+  }
 ];
+
+const getFreeReraVerifyUrl = (reraNumber, location = '') => {
+  if (!reraNumber) return 'https://haryanarera.gov.in/';
+  const clean = String(reraNumber).trim().toUpperCase();
+  if (clean.includes('HRERA') || /haryana|gurgaon|gurugram|faridabad|panchkula|jjr|jhajjar|sonipat/i.test(location)) {
+    return 'https://haryanarera.gov.in/';
+  }
+  if (clean.includes('UPRERA') || clean.startsWith('UP') || /uttar pradesh|noida|greater noida|ghaziabad/i.test(location)) {
+    return 'https://www.up-rera.in/projects';
+  }
+  if (clean.includes('DLRERA') || /delhi/i.test(location)) {
+    return 'https://rera.delhi.gov.in/';
+  }
+  if (clean.startsWith('P5') || /maharashtra|mumbai|pune/i.test(location)) {
+    return 'https://maharerait.mahaonline.gov.in/';
+  }
+  return 'https://www.google.com/search?q=' + encodeURIComponent(clean + ' official rera verification gov in');
+};
+
 
 const PostProperty = () => {
   const navigate = useRouter();
@@ -294,6 +346,27 @@ const PostProperty = () => {
     );
   };
 
+  const toggleVerificationOption = (optionId) => {
+    setForm((current) => {
+      const docs = current.documentsVerified || [];
+      const isAlreadyChecked = docs.includes(optionId) || (optionId === 'RERA Registered' && (current.reraApproved || Boolean(current.reraNumber)));
+      
+      let updatedDocs;
+      if (isAlreadyChecked) {
+        updatedDocs = docs.filter((item) => item !== optionId);
+      } else {
+        updatedDocs = [...docs, optionId];
+      }
+
+      const isRera = optionId === 'RERA Registered';
+      return {
+        ...current,
+        documentsVerified: updatedDocs,
+        ...(isRera ? { reraApproved: !isAlreadyChecked } : {})
+      };
+    });
+  };
+
   const toggleDocument = (doc) => {
     setForm((current) => {
       const docs = current.documentsVerified || [];
@@ -357,7 +430,13 @@ const PostProperty = () => {
             listingType: prop.listingType || 'buy',
             roi: prop.roi || '',
             reraApproved: prop.reraApproved !== false,
-            documentsVerified: prop.documentsVerified || [],
+            documentsVerified: (() => {
+              const d = [...(prop.documentsVerified || [])];
+              if ((prop.reraNumber || prop.reraApproved) && !d.includes('RERA Registered')) {
+                d.push('RERA Registered');
+              }
+              return d;
+            })(),
             isDeveloperListing: Boolean(prop.isDeveloperListing),
             builderName: prop.builderName || '',
             aboutBuilder: prop.aboutBuilder || '',
@@ -470,29 +549,17 @@ const PostProperty = () => {
   }, [form.state]);
 
   const handleImageFiles = (event) => {
-    const newFiles = Array.from(event.target.files);
-    const currentTotal = imagePreviews.length;
-    const availableSlots = 4 - currentTotal;
-    
-    if (availableSlots <= 0) {
-      alert("You have already reached the limit of 4 images.");
-      return;
-    }
-    
-    if (newFiles.length > availableSlots) {
-      alert(`You can only have up to 4 images. You currently have ${currentTotal} images, so you can only upload up to ${availableSlots} more.`);
-    }
-    
-    const slicedFiles = newFiles.slice(0, availableSlots);
-    
-    setImageFiles((prev) => [...prev, ...slicedFiles]);
-    
-    const newPreviews = slicedFiles.map((file) => ({
+    const newFiles = Array.from(event.target.files || []);
+    if (!newFiles.length) return;
+
+    setImageFiles((prev) => [...prev, ...newFiles]);
+
+    const newPreviews = newFiles.map((file) => ({
       url: URL.createObjectURL(file),
       name: file.name,
       isExisting: false
     }));
-    
+
     setImagePreviews((prev) => [...prev, ...newPreviews]);
   };
 
@@ -788,34 +855,178 @@ const PostProperty = () => {
             <textarea value={form.description} onChange={(event) => updateField('description', event.target.value)} className="min-h-28 w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text" placeholder="Mention approvals, road access, nearby landmarks, payment terms, and anything a buyer should know before calling." />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="flex items-center gap-1.5 text-sm font-bold text-text mb-1">
-                <Building2 size={16} className="text-primary" />
-                Developer / Builder Name
-              </label>
-              <input
-                type="text"
-                value={form.builderName}
-                onChange={(e) => updateField('builderName', e.target.value)}
-                placeholder="e.g. DLF, Uppal Group, Godrej Properties, BPTP"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none"
-              />
-              <p className="mt-1 text-xs text-muted">Original developer or builder of the plotted township.</p>
+          {/* Developer / Builder Name */}
+          <div>
+            <label className="flex items-center gap-1.5 text-sm font-bold text-text mb-1">
+              <Building2 size={16} className="text-primary" />
+              Developer / Builder Name
+            </label>
+            <input
+              type="text"
+              value={form.builderName}
+              onChange={(e) => updateField('builderName', e.target.value)}
+              placeholder="e.g. DLF, Uppal Group, Godrej Properties, BPTP"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none"
+            />
+            <p className="mt-1 text-xs text-muted">Original developer or builder of the plotted township.</p>
+          </div>
+
+          {/* Government Approvals & Legal Verification Badges (As requested from verification options) */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs">
+            <div className="mb-4">
+              <div className="flex items-center justify-between gap-2">
+                <label className="flex items-center gap-2 text-base font-bold text-text">
+                  <ShieldCheck size={18} className="text-primary" />
+                  Legal Approvals & Verification Badges
+                </label>
+                <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                  Build Buyer Trust
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted">
+                Applicable badges select karein taaki buyer ko verified approvals dikhein.
+              </p>
             </div>
-            <div>
-              <label className="flex items-center gap-1.5 text-sm font-bold text-text mb-1">
-                <FileText size={16} className="text-primary" />
-                RERA Registration Number
-              </label>
-              <input
-                type="text"
-                value={form.reraNumber}
-                onChange={(e) => updateField('reraNumber', e.target.value)}
-                placeholder="e.g. HRERA-PKL-JJR-678-2025"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-text font-semibold focus:border-primary focus:outline-none"
-              />
-              <p className="mt-1 text-xs text-muted">RERA approval ID to build buyer trust.</p>
+
+            <div className="space-y-3">
+              {VERIFICATION_OPTIONS.map((opt) => {
+                const isSelected = (form.documentsVerified || []).includes(opt.id) || (opt.id === 'RERA Registered' && (form.reraApproved || Boolean(form.reraNumber)));
+                const IconComponent = opt.icon;
+
+                return (
+                  <div
+                    key={opt.id}
+                    className={`rounded-2xl border transition-all duration-200 p-3.5 sm:p-4 ${
+                      isSelected
+                        ? 'border-primary/50 bg-rose-50/20 shadow-xs'
+                        : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/50'
+                    }`}
+                  >
+                    <div
+                      onClick={() => toggleVerificationOption(opt.id)}
+                      className="flex items-start gap-3.5 sm:gap-4 cursor-pointer select-none"
+                    >
+                      {/* Left Icon in Rounded Square */}
+                      <div className={`flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl transition-colors ${
+                        isSelected ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-700'
+                      }`}>
+                        <IconComponent size={24} strokeWidth={2} />
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="text-sm sm:text-base font-bold text-gray-900 leading-tight">
+                            {opt.title}
+                          </h4>
+                          {opt.pill && (
+                            <span className={`inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-md ${
+                              opt.pillType === 'green'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : 'bg-gray-100 text-gray-600 border border-gray-200'
+                            }`}>
+                              {opt.pill}
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="mt-1 text-xs sm:text-sm text-gray-600 leading-relaxed">
+                          {opt.desc}
+                        </p>
+
+                        {/* State Tag pill */}
+                        {opt.tags && (
+                          <div className="mt-2 flex items-center gap-1.5">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-600 bg-gray-100 border border-gray-200/80 px-2 py-0.5 rounded-md">
+                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                              {opt.tags[0]}
+                              {opt.tags[1] && <span className="text-gray-400 font-normal">{opt.tags[1]}</span>}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right Checkbox / Toggle Indicator */}
+                      <div className="pt-0.5 shrink-0">
+                        <div className={`flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-lg border transition-all ${
+                          isSelected
+                            ? 'bg-primary border-primary text-white shadow-xs'
+                            : 'border-gray-300 bg-white hover:border-gray-400'
+                        }`}>
+                          {isSelected && <Check size={14} strokeWidth={3} />}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Expandable options for RERA Registered */}
+                    {opt.id === 'RERA Registered' && isSelected && (
+                      <div className="mt-3.5 pt-3.5 border-t border-gray-100 space-y-2">
+                        <label className="flex items-center gap-1.5 text-xs font-bold text-gray-800">
+                          <FileText size={14} className="text-primary" />
+                          RERA Registration Number
+                        </label>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            value={form.reraNumber}
+                            onChange={(e) => updateField('reraNumber', e.target.value.toUpperCase())}
+                            placeholder="e.g. HRERA-PKL-JJR-678-2025"
+                            className="flex-1 bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold font-mono text-text focus:border-primary focus:outline-none"
+                          />
+                          <a
+                            href={getFreeReraVerifyUrl(form.reraNumber, form.state || form.city)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition-colors whitespace-nowrap shadow-xs"
+                            title="Verify on official Government RERA portal for free without registration"
+                          >
+                            <ExternalLink size={13} />
+                            Verify on Portal (Free)
+                          </a>
+                        </div>
+                        <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] text-muted">
+                          <span>Official State RERA ID required for promotion and buyer transparency.</span>
+                          {form.reraNumber && (
+                            <span className="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                              Format: {form.reraNumber.includes('HRERA') ? 'Haryana HRERA' : form.reraNumber.includes('UPRERA') ? 'UP RERA' : 'Standard RERA'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Expandable Free Verification Helper for Land Documents / Jamabandi */}
+                    {opt.id === 'Verified Land Documents' && isSelected && (
+                      <div className="mt-2.5 pt-2.5 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <span className="text-gray-500 text-[11px]">Check official Jamabandi / Nakal ownership record for free:</span>
+                        <a
+                          href="https://jamabandi.nic.in/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-emerald-700 font-bold hover:underline text-[11px]"
+                        >
+                          <ExternalLink size={11} /> Check on Jamabandi.nic.in (Free & No Login)
+                        </a>
+                      </div>
+                    )}
+
+                    {/* Expandable Free Verification Helper for DTCP */}
+                    {opt.id === 'DTCP Licensed / Approved' && isSelected && (
+                      <div className="mt-2.5 pt-2.5 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <span className="text-gray-500 text-[11px]">Check public DTCP colony licence register:</span>
+                        <a
+                          href="https://tcpharyana.gov.in/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-emerald-700 font-bold hover:underline text-[11px]"
+                        >
+                          <ExternalLink size={11} /> Check on TCP Haryana (Free Public Records)
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -1217,7 +1428,7 @@ const PostProperty = () => {
                 ))}
               </div>
             ) : null}
-            <p className="mt-2 text-sm text-muted">Add up to 4 clear photos. Front road, layout, entrance, and plot view work best.</p>
+            <p className="mt-2 text-sm text-muted">Upload clear photos. Front road, layout, entrance, and plot view work best.</p>
           </div>
 
           {/* Property Video Upload */}
@@ -1618,39 +1829,7 @@ const PostProperty = () => {
             )}
           </div>
 
-          {/* Verified Documents Checkboxes */}
-          <div className="border-t border-gray-100 pt-5">
-            <label className="block text-sm font-bold text-text mb-3">Documents available for buyers</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-50 p-5 rounded-2xl border border-gray-100">
-              {DEFAULT_DOCUMENTS.filter(doc => form.propertyType === 'farmland' ? doc !== 'RERA approval copy' : true).map((doc) => {
-                const isChecked = (form.documentsVerified || []).includes(doc);
-                return (
-                  <label
-                    key={doc}
-                    className={`flex items-center gap-3 p-3 rounded-xl border text-sm font-semibold cursor-pointer transition-all duration-200 ${
-                      isChecked
-                        ? 'border-primary bg-primary/5 text-primary shadow-sm'
-                        : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => toggleDocument(doc)}
-                      className="h-4.5 w-4.5 rounded text-primary focus:ring-primary accent-primary"
-                    />
-                    {doc}
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-          {form.propertyType !== 'farmland' && (
-            <label className="flex items-center gap-2 text-sm font-bold text-text">
-              <input type="checkbox" checked={form.reraApproved} onChange={(event) => updateField('reraApproved', event.target.checked)} className="accent-primary" />
-              Verified / registration available
-            </label>
-          )}
+          
           <button disabled={loading} className="w-full bg-primary hover:bg-rose-600 disabled:opacity-60 text-white font-bold py-4 rounded-xl mt-4">
             {loading ? 'Saving...' : editId ? 'Save Changes' : 'Post Property'}
           </button>

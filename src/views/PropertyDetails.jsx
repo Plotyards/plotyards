@@ -259,7 +259,7 @@ const PropertyDetails = () => {
         const num = numMatch ? Number(numMatch[1]) : 0;
         return {
           size: num,
-          unit: 'Sq. Yrd',
+          unit: 'Sq. Yd',
           priceLabel: ''
         };
       }).filter((s) => s.size > 0);
@@ -269,7 +269,7 @@ const PropertyDetails = () => {
     if (sizeMatch) {
       const nums = sizeMatch[1].match(/\d+/g);
       if (nums && nums.length > 1) {
-        return nums.map((n) => ({ size: Number(n), unit: 'Sq. Yrd' }));
+        return nums.map((n) => ({ size: Number(n), unit: 'Sq. Yd' }));
       }
     }
     if (isDeveloperAccount && property?.sizeValue) {
@@ -277,7 +277,7 @@ const PropertyDetails = () => {
       const set = [base, Math.round(base * 1.25), Math.round(base * 1.5), Math.round(base * 1.75)];
       return set.map((s) => ({
         size: s,
-        unit: 'Sq. Yrd'
+        unit: 'Sq. Yd'
       }));
     }
     return [];
@@ -323,45 +323,16 @@ const PropertyDetails = () => {
          'Reputed Developer')
       : '';
 
-    let totalArea = extracted['total_area'] || property?.size || '18.325 acres';
-    totalArea = totalArea.replace(/^लगभग\s*/i, '').trim();
-    if (!totalArea.toLowerCase().includes('acre') && !totalArea.toLowerCase().includes('sq')) {
-      totalArea += ' acres';
+    let totalArea = extracted['total_area'] || (property?.size?.value ? `${property.size.value} ${property.size.unit || 'Sq. Yd'}` : '');
+    if (totalArea) {
+      totalArea = totalArea.replace(/^लगभग\s*/i, '').trim();
     }
 
-    let plots = extracted['total_plots'] || extracted['plots'] || '~311 residential';
-    plots = plots.replace(/^लगभग\s*/i, '~').trim();
-    if (/^\d+$/.test(plots)) {
-      plots = `~${plots} residential`;
-    }
-
-    let scheme = extracted['scheme'] || (property?.propertyType === 'plot' ? 'DDJAY' : 'Freehold');
-    const schemeParen = scheme.match(/\(([^)]+)\)/);
-    const schemeShort = schemeParen ? schemeParen[1] : scheme;
-
-    const reraNumber = extracted['rera'] || property?.reraNumber || '';
-    
-    let reraApproval = extracted['rera_approval'] || '21 Mar 2025';
-    reraApproval = reraApproval.replace(/January/i, 'Jan')
-      .replace(/February/i, 'Feb')
-      .replace(/March/i, 'Mar')
-      .replace(/April/i, 'Apr')
-      .replace(/August/i, 'Aug')
-      .replace(/September/i, 'Sep')
-      .replace(/October/i, 'Oct')
-      .replace(/November/i, 'Nov')
-      .replace(/December/i, 'Dec');
-
-    let possession = extracted['rera_completion_date'] || extracted['possession_date'] || extracted['possession'] || '12 Nov 2029';
-    possession = possession.replace(/January/i, 'Jan')
-      .replace(/February/i, 'Feb')
-      .replace(/March/i, 'Mar')
-      .replace(/April/i, 'Apr')
-      .replace(/August/i, 'Aug')
-      .replace(/September/i, 'Sep')
-      .replace(/October/i, 'Oct')
-      .replace(/November/i, 'Nov')
-      .replace(/December/i, 'Dec');
+    const plots = "";
+    const scheme = "";
+    const schemeShort = "";
+    const reraApproval = "";
+    const possession = "";
 
     const projectName = extracted['project'] || property?.title || '';
     const extractedLoc = extracted['location'] || '';
@@ -403,20 +374,36 @@ const PropertyDetails = () => {
     if (customDocs.length > 0) {
       return customDocs.map(d => {
         let title = d;
-        if (/rera/i.test(d)) title = 'RERA copy';
-        else if (/layout|plan|demarcation/i.test(d)) title = 'Layout plan';
-        else if (/title/i.test(d)) title = 'Clear title';
-        else if (/registration/i.test(d)) title = 'Ready registration';
+        let subtitle = 'Verified by Plotyard';
+        if (/rera/i.test(d)) {
+          title = 'RERA Registered';
+          subtitle = property?.reraNumber || 'Govt RERA Verified';
+        } else if (/clu/i.test(d)) {
+          title = 'CLU Approved';
+          subtitle = 'Land conversion approved';
+        } else if (/dtcp/i.test(d)) {
+          title = 'DTCP Licensed / Approved';
+          subtitle = 'DTCP layout approved';
+        } else if (/registry/i.test(d)) {
+          title = 'Registry Available';
+          subtitle = 'Sale deed registry available';
+        } else if (/land document|clear title|title/i.test(d)) {
+          title = 'Verified Land Documents';
+          subtitle = 'Title documents checked';
+        } else if (/layout|plan|demarcation/i.test(d)) {
+          title = 'Layout plan';
+          subtitle = 'Demarcation approved';
+        }
         return {
           title,
-          subtitle: 'Verified 02 Oct 2026'
+          subtitle
         };
       });
     }
     return [
-      { title: 'RERA copy', subtitle: 'Verified 02 Oct 2026' },
-      { title: 'Layout plan', subtitle: 'Verified 02 Oct 2026' },
-      { title: 'Clear title', subtitle: 'Verified 02 Oct 2026' }
+      { title: 'Verified Land Documents', subtitle: 'Title documents checked' },
+      { title: 'DTCP Licensed / Approved', subtitle: 'Government layout verified' },
+      { title: 'Registry Available', subtitle: 'Immediate execution' }
     ];
   }, [property]);
 
@@ -1260,7 +1247,7 @@ const PropertyDetails = () => {
                 <div className="mt-6 md:mt-7 flex items-center gap-2 flex-wrap">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50/90 px-3.5 py-1 text-xs font-black tracking-wider text-amber-900 uppercase shadow-xs">
                     <Building2 size={13} className="text-amber-600" />
-                    {parsedDetails.scheme ? `OFFICIAL TOWNSHIP • ${parsedDetails.scheme}` : 'OFFICIAL BUILDER TOWNSHIP'}
+                    'OFFICIAL BUILDER TOWNSHIP'
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50/90 px-3 py-1 text-xs font-bold text-emerald-800 shadow-xs">
                     <CheckCircle2 size={12} className="text-emerald-600" /> Direct Builder Inventory
@@ -1268,7 +1255,7 @@ const PropertyDetails = () => {
                 </div>
               ) : (
                 <p className="mt-6 md:mt-7 text-xs font-bold uppercase tracking-wider text-secondary">
-                  {parsedDetails.scheme ? `RERA APPROVED PLOTTED TOWNSHIP • ${parsedDetails.scheme}` : 'RERA APPROVED PLOTTED TOWNSHIP'}
+                  'RERA APPROVED PLOTTED TOWNSHIP'
                 </p>
               )}
 
@@ -1309,14 +1296,14 @@ const PropertyDetails = () => {
                 </div>
               </div>
 
-              {/* 6-box specs grid */}
+              {/* 3-box specs grid: Only actual fields from posting / admin */}
               <div className={`mt-6 md:mt-8 overflow-hidden rounded-2xl border transition-all ${
                 isDeveloperAccount
                   ? 'border-amber-200/80 bg-slate-50/70 shadow-xs'
                   : 'border-border bg-white shadow-xs'
               }`}>
-                <div className={`grid grid-cols-3 divide-x border-b ${
-                  isDeveloperAccount ? 'divide-slate-200/80 border-slate-200/80' : 'divide-border border-border'
+                <div className={`grid grid-cols-3 divide-x ${
+                  isDeveloperAccount ? 'divide-slate-200/80' : 'divide-border'
                 }`}>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
                     <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
@@ -1340,76 +1327,39 @@ const PropertyDetails = () => {
                       isDeveloperAccount ? 'text-slate-900 font-extrabold' : 'text-text'
                     }`}>
                       {availablePlotSizes.length > 1
-                        ? `${availablePlotSizes[0].size} - ${availablePlotSizes[availablePlotSizes.length - 1].size} Sq. Yrd`
-                        : parsedDetails.totalArea}
+                        ? `${availablePlotSizes[0].size} - ${availablePlotSizes[availablePlotSizes.length - 1].size} Sq. Yd`
+                        : (property?.size?.value ? `${property.size.value} ${property.size.unit || 'Sq. Yd'}` : 'Available')}
                     </p>
                   </div>
                   <div className="p-3 sm:p-4 md:p-5 min-w-0">
                     <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
                       isDeveloperAccount ? 'text-amber-800' : 'text-muted'
-                    }`}>PLOTS</p>
-                    <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
+                    }`}>PROPERTY TYPE</p>
+                    <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold capitalize truncate ${
                       isDeveloperAccount ? 'text-slate-900 font-extrabold' : 'text-text'
-                    }`}>{parsedDetails.plots}</p>
-                  </div>
-                </div>
-
-                <div className={`grid grid-cols-3 divide-x ${
-                  isDeveloperAccount ? 'divide-slate-200/80' : 'divide-border'
-                }`}>
-                  <div className="p-3 sm:p-4 md:p-5 min-w-0">
-                    <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
-                      isDeveloperAccount ? 'text-amber-800' : 'text-muted'
-                    }`}>SCHEME</p>
-                    <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
-                      isDeveloperAccount ? 'text-slate-900 font-extrabold' : 'text-text'
-                    }`}>{parsedDetails.scheme}</p>
-                  </div>
-                  <div className="p-3 sm:p-4 md:p-5 min-w-0">
-                    <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
-                      isDeveloperAccount ? 'text-amber-800' : 'text-muted'
-                    }`}>RERA APPROVAL</p>
-                    <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
-                      isDeveloperAccount ? 'text-slate-900 font-extrabold' : 'text-text'
-                    }`}>{parsedDetails.reraApproval}</p>
-                  </div>
-                  <div className="p-3 sm:p-4 md:p-5 min-w-0">
-                    <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
-                      isDeveloperAccount ? 'text-amber-800' : 'text-muted'
-                    }`}>POSSESSION</p>
-                    <p className={`mt-1 text-xs sm:text-sm md:text-base font-bold truncate ${
-                      isDeveloperAccount ? 'text-slate-900 font-extrabold' : 'text-text'
-                    }`}>{parsedDetails.possession}</p>
+                    }`}>{property?.propertyType || 'Plots'}</p>
                   </div>
                 </div>
               </div>
 
-              {/* RERA line */}
-              <div className="mt-3.5 flex flex-wrap items-center gap-2 text-xs md:text-sm">
-                <CertificateBadgeIcon className={`h-5 w-5 shrink-0 ${isDeveloperAccount ? 'text-amber-600' : 'text-secondary'}`} />
-                <span className={`font-semibold tracking-tight ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>
-                  {parsedDetails.reraNumber || property.reraNumber || 'HRERA-PKL-JJR-678-2025'}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleCopyRera}
-                  className={`p-1 transition-colors rounded ${isDeveloperAccount ? 'text-slate-500 hover:text-slate-900' : 'text-muted hover:text-text'}`}
-                  title="Copy RERA Number"
-                >
-                  {copiedRera ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
-                </button>
-                {copiedRera && <span className="text-xs font-semibold text-emerald-600">Copied!</span>}
-                <a
-                  href={reraVerifyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`font-bold ml-1.5 inline-flex items-center gap-1 hover:underline transition-colors ${
-                    isDeveloperAccount ? 'text-amber-700 hover:text-amber-900' : 'text-secondary hover:text-primary'
-                  }`}
-                >
-                  Verify on HRERA
-                </a>
-              </div>
+              {/* RERA line - Only show if property actually has a RERA Number */}
+              {(parsedDetails.reraNumber || property?.reraNumber) && (
+                <div className="mt-3.5 flex flex-wrap items-center gap-2 text-xs md:text-sm">
+                  <CertificateBadgeIcon className={`h-5 w-5 shrink-0 ${isDeveloperAccount ? 'text-amber-600' : 'text-secondary'}`} />
+                  <span className={`font-semibold tracking-tight ${isDeveloperAccount ? 'text-slate-900' : 'text-text'}`}>
+                    {parsedDetails.reraNumber || property.reraNumber}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyRera}
+                    className={`p-1 transition-colors rounded ${isDeveloperAccount ? 'text-slate-500 hover:text-slate-900' : 'text-muted hover:text-text'}`}
+                    title="Copy RERA Number"
+                  >
+                    {copiedRera ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                  </button>
+                  {copiedRera && <span className="text-xs font-semibold text-emerald-600">Copied!</span>}
+                </div>
+              )}
 
               {/* Available Plot Sizes in this Project */}
               {availablePlotSizes.length > 0 && (
@@ -1497,17 +1447,11 @@ const PropertyDetails = () => {
                               {priceDisplay}
                             </span>
                           )}
-                          {variant.dimensions ? (
-                            <span className={`text-[10px] font-medium mt-0.5 truncate ${
-                              isDeveloperAccount ? 'text-slate-500' : 'text-muted'
+                          {computedPrice > 0 && variant.size > 0 && (
+                            <span className={`text-[10px] font-semibold mt-0.5 ${
+                              isDeveloperAccount ? 'text-slate-600' : 'text-muted'
                             }`}>
-                              {variant.dimensions}
-                            </span>
-                          ) : (
-                            <span className={`text-[10px] font-medium mt-0.5 ${
-                              isDeveloperAccount ? 'text-slate-500' : 'text-muted'
-                            }`}>
-                              ~{Math.round(variant.size * 9)} Sq. Ft
+                              @ ₹{Math.round(computedPrice / variant.size).toLocaleString('en-IN')}/Sq. Yd
                             </span>
                           )}
                         </button>
@@ -1653,7 +1597,7 @@ const PropertyDetails = () => {
                     <p className={`text-sm font-bold ${isDeveloperAccount ? 'text-amber-200' : 'text-white'}`}>
                       Approved Master Layout Plan
                     </p>
-                    <p className="text-xs text-white/80">Approved under {parsedDetails.scheme || 'DDJAY'} · Wide internal roads & green boundary</p>
+                    <p className="text-xs text-white/80">Approved Master Plan · Wide internal roads & green boundary</p>
                   </div>
                 </div>
               </div>
