@@ -99,6 +99,10 @@ const BlogDetails = () => {
     );
   }
 
+  const authorName = (!blog.author?.name || /backend(\s*team)?/i.test(blog.author.name) || blog.author.name === 'Plotyards Editorial')
+    ? 'Plotyards'
+    : blog.author.name;
+
   const paragraphs = String(blog.content || '').split(/\n+/).map((item) => item.trim()).filter(Boolean);
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -108,7 +112,7 @@ const BlogDetails = () => {
     image: blog.coverImage || '/hero-bg.jpg',
     author: {
       '@type': 'Person',
-      name: blog.author?.name || 'Plotyards Editorial'
+      name: authorName
     },
     publisher: {
       '@type': 'Organization',
@@ -139,7 +143,7 @@ const BlogDetails = () => {
             <h1 className="mt-5 text-4xl font-extrabold leading-tight text-text lg:text-5xl">{blog.title}</h1>
             <p className="mt-5 text-base font-medium leading-8 text-muted">{blog.excerpt}</p>
             <div className="mt-6 flex flex-wrap items-center gap-4 border-y border-border py-4 text-sm font-bold text-muted">
-              <span className="inline-flex items-center gap-2"><UserRound size={16} /> {blog.author?.name || 'Plotyards Editorial'}</span>
+              <span className="inline-flex items-center gap-2"><UserRound size={16} /> {authorName}</span>
               <span className="inline-flex items-center gap-2"><CalendarDays size={16} /> {formatDate(blog.publishedAt || blog.createdAt)}</span>
               <span className="inline-flex items-center gap-2"><Clock size={16} /> {blog.readingTime || 1} min read</span>
               <button onClick={() => { const shareUrl = encodeURI(window.location.href); if(navigator.share) { navigator.share({ title: blog.title, url: shareUrl }); } else { navigator.clipboard.writeText(shareUrl); alert('Link copied!'); } }} className="ml-auto inline-flex items-center gap-2 rounded-lg bg-surface px-3 py-1.5 transition-colors hover:bg-primary/10 hover:text-primary">
@@ -177,15 +181,7 @@ const BlogDetails = () => {
               </div>
             )}
 
-            {blog.tags?.length > 0 && (
-              <div className="mt-8 flex flex-wrap gap-2 border-t border-border pt-6">
-                {blog.tags.map((tag) => (
-                  <span key={tag} className="rounded-full bg-surface px-3 py-1.5 text-xs font-extrabold text-muted">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
+            {/* Tags hidden as requested */}
           </div>
         </article>
 

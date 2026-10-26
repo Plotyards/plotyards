@@ -331,6 +331,7 @@ const PropertyDetails = () => {
     const plots = "";
     const scheme = "";
     const schemeShort = "";
+    const reraNumber = extracted['rera'] || extracted['rera_number'] || property?.reraNumber || '';
     const reraApproval = "";
     const possession = "";
 

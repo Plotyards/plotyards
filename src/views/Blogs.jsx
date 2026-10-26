@@ -142,7 +142,7 @@ const Blogs = () => {
                   <div className="mt-5 flex flex-wrap items-center gap-4 text-xs font-bold text-muted">
                     <span className="inline-flex items-center gap-1"><CalendarDays size={14} /> {formatDate(featuredBlog.publishedAt || featuredBlog.createdAt)}</span>
                     <span>{featuredBlog.readingTime || 1} min read</span>
-                    <span>{featuredBlog.author?.name || 'Plotyards'}</span>
+                    <span>{(!featuredBlog.author?.name || /backend(\s*team)?/i.test(featuredBlog.author.name)) ? 'Plotyards' : featuredBlog.author.name}</span>
                   </div>
                   <div className="mt-6 flex items-center justify-between">
                     <span className="inline-flex w-fit items-center gap-2 text-sm font-extrabold text-primary">
