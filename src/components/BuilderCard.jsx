@@ -120,18 +120,18 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
   const handoverText = plot.handover || plot.size || 'Ready Registry';
 
   return (
-    <div className="group relative flex flex-col rounded-[2rem] border border-gray-200/90 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/50 hover:shadow-2xl hover:shadow-rose-500/10">
-      {/* Top Red Luxury Accent Line */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-t-[2rem]" />
+    <div className="group relative overflow-hidden flex flex-col rounded-[2rem] bg-gradient-to-br from-[#E11D48] via-[#D0103A] to-[#A00B2B] p-4 text-white shadow-xl shadow-rose-950/25 border border-rose-400/40 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-rose-600/40">
+      {/* Continuous Shine Beam Animation across the entire card (Post Property style) */}
+      <div className="absolute top-0 -left-[100%] w-36 h-full bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[45deg] animate-shine pointer-events-none z-20"></div>
 
       {/* Image Container with Badges and Floating Builder Logo */}
-      <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-surface shadow-sm">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-black/30 shadow-md">
         <img
           src={imageUrl}
           alt={plot.title}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
         {/* Top-Left: India Flag Pill Badge */}
         <div className="absolute left-3 top-3">
@@ -154,21 +154,21 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
         </div>
       </div>
 
-      {/* Content Container (pt-7 to give comfortable space under floating logo) */}
-      <div className="mt-2 pt-6 flex flex-1 flex-col">
+      {/* Content Container (White text on Red background) */}
+      <div className="mt-2 pt-6 flex flex-1 flex-col relative z-10">
         {/* Title & External View Link */}
         <div className="flex items-start justify-between gap-2">
           <Link href={`/property/${linkId}`} className="flex-1 min-w-0">
-            <h2 className="line-clamp-1 text-base md:text-lg font-black text-gray-950 transition-colors group-hover:text-primary">
+            <h2 className="line-clamp-1 text-base md:text-lg font-black text-white transition-opacity hover:opacity-90">
               {plot.title}
             </h2>
-            <p className="text-xs font-bold text-gray-500 mt-0.5 truncate">
+            <p className="text-xs font-bold text-white/85 mt-0.5 truncate">
               {subtitle}
             </p>
           </Link>
           <Link
             href={`/property/${linkId}`}
-            className="flex-shrink-0 p-2 rounded-xl border border-gray-200/90 bg-white text-gray-400 hover:text-primary hover:border-primary/50 hover:bg-rose-50/40 transition-all shadow-xs"
+            className="flex-shrink-0 p-2 rounded-xl border border-white/30 bg-white/15 text-white hover:bg-white hover:text-primary transition-all shadow-xs backdrop-blur-xs"
             title="View Details"
           >
             <ArrowUpRight size={16} />
@@ -176,50 +176,47 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
         </div>
 
         {/* Builder Name Line */}
-        <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-gray-700">
-          <Building2 size={14} className="text-primary flex-shrink-0" />
+        <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-white">
+          <Building2 size={14} className="text-white/90 flex-shrink-0" />
           <span className="truncate">By {builderName}</span>
         </div>
 
         {/* Location Line */}
-        <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-gray-500">
-          <MapPin size={14} className="text-primary flex-shrink-0" />
+        <div className="mt-1 flex items-center gap-1.5 text-xs font-medium text-white/85">
+          <MapPin size={14} className="text-white/80 flex-shrink-0" />
           <span className="truncate">{plot.location}</span>
         </div>
 
-        {/* Red & White Premium Metrics Grid */}
-        <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-gradient-to-br from-rose-50/60 via-white to-rose-50/30 p-3 border border-rose-100 shadow-[0_2px_10px_rgba(225,29,72,0.03)]">
+        {/* Metrics Grid: Glass Box with White Text */}
+        <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-black/20 backdrop-blur-md p-3 border border-white/20 shadow-inner">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-rose-500">LAUNCH PRICE</p>
-            <p className="mt-0.5 truncate text-base font-black text-primary">{plot.price}</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-white/75">LAUNCH PRICE</p>
+            <p className="mt-0.5 truncate text-base font-black text-white">{plot.price}</p>
           </div>
-          <div className="border-l border-rose-100 pl-3">
-            <p className="text-[10px] font-black uppercase tracking-wider text-gray-400">HANDOVER</p>
-            <p className="mt-0.5 truncate text-xs font-black text-gray-800">{handoverText}</p>
+          <div className="border-l border-white/20 pl-3">
+            <p className="text-[10px] font-black uppercase tracking-wider text-white/75">HANDOVER</p>
+            <p className="mt-0.5 truncate text-xs font-black text-white">{handoverText}</p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
+        <div className="mt-4 pt-3 border-t border-white/20 flex items-center gap-2">
           <a
             href={`https://wa.me/${waNumber}?text=${waMessage}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2.5 text-xs font-extrabold text-white shadow-xs transition-all hover:bg-emerald-700 active:scale-95"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-white text-gray-950 px-3 py-2.5 text-xs font-extrabold shadow-sm transition-all hover:bg-white/90 active:scale-95"
           >
-            <MessageCircle size={15} />
+            <MessageCircle size={15} className="text-emerald-600" />
             WhatsApp Builder
           </a>
 
           <Link
             href={`/property/${linkId}`}
-            className="relative overflow-hidden inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-black text-white shadow-sm shadow-primary/25 transition-all hover:bg-rose-700 active:scale-95"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-black/35 hover:bg-black/50 text-white border border-white/30 px-4 py-2.5 text-xs font-black shadow-sm transition-all active:scale-95"
           >
-            <div className="absolute top-0 -left-[100%] w-12 h-full bg-white/30 skew-x-[45deg] animate-shine pointer-events-none"></div>
-            <span className="relative z-10 flex items-center gap-1">
-              <span>Explore</span>
-              <ArrowRight size={14} />
-            </span>
+            <span>Explore</span>
+            <ArrowRight size={14} />
           </Link>
         </div>
       </div>
