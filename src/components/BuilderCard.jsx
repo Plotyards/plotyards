@@ -11,8 +11,9 @@ export const BuilderLogo = ({ builderName = '', logoUrl = '', className = "h-14 
   // If a custom logo image URL is provided
   if (logoUrl) {
     return (
-      <div className={`${className} rounded-full bg-white p-1 border-2 border-white shadow-xl flex items-center justify-center overflow-hidden shrink-0`}>
-        <img src={logoUrl} alt={builderName} className="h-full w-full object-contain rounded-full" />
+      <div className={`${className} relative overflow-hidden rounded-full bg-white p-1 ring-4 ring-white shadow-xl flex items-center justify-center shrink-0`}>
+        <div className="absolute top-0 -left-[100%] w-14 h-full bg-white/40 skew-x-[45deg] animate-shine pointer-events-none"></div>
+        <img src={logoUrl} alt={builderName} className="h-full w-full object-contain rounded-full relative z-10" />
       </div>
     );
   }
@@ -20,8 +21,9 @@ export const BuilderLogo = ({ builderName = '', logoUrl = '', className = "h-14 
   // DLF Logo: 3 red horizontal bars and bold DLF text
   if (name.includes('dlf')) {
     return (
-      <div className={`${className} rounded-full bg-white p-1.5 border-2 border-white shadow-xl flex flex-col items-center justify-center shrink-0`}>
-        <div className="flex flex-col items-center justify-center">
+      <div className={`${className} relative overflow-hidden rounded-full bg-white p-1.5 ring-4 ring-white shadow-xl flex flex-col items-center justify-center shrink-0`}>
+        <div className="absolute top-0 -left-[100%] w-14 h-full bg-white/40 skew-x-[45deg] animate-shine pointer-events-none"></div>
+        <div className="relative z-10 flex flex-col items-center justify-center">
           <div className="flex flex-col gap-[2px] mb-0.5">
             <span className="w-5 h-[3px] bg-[#E21E25] rounded-xs"></span>
             <span className="w-5 h-[3px] bg-[#E21E25] rounded-xs"></span>
@@ -36,8 +38,9 @@ export const BuilderLogo = ({ builderName = '', logoUrl = '', className = "h-14 
   // Godrej Logo: Purple G logo with GODREJ text
   if (name.includes('godrej')) {
     return (
-      <div className={`${className} rounded-full bg-white p-1 border-2 border-white shadow-xl flex flex-col items-center justify-center shrink-0`}>
-        <div className="flex flex-col items-center justify-center">
+      <div className={`${className} relative overflow-hidden rounded-full bg-white p-1 ring-4 ring-white shadow-xl flex flex-col items-center justify-center shrink-0`}>
+        <div className="absolute top-0 -left-[100%] w-14 h-full bg-white/40 skew-x-[45deg] animate-shine pointer-events-none"></div>
+        <div className="relative z-10 flex flex-col items-center justify-center">
           <span className="text-xl font-black text-[#6F2C91] italic font-serif leading-none">G</span>
           <span className="text-[7px] font-extrabold tracking-widest text-[#6F2C91] uppercase leading-none mt-0.5">GODREJ</span>
         </div>
@@ -48,8 +51,9 @@ export const BuilderLogo = ({ builderName = '', logoUrl = '', className = "h-14 
   // Lodha Logo: Blue geometric L with gold accent and LODHA text
   if (name.includes('lodha')) {
     return (
-      <div className={`${className} rounded-full bg-white p-1 border-2 border-white shadow-xl flex flex-col items-center justify-center shrink-0`}>
-        <div className="flex flex-col items-center justify-center">
+      <div className={`${className} relative overflow-hidden rounded-full bg-white p-1 ring-4 ring-white shadow-xl flex flex-col items-center justify-center shrink-0`}>
+        <div className="absolute top-0 -left-[100%] w-14 h-full bg-white/40 skew-x-[45deg] animate-shine pointer-events-none"></div>
+        <div className="relative z-10 flex flex-col items-center justify-center">
           <div className="w-4 h-4 border-l-2 border-b-2 border-[#1E3A8A] flex items-center justify-center relative">
             <span className="w-2 h-2 bg-[#F59E0B] rounded-xs"></span>
           </div>
@@ -62,8 +66,9 @@ export const BuilderLogo = ({ builderName = '', logoUrl = '', className = "h-14 
   // BPTP Logo: Bold red badge with BPTP text
   if (name.includes('bptp')) {
     return (
-      <div className={`${className} rounded-full bg-white p-1 border-2 border-white shadow-xl flex flex-col items-center justify-center shrink-0`}>
-        <div className="flex flex-col items-center justify-center">
+      <div className={`${className} relative overflow-hidden rounded-full bg-white p-1 ring-4 ring-white shadow-xl flex flex-col items-center justify-center shrink-0`}>
+        <div className="absolute top-0 -left-[100%] w-14 h-full bg-white/40 skew-x-[45deg] animate-shine pointer-events-none"></div>
+        <div className="relative z-10 flex flex-col items-center justify-center">
           <span className="px-1.5 py-0.5 bg-[#E11D48] text-white text-[8px] font-black rounded-xs">BP</span>
           <span className="text-[8px] font-black tracking-wider text-black leading-none mt-0.5">BPTP</span>
         </div>
@@ -74,8 +79,9 @@ export const BuilderLogo = ({ builderName = '', logoUrl = '', className = "h-14 
   // Signature Global Logo
   if (name.includes('signature')) {
     return (
-      <div className={`${className} rounded-full bg-white p-1 border-2 border-white shadow-xl flex flex-col items-center justify-center shrink-0`}>
-        <div className="flex flex-col items-center justify-center">
+      <div className={`${className} relative overflow-hidden rounded-full bg-white p-1 ring-4 ring-white shadow-xl flex flex-col items-center justify-center shrink-0`}>
+        <div className="absolute top-0 -left-[100%] w-14 h-full bg-white/40 skew-x-[45deg] animate-shine pointer-events-none"></div>
+        <div className="relative z-10 flex flex-col items-center justify-center">
           <span className="text-base font-black text-[#0D9488] leading-none">SG</span>
           <span className="text-[6px] font-bold text-gray-700 leading-none mt-0.5">SIGNATURE</span>
         </div>
@@ -83,16 +89,21 @@ export const BuilderLogo = ({ builderName = '', logoUrl = '', className = "h-14 
     );
   }
 
-  // Generic / Custom Developer monogram
+  // Generic / Custom Developer monogram (Red background, white text/icon, with shine effect just like Plotyard's logo)
   const initials = builderName
     ? builderName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
     : 'B';
 
   return (
-    <div className={`${className} rounded-full bg-white p-1 border-2 border-white shadow-xl flex flex-col items-center justify-center shrink-0`}>
-      <div className="h-full w-full rounded-full bg-rose-50 border border-rose-200/60 flex flex-col items-center justify-center">
-        <Building2 size={16} className="text-primary" />
-        <span className="text-[8px] font-black tracking-tighter text-gray-900 leading-none mt-0.5">{initials}</span>
+    <div className={`${className} relative overflow-hidden rounded-full bg-gradient-to-br from-[#E11D48] via-[#F43F5E] to-[#BE123C] p-1.5 ring-4 ring-white shadow-2xl flex flex-col items-center justify-center shrink-0`}>
+      {/* Shine effect animation just like Post Property button */}
+      <div className="absolute top-0 -left-[100%] w-16 h-full bg-white/40 skew-x-[45deg] animate-shine pointer-events-none"></div>
+
+      <div className="relative z-10 flex flex-col items-center justify-center text-white">
+        <Building2 size={18} className="text-white drop-shadow-sm" />
+        <span className="text-[9px] font-black tracking-wider text-white uppercase leading-none mt-0.5 drop-shadow-sm">
+          {initials}
+        </span>
       </div>
     </div>
   );
@@ -176,7 +187,7 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
           <span className="truncate">{plot.location}</span>
         </div>
 
-        {/* Red & White Premium Metrics Grid (Image 1 style) */}
+        {/* Red & White Premium Metrics Grid */}
         <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-gradient-to-br from-rose-50/60 via-white to-rose-50/30 p-3 border border-rose-100 shadow-[0_2px_10px_rgba(225,29,72,0.03)]">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-rose-500">LAUNCH PRICE</p>
@@ -202,10 +213,13 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
 
           <Link
             href={`/property/${linkId}`}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3.5 py-2.5 text-xs font-black text-white shadow-sm shadow-primary/25 transition-all hover:bg-rose-700 active:scale-95"
+            className="relative overflow-hidden inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-black text-white shadow-sm shadow-primary/25 transition-all hover:bg-rose-700 active:scale-95"
           >
-            <span>Explore</span>
-            <ArrowRight size={14} />
+            <div className="absolute top-0 -left-[100%] w-12 h-full bg-white/30 skew-x-[45deg] animate-shine pointer-events-none"></div>
+            <span className="relative z-10 flex items-center gap-1">
+              <span>Explore</span>
+              <ArrowRight size={14} />
+            </span>
           </Link>
         </div>
       </div>
