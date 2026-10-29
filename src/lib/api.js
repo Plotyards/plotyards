@@ -1,10 +1,10 @@
 const normalizeApiBaseUrl = (url) => String(url || '').replace(/\/+$/, '');
 
 const getBaseUrl = () => {
-  if (typeof window !== 'undefined') {
-    return '/api';
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
   }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://187.127.153.144/api';
+  return 'https://srv1853103.hstgr.cloud/api';
 };
 
 const API_BASE_URL = getBaseUrl();

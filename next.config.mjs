@@ -25,11 +25,15 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'srv1853103.hstgr.cloud',
       }
     ],
   },
   async rewrites() {
-    const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://187.127.153.144/api').replace(/\/+$/, '');
+    const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://srv1853103.hstgr.cloud/api').replace(/\/+$/, '');
     const targetUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
     return [
       {
