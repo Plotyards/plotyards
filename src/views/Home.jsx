@@ -15,6 +15,7 @@ import { formatPhoneForLink } from '../utils/phoneUtils';
 import { propertyListings } from '../data/properties';
 import { useCompare } from '../context/CompareContext';
 import VerifyDocumentModal from '../components/VerifyDocumentModal';
+import BuilderCard from '../components/BuilderCard';
 
 const whatsappNumber = '918287697756';
 
@@ -40,56 +41,133 @@ const heroSearchTabs = [
 
 const defaultBuilderProjects = [
   {
+    id: 'builder-dlf-privana',
+    title: 'DLF Privana West',
+    subtitle: 'Luxury Plotted Residences',
+    builderName: 'DLF Limited',
+    location: 'Sector 76–77, Gurugram, Haryana',
+    city: 'Gurugram',
+    locality: 'Sector 76-77',
+    price: 'Rs. 4.10 Cr',
+    priceValue: 41000000,
+    size: '350 Sq. Yrd',
+    sizeValue: 350,
+    handover: 'Q4 2028',
+    rate: 'Rs. 1,17,000 / Sq. Yrd',
+    type: 'Luxury Residential',
+    approved: true,
+    featured: true,
+    isDeveloperListing: true,
+    isDemo: false,
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1170&auto=format&fit=crop',
+    tags: ['RERA Registered', 'Ultra Luxury', 'Aravalli Facing'],
+    aboutBuilder: 'DLF has over 75 years of real estate excellence and development track record across India.'
+  },
+  {
+    id: 'builder-godrej-riverine',
+    title: 'Godrej Riverine',
+    subtitle: 'Premium Residences & Plots',
+    builderName: 'Godrej Properties',
+    location: 'Sector 44, Noida, Uttar Pradesh',
+    city: 'Noida',
+    locality: 'Sector 44',
+    price: 'Rs. 7.25 Cr',
+    priceValue: 72500000,
+    size: '420 Sq. Yrd',
+    sizeValue: 420,
+    handover: 'Q2 2029',
+    rate: 'Rs. 1,72,000 / Sq. Yrd',
+    type: 'Premium Residential',
+    approved: true,
+    featured: true,
+    isDeveloperListing: true,
+    isDemo: false,
+    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1170&auto=format&fit=crop',
+    tags: ['Golf Course Facing', 'Resort Style', 'RERA Approved'],
+    aboutBuilder: 'Godrej Properties brings the philosophy of innovation, sustainability, and excellence to real estate.'
+  },
+  {
+    id: 'builder-lodha-bellagio',
+    title: 'Lodha Bellagio',
+    subtitle: 'Lakefront Plotted Estates',
+    builderName: 'Lodha Group',
+    location: 'Powai, Mumbai, Maharashtra',
+    city: 'Mumbai',
+    locality: 'Powai',
+    price: 'Rs. 5.80 Cr',
+    priceValue: 58000000,
+    size: '300 Sq. Yrd',
+    sizeValue: 300,
+    handover: 'Q3 2028',
+    rate: 'Rs. 1,93,333 / Sq. Yrd',
+    type: 'Lakefront Luxury',
+    approved: true,
+    featured: true,
+    isDeveloperListing: true,
+    isDemo: false,
+    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1170&auto=format&fit=crop',
+    tags: ['Lakefront Living', 'Private Deck', 'Ready Registry'],
+    aboutBuilder: 'Lodha is India’s premier real estate developer renowned for world-class developments.'
+  },
+  {
     id: 'builder-dlf-meadows',
     title: 'DLF Gardencity Plotted Township',
+    subtitle: 'Master Planned Plotted Sector',
     builderName: 'DLF Homes',
-    location: 'Sector 91-92, Gurugram',
+    location: 'Sector 91-92, Gurugram, Haryana',
     city: 'Gurugram',
     locality: 'Sector 91',
     price: 'Rs. 1.85 Cr',
     priceValue: 18500000,
     size: '250 Sq. Yrd',
     sizeValue: 250,
+    handover: 'Ready Possession',
     rate: 'Rs. 74,000 / Sq. Yrd',
     type: 'Residential',
     approved: true,
     featured: true,
     isDeveloperListing: true,
     isDemo: false,
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1170&auto=format&fit=crop',
-    tags: ['Gated Township', 'Clubhouse Access', 'Ready Possession']
+    image: 'https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=1170&auto=format&fit=crop',
+    tags: ['Gated Township', 'Clubhouse Access', 'Ready Possession'],
+    aboutBuilder: 'DLF has over 75 years of real estate excellence and development track record across India.'
   },
   {
     id: 'builder-godrej-retreat',
     title: 'Godrej Retreat Orchard Plots',
+    subtitle: 'Resort Style Plotted Living',
     builderName: 'Godrej Properties',
-    location: 'Sector 83, Faridabad',
+    location: 'Sector 83, Faridabad, Haryana',
     city: 'Faridabad',
     locality: 'Sector 83',
     price: 'Rs. 95.00 L',
     priceValue: 9500000,
     size: '180 Sq. Yrd',
     sizeValue: 180,
+    handover: 'Ready Registry',
     rate: 'Rs. 52,777 / Sq. Yrd',
     type: 'Residential',
     approved: true,
     featured: true,
     isDeveloperListing: true,
     isDemo: false,
-    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1170&auto=format&fit=crop',
-    tags: ['Resort Living', 'RERA Approved', 'Direct Registry']
+    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1170&auto=format&fit=crop',
+    tags: ['Resort Living', 'RERA Approved', 'Direct Registry'],
+    aboutBuilder: 'Godrej Properties brings the philosophy of innovation, sustainability, and excellence to real estate.'
   },
   {
     id: 'builder-bptp-district',
     title: 'BPTP The District Premium Plotted Sector',
+    subtitle: 'Gated Township Infrastructure',
     builderName: 'BPTP Builders',
-    location: 'Sector 81, Greater Faridabad',
+    location: 'Sector 81, Greater Faridabad, Haryana',
     city: 'Faridabad',
     locality: 'Sector 81',
     price: 'Rs. 1.20 Cr',
     priceValue: 12000000,
     size: '204 Sq. Yrd',
     sizeValue: 204,
+    handover: 'Immediate Registry',
     rate: 'Rs. 58,823 / Sq. Yrd',
     type: 'Residential',
     approved: true,
@@ -97,7 +175,8 @@ const defaultBuilderProjects = [
     isDeveloperListing: true,
     isDemo: false,
     image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1175&auto=format&fit=crop',
-    tags: ['Gated Security', 'Wide Roads', 'Bank Loan Ready']
+    tags: ['Gated Security', 'Wide Roads', 'Bank Loan Ready'],
+    aboutBuilder: 'BPTP has established itself as one of the key developers in NCR with master-planned townships.'
   }
 ];
 
@@ -868,111 +947,18 @@ const Home = () => {
         {/* Builder Projects Grid */}
         <div className="-mx-2 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0 md:pb-0">
           {displayBuilderProperties.map((plot) => {
-            const imageUrl = plot.image || plot.images?.[0]?.url || 'https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=1032&auto=format&fit=crop';
-            const builderName = plot.builderName || (plot.isDeveloperListing ? (plot.broker?.brokerProfile?.companyName || plot.broker?.name) : '') || 'Reputed Developer';
             const linkId = plot.id || plot._id;
-            const waNumber = formatPhoneForLink(plot.broker?.whatsapp || plot.broker?.phone || whatsappNumber);
-            const waMessage = encodeURIComponent(`Hi, I am interested in your builder project "${plot.title}" by ${builderName} listed on Plotyards.`);
-
             return (
               <div
                 key={linkId || plot.title}
-                className="group flex w-[280px] min-w-[280px] flex-shrink-0 snap-start flex-col rounded-[2rem] border border-border bg-white p-3.5 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl sm:w-[320px] sm:min-w-[320px] md:w-auto md:min-w-0 md:p-5"
+                className="w-[280px] min-w-[280px] flex-shrink-0 snap-start sm:w-[320px] sm:min-w-[320px] md:w-auto md:min-w-0"
               >
-                {/* Image Container */}
-                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-surface shadow-sm">
-                  <img
-                    src={imageUrl}
-                    alt={plot.title}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20"></div>
-
-                  {/* Top Badges */}
-                  <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-black text-text shadow-md backdrop-blur-md">
-                      <Building2 size={13} className="text-primary" />
-                      {builderName}
-                    </span>
-                  </div>
-
-                  <div className="absolute right-3 top-3">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600/90 px-2.5 py-1 text-[11px] font-bold text-white shadow-md backdrop-blur-md">
-                      <CheckCircle2 size={12} />
-                      Verified
-                    </span>
-                  </div>
-
-                  {/* Bottom Badges */}
-                  <div className="absolute bottom-3 left-3">
-                    <span className="rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-md">
-                      {plot.type || 'Plotted Project'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="mt-4 flex flex-1 flex-col">
-                  <Link href={`/property/${linkId}`}>
-                    <h3 className="line-clamp-2 text-base md:text-lg font-black leading-snug text-text transition-colors group-hover:text-primary">
-                      {plot.title}
-                    </h3>
-                  </Link>
-
-                  <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-gray-500">
-                    <MapPin size={14} className="text-primary flex-shrink-0" />
-                    <span className="truncate">{plot.location}</span>
-                  </p>
-
-                  {/* Price & Size Grid */}
-                  <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-surface p-3 border border-border/60">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted">Price</p>
-                      <p className="mt-0.5 truncate text-sm font-black text-text">{plot.price}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted">Plot Size</p>
-                      <p className="mt-0.5 truncate text-sm font-extrabold text-text">{plot.size}</p>
-                    </div>
-                  </div>
-
-                  {/* Highlight Tags */}
-                  {Array.isArray(plot.tags) && plot.tags.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {plot.tags.slice(0, 3).map((tag, idx) => (
-                        <span key={idx} className="rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-bold capitalize text-gray-600">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div className="mt-5 pt-3 border-t border-border flex items-center gap-2">
-                    <a
-                      href={`https://wa.me/${waNumber}?text=${waMessage}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2.5 text-xs font-extrabold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95"
-                    >
-                      <MessageCircle size={15} />
-                      WhatsApp Builder
-                    </a>
-                    <Link
-                      href={`/property/${linkId}`}
-                      className="inline-flex items-center justify-center rounded-xl bg-text px-4 py-2.5 text-xs font-extrabold text-white shadow-sm transition-all hover:bg-primary active:scale-95"
-                    >
-                      Details
-                    </Link>
-                  </div>
-                </div>
+                <BuilderCard plot={plot} defaultWhatsapp={whatsappNumber} />
               </div>
             );
           })}
         </div>
       </section>
-
-
 
       {/* Trust Section */}
       <section className="bg-secondary text-white py-12 mt-12">

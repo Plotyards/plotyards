@@ -598,15 +598,22 @@ const PropertyDetails = () => {
     const broker = property?.broker || defaultBroker;
     const phone = (isDev && builderContact.phone) ? builderContact.phone : (broker.brokerProfile?.contactPhone || broker.phone || '');
     const whatsapp = (isDev && builderContact.whatsapp) ? builderContact.whatsapp : (broker.whatsapp || phone || defaultBroker.whatsapp);
-    const name = (isDev && property?.builderName) ? property.builderName : (broker.brokerProfile?.companyName || broker.name || defaultBroker.name);
+    
+    // Realtor personal name vs company name
+    const realtorName = broker.name || broker.brokerProfile?.contactPerson || defaultBroker.name;
+    const companyName = broker.brokerProfile?.companyName || '';
+    const photo = broker.brokerProfile?.photo || broker.photo || '';
+    const name = isDev ? (property?.builderName || companyName || realtorName) : realtorName;
 
     return {
       ...broker,
       name,
+      realtorName,
+      companyName,
+      photo,
       phone: phone || defaultBroker.phone,
       whatsapp: formatPhoneForLink(whatsapp),
       callNumber: formatPhoneForLink(phone || defaultBroker.phone),
-      companyName: name,
       experience: broker.brokerProfile?.experience || defaultBroker.experience,
       isDeveloper: isDev,
       email: (isDev && builderContact.email) ? builderContact.email : (broker.email || ''),
@@ -1759,15 +1766,21 @@ const PropertyDetails = () => {
                   ) : 'Associate Partner Contact'}
                 </p>
                 <div className="mt-5 flex items-center gap-4">
-                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-xl font-black shadow-sm ${
+                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-xl font-black shadow-sm overflow-hidden ${
                     isDeveloperAccount
                       ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white text-2xl shadow-md'
                       : property.isDeveloperListing ? 'bg-primary text-white' : 'bg-secondary text-white'
                   }`}>
-                    {property.isDeveloperListing ? <Building2 size={26} /> : activeBroker.name.charAt(0)}
+                    {activeBroker.photo ? (
+                      <img src={activeBroker.photo} alt={activeBroker.name} className="h-full w-full object-cover" />
+                    ) : property.isDeveloperListing ? (
+                      <Building2 size={26} />
+                    ) : (
+                      activeBroker.name.charAt(0)
+                    )}
                   </div>
                   <div>
-                    <h3 className={`flex items-center gap-1 font-black ${
+                    <h3 className={`flex items-center gap-1.5 font-black ${
                       isDeveloperAccount ? 'text-slate-900 text-lg' : 'text-text text-base font-extrabold'
                     }`}>
                       {activeBroker.name}
@@ -1776,7 +1789,12 @@ const PropertyDetails = () => {
                     <p className={`text-xs font-semibold ${
                       isDeveloperAccount ? 'text-amber-800' : 'text-muted'
                     }`}>
-                      {property.isDeveloperListing ? 'Official Developer Direct Listing' : `${activeBroker.properties} active properties`}
+                      {property.isDeveloperListing 
+                        ? 'Official Developer Direct Listing' 
+                        : (activeBroker.companyName && activeBroker.companyName !== activeBroker.name
+                            ? `${activeBroker.companyName} • ${activeBroker.properties || 1} active properties`
+                            : `${activeBroker.properties || 1} active properties`
+                          )}
                     </p>
                   </div>
                 </div>
