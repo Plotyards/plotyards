@@ -236,7 +236,7 @@ const PropertyDetails = () => {
   const property = useMemo(() => {
     if (remoteProperty) return remoteProperty;
     if (isMongoId(id)) return null;
-    return propertyListings.find((listing) => String(listing.id) === String(id)) || propertyListings[0];
+    return propertyListings.find((listing) => String(listing.id) === String(id)) || null;
   }, [id, remoteProperty]);
 
   const isDeveloperAccount = useMemo(() => {
@@ -761,26 +761,35 @@ const PropertyDetails = () => {
   useEffect(() => {
     let isMounted = true;
     
-    // Only set loading to true initially, not on every background poll
     setLoading(true);
 
     const loadProperty = async () => {
       if (isMongoId(id)) {
         try {
           const data = await apiRequest(`/properties/${id}`);
-          if (isMounted) setRemoteProperty(adaptProperty(data.property));
+          if (isMounted && data?.property) {
+            setRemoteProperty(adaptProperty(data.property));
+          }
         } catch {
-          if (isMounted) setRemoteProperty(null);
+          if (isMounted) {
+            // Never wipe out an already loaded property
+            setRemoteProperty((prev) => prev || null);
+          }
         }
       } else {
-        if (isMounted) setRemoteProperty(null);
+        const local = propertyListings.find((listing) => String(listing.id) === String(id));
+        if (isMounted && local) {
+          setRemoteProperty(adaptProperty(local));
+        }
       }
 
       try {
         const data = await apiRequest('/properties?limit=6');
-        if (isMounted) setRemoteSuggestions(adaptProperties(data.properties));
+        if (isMounted && data?.properties) {
+          setRemoteSuggestions(adaptProperties(data.properties));
+        }
       } catch {
-        if (isMounted) setRemoteSuggestions([]);
+        // Keep existing suggestions
       }
 
       try {
@@ -798,11 +807,9 @@ const PropertyDetails = () => {
     };
 
     loadProperty();
-    const interval = setInterval(loadProperty, 30000);
 
     return () => {
       isMounted = false;
-      clearInterval(interval);
     };
   }, [id]);
 

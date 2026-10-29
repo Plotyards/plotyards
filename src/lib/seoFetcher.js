@@ -1,6 +1,9 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://187.127.153.144/api';
 
 export const fetchPropertySeo = async (id) => {
+  if (!id || !/^[0-9a-fA-F]{24}$/.test(String(id))) {
+    return null;
+  }
   try {
     const res = await fetch(`${API_BASE_URL}/properties/${id}`, {
       cache: 'no-store' // Always fetch real-time metadata

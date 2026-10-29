@@ -52,18 +52,20 @@ const BlogDetails = () => {
         setRelatedBlogs((relatedData.blogs || []).filter((item) => item.slug !== data.blog.slug).slice(0, 3));
       } catch (err) {
         if (cancelled) return;
-        setError(err.message || 'Blog not found.');
+        // Never wipe out an already loaded blog on transient network glitch
+        setBlog((prev) => {
+          if (!prev) setError(err.message || 'Blog not found.');
+          return prev;
+        });
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
 
     loadBlog();
-    const interval = setInterval(loadBlog, 30000);
     
     return () => {
       cancelled = true;
-      clearInterval(interval);
     };
   }, [slug]);
 

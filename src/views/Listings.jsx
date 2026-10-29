@@ -183,8 +183,8 @@ const Listings = () => {
         }
       } catch {
         if (isMounted) {
-          setRemoteProperties([]);
-          setUsingFallback(true);
+          setRemoteProperties((prev) => (prev && prev.length > 0 ? prev : []));
+          setUsingFallback((prev) => (prev ? true : false));
         }
       } finally {
         if (isMounted) setLoading(false);
