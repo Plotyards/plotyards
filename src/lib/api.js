@@ -1,13 +1,38 @@
-const normalizeApiBaseUrl = (url) => String(url || '').replace(/\/+$/, '');
+const normalizeApiBaseUrl = (url) => {
+  let cleaned = String(url || '').trim().replace(/\/+$/, '');
+  if (!cleaned) return 'https://srv1853103.hstgr.cloud/api';
 
-const getBaseUrl = () => {
+  // Replace legacy or insecure IP addresses with the secure domain
+  if (cleaned.includes('187.127.153.144') || cleaned.includes('187.127.175.192')) {
+    cleaned = cleaned.replace(/https?:\/\/(?:187\.127\.(?:153\.144|175\.192))(?::\d+)?(\/api)?/i, 'https://srv1853103.hstgr.cloud/api');
+  }
+
+  // Ensure HTTPS when page is loaded over HTTPS to prevent Mixed Content blocking
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:' && cleaned.startsWith('http://')) {
+    if (cleaned.includes('localhost') || cleaned.includes('127.0.0.1')) {
+      return 'https://srv1853103.hstgr.cloud/api';
+    }
+    cleaned = cleaned.replace(/^http:\/\//i, 'https://');
+  }
+
+  return cleaned;
+};
+
+export const getBaseUrl = () => {
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    const rawUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (rawUrl && !rawUrl.includes('localhost') && !rawUrl.includes('127.0.0.1')) {
+      return normalizeApiBaseUrl(rawUrl);
+    }
+    return 'https://srv1853103.hstgr.cloud/api';
+  }
   if (process.env.NEXT_PUBLIC_API_URL) {
     return normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
   }
   return 'https://srv1853103.hstgr.cloud/api';
 };
 
-const API_BASE_URL = getBaseUrl();
+export const API_BASE_URL = getBaseUrl();
 
 export const getToken = () => {
   if (typeof window !== 'undefined') return localStorage.getItem('token');
@@ -39,8 +64,8 @@ export const getStoredUser = () => {
 };
 
 export const apiRequest = async (path, options = {}) => {
-  // Determine if we should bypass ngrok warning (not used for plotyards.com, but keeping it for local test)
-  const shouldBypassNgrokWarning = String(API_BASE_URL).includes('.ngrok-free.');
+  const activeBaseUrl = getBaseUrl();
+  const shouldBypassNgrokWarning = String(activeBaseUrl).includes('.ngrok-free.');
 
   const token = getToken();
   const headers = {
@@ -55,7 +80,7 @@ export const apiRequest = async (path, options = {}) => {
 
   let response;
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    response = await fetch(`${activeBaseUrl}${path}`, {
       cache: 'no-store',
       ...options,
       headers,

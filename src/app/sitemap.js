@@ -1,4 +1,7 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://srv1853103.hstgr.cloud/api';
+const API_BASE_URL = rawApiUrl.includes('187.127.') || rawApiUrl.startsWith('http://localhost')
+  ? 'https://srv1853103.hstgr.cloud/api'
+  : rawApiUrl.replace(/\/+$/, '');
 
 export default async function sitemap() {
   // Using a default generic production domain, can be updated later if needed

@@ -29,6 +29,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
         <Script strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-85YQ1GN7EM" />
         <Script
           id="google-analytics"

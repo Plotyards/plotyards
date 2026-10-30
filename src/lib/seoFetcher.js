@@ -1,4 +1,7 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://srv1853103.hstgr.cloud/api';
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://srv1853103.hstgr.cloud/api';
+const API_BASE_URL = rawApiUrl.includes('187.127.') || rawApiUrl.startsWith('http://localhost')
+  ? 'https://srv1853103.hstgr.cloud/api'
+  : rawApiUrl.replace(/\/+$/, '');
 
 export const fetchPropertySeo = async (id) => {
   if (!id || !/^[0-9a-fA-F]{24}$/.test(String(id))) {

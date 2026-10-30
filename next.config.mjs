@@ -33,7 +33,10 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://srv1853103.hstgr.cloud/api').replace(/\/+$/, '');
+    let apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://srv1853103.hstgr.cloud/api').trim().replace(/\/+$/, '');
+    if (apiUrl.includes('187.127.153.144') || apiUrl.includes('187.127.175.192')) {
+      apiUrl = 'https://srv1853103.hstgr.cloud/api';
+    }
     const targetUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
     return [
       {
