@@ -945,13 +945,13 @@ const Home = () => {
         </div>
 
         {/* Builder Projects Grid */}
-        <div className="-mx-2 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-5 no-scrollbar md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0 md:pb-0">
+        <div className="-mx-2 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-5 no-scrollbar items-stretch md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0 md:pb-0">
           {displayBuilderProperties.map((plot) => {
             const linkId = plot.id || plot._id;
             return (
               <div
                 key={linkId || plot.title}
-                className="w-[280px] min-w-[280px] flex-shrink-0 snap-start sm:w-[320px] sm:min-w-[320px] md:w-auto md:min-w-0"
+                className="w-[280px] min-w-[280px] flex-shrink-0 snap-start sm:w-[320px] sm:min-w-[320px] md:w-auto md:min-w-0 flex flex-col h-full"
               >
                 <BuilderCard plot={plot} defaultWhatsapp={whatsappNumber} />
               </div>

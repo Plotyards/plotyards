@@ -136,12 +136,12 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
   })();
 
   return (
-    <div className="group relative overflow-hidden flex flex-col rounded-[2rem] bg-gradient-to-br from-[#E11D48] via-[#D0103A] to-[#A00B2B] p-4 text-white shadow-xl shadow-rose-950/25 border border-rose-400/40 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-rose-600/40">
+    <div className="group relative overflow-hidden flex flex-col h-full rounded-[2rem] bg-gradient-to-br from-[#E11D48] via-[#D0103A] to-[#A00B2B] p-4 text-white shadow-xl shadow-rose-950/25 border border-rose-400/40 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-rose-600/40">
       {/* Continuous Shine Beam Animation across the entire card (Post Property style) */}
       <div className="absolute top-0 -left-[100%] w-36 h-full bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[45deg] animate-shine pointer-events-none z-20"></div>
 
       {/* Image Container with Badges and Floating Builder Logo */}
-      <div className="relative aspect-[16/10]">
+      <div className="relative w-full h-48 sm:h-52 md:h-52 shrink-0">
         {/* Rounded Image Frame (overflow-hidden prevents image corners from spilling out) */}
         <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black/30 shadow-md">
           <img
@@ -177,8 +177,10 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
       </div>
 
       {/* Content Container (White text on Red background) */}
-      <div className="mt-2 pt-6 flex flex-1 flex-col relative z-10">
-        {/* Title & External View Link */}
+      <div className="mt-2 pt-6 flex flex-1 flex-col justify-between relative z-10">
+        {/* Top Info */}
+        <div className="flex flex-col">
+          {/* Title & External View Link */}
         <div className="flex items-start justify-between gap-2">
           <Link href={`/property/${linkId}`} className="flex-1 min-w-0">
             <h2 className="line-clamp-1 text-base md:text-lg font-black text-white transition-opacity hover:opacity-90">
@@ -213,7 +215,11 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
           <span className="truncate">{plot.location}</span>
         </div>
 
-        {/* Metrics Grid: Glass Box with White Text */}
+        </div>
+
+        {/* Bottom Info */}
+        <div className="flex flex-col">
+          {/* Metrics Grid: Glass Box with White Text */}
         <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-black/20 backdrop-blur-md p-3 border border-white/20 shadow-inner">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-white/75">LAUNCH PRICE</p>
@@ -244,6 +250,7 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
             <span>Explore</span>
             <ArrowRight size={14} />
           </Link>
+          </div>
         </div>
       </div>
     </div>

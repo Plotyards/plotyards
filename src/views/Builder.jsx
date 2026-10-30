@@ -271,13 +271,14 @@ export default function Builder() {
         </div>
 
         {/* Builder Projects Grid */}
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
           {filteredProjects.map((plot) => (
-            <BuilderCard
-              key={plot.id || plot._id || plot.title}
-              plot={plot}
-              defaultWhatsapp={defaultWhatsapp}
-            />
+            <div key={plot.id || plot._id || plot.title} className="flex flex-col h-full">
+              <BuilderCard
+                plot={plot}
+                defaultWhatsapp={defaultWhatsapp}
+              />
+            </div>
           ))}
         </div>
 
