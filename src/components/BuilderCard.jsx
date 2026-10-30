@@ -125,31 +125,37 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
       <div className="absolute top-0 -left-[100%] w-36 h-full bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-[45deg] animate-shine pointer-events-none z-20"></div>
 
       {/* Image Container with Badges and Floating Builder Logo */}
-      <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-black/30 shadow-md">
-        <img
-          src={imageUrl}
-          alt={plot.title}
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+      <div className="relative aspect-[16/10]">
+        {/* Rounded Image Frame (overflow-hidden prevents image corners from spilling out) */}
+        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black/30 shadow-md">
+          <img
+            src={imageUrl}
+            alt={plot.title}
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
-        {/* Top-Left: India Flag Pill Badge */}
-        <div className="absolute left-3 top-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-black text-gray-900 shadow-md backdrop-blur-md">
-            <span>🇮🇳</span> India
-          </span>
+          {/* Top-Left: India Flag Pill Badge */}
+          <div className="absolute left-3 top-3 z-10">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-black text-gray-900 shadow-md backdrop-blur-md">
+              <span>🇮🇳</span> India
+            </span>
+          </div>
+
+          {/* Top-Right: RERA Registered Pill Badge */}
+          <div className="absolute right-3 top-3 z-10">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-emerald-700 shadow-md backdrop-blur-md border border-emerald-100">
+              <CheckCircle2 size={13} className="text-emerald-600" />
+              RERA Registered
+            </span>
+          </div>
         </div>
 
-        {/* Top-Right: RERA Registered Pill Badge */}
-        <div className="absolute right-3 top-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-emerald-700 shadow-md backdrop-blur-md border border-emerald-100">
-            <CheckCircle2 size={13} className="text-emerald-600" />
-            RERA Registered
-          </span>
-        </div>
-
-        {/* Floating Builder Logo (Overlapping bottom edge of image) */}
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-10 transition-transform duration-300 group-hover:scale-110">
+        {/* Floating Builder Logo (OUTSIDE overflow-hidden, elevated to z-30 in FRONT so it is never cut off) */}
+        <div
+          className="absolute -bottom-6 z-30 transition-transform duration-300 group-hover:scale-110 drop-shadow-2xl"
+          style={{ left: '50%', transform: 'translateX(-50%)' }}
+        >
           <BuilderLogo builderName={builderName} logoUrl={logoUrl} />
         </div>
       </div>
@@ -177,7 +183,11 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
 
         {/* Builder Name Line */}
         <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-white">
-          <Building2 size={14} className="text-white/90 flex-shrink-0" />
+          {logoUrl ? (
+            <img src={logoUrl} alt={builderName} className="h-4 w-4 rounded-full object-contain bg-white p-0.5 shrink-0" />
+          ) : (
+            <Building2 size={14} className="text-white/90 flex-shrink-0" />
+          )}
           <span className="truncate">By {builderName}</span>
         </div>
 
