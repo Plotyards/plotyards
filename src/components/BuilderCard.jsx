@@ -117,7 +117,35 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
   const waMessage = encodeURIComponent(`Hi, I am interested in your builder project "${plot.title}" by ${builderName} listed on Plotyards.`);
   const logoUrl = plot.builderLogo || plot.broker?.brokerProfile?.photo || '';
   const subtitle = plot.subtitle || (plot.type ? `${plot.type} Project` : 'Premium Plotted Township');
-  const handoverText = plot.handover || plot.size || 'Ready Registry';
+
+  // Price formatting
+  const priceText = (() => {
+    if (typeof plot.price === 'string' && plot.price.trim()) return plot.price;
+    if (typeof plot.price === 'number') {
+      if (plot.price >= 10000000) return `Rs. ${(plot.price / 10000000).toFixed(2)} Cr`;
+      if (plot.price >= 100000) return `Rs. ${(plot.price / 100000).toFixed(2)} L`;
+      return `Rs. ${plot.price.toLocaleString('en-IN')}`;
+    }
+    if (plot.priceValue) {
+      if (plot.priceValue >= 10000000) return `Rs. ${(plot.priceValue / 10000000).toFixed(2)} Cr`;
+      if (plot.priceValue >= 100000) return `Rs. ${(plot.priceValue / 100000).toFixed(2)} L`;
+      return `Rs. ${plot.priceValue.toLocaleString('en-IN')}`;
+    }
+    return 'Price on Request';
+  })();
+
+  // Size display
+  const sizeText = (() => {
+    if (typeof plot.size === 'string' && plot.size.trim()) return plot.size;
+    if (plot.size?.value) {
+      const unit = plot.size.unit === 'sqyd' || !plot.size.unit ? 'Sq. Yrd' : plot.size.unit;
+      return `${plot.size.value} ${unit}`;
+    }
+    if (plot.sizeValue) {
+      return `${plot.sizeValue} Sq. Yrd`;
+    }
+    return plot.handover || '108 Sq. Yrd';
+  })();
 
   // Dynamic Land Approval Badge (RERA Registered, Government Approved, TCP Approved, NOC Zone Approved)
   const approvalBadgeText = (() => {
@@ -222,12 +250,12 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
           {/* Metrics Grid: Glass Box with White Text */}
         <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-black/20 backdrop-blur-md p-3 border border-white/20 shadow-inner">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-white/75">LAUNCH PRICE</p>
-            <p className="mt-0.5 truncate text-base font-black text-white">{plot.price}</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-white/75">CURRENT PRICE</p>
+            <p className="mt-0.5 truncate text-base font-black text-white">{priceText}</p>
           </div>
           <div className="border-l border-white/20 pl-3">
-            <p className="text-[10px] font-black uppercase tracking-wider text-white/75">HANDOVER</p>
-            <p className="mt-0.5 truncate text-xs font-black text-white">{handoverText}</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-white/75">SIZE</p>
+            <p className="mt-0.5 truncate text-xs font-black text-white">{sizeText}</p>
           </div>
         </div>
 
