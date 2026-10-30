@@ -853,9 +853,8 @@ const Home = () => {
 
         <div className="mb-5 flex items-end justify-between gap-4 md:mb-8">
           <div>
-            <h2 className="mb-2 text-3xl font-extrabold text-text">
-              <span className="md:hidden text-[20px]">Plots in High Demand</span>
-              <span className="hidden md:inline">Featured Plots Near You</span>
+            <h2 className="mb-2 text-2xl md:text-3xl font-extrabold text-text">
+              Explore Verified <span className="text-primary">Properties</span>
             </h2>
             <p className="font-medium text-muted">
               <span className="md:hidden">Most explored verified plots and land picks</span>
@@ -887,7 +886,9 @@ const Home = () => {
       {topCities.length > 0 && (
       <section className="my-6 px-6 py-9 md:my-6 md:py-8 lg:px-12 max-w-[1400px] mx-auto bg-gray-50/50 rounded-[3rem]">
         <div className="mb-8">
-          <h2 className="text-3xl font-extrabold text-text mb-2">Explore Plots In Top Cities</h2>
+          <h2 className="text-3xl font-extrabold text-text mb-2">
+            Explore Plots In <span className="text-primary">Top Cities</span>
+          </h2>
           <p className="text-gray-500 font-medium">Where investors are putting their money in 2026</p>
         </div>
         
@@ -911,7 +912,9 @@ const Home = () => {
       {/* Trending Projects Section */}
       <section className="px-6 py-9 md:py-10 lg:px-12 max-w-[1400px] mx-auto">
         <div className="mb-5 md:mb-8">
-          <h2 className="text-3xl font-extrabold text-text mb-2">Trending Projects</h2>
+          <h2 className="text-3xl font-extrabold text-text mb-2">
+            Trending <span className="text-primary">Projects</span>
+          </h2>
           <p className="text-gray-500 font-medium">Most-viewed plot layouts this week</p>
         </div>
 
@@ -930,7 +933,7 @@ const Home = () => {
               Direct Developer & Builder Showcase
             </p>
             <h2 className="mt-2 text-2xl md:text-4xl font-extrabold text-text">
-              Builder Projects Spotlight
+              Developer <span className="text-primary">Libraries</span>
             </h2>
             <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-muted">
               Explore plotted developments directly from reputed builders with clear titles, verified RERA credentials, and master-planned amenities.
