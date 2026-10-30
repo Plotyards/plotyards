@@ -119,6 +119,22 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
   const subtitle = plot.subtitle || (plot.type ? `${plot.type} Project` : 'Premium Plotted Township');
   const handoverText = plot.handover || plot.size || 'Ready Registry';
 
+  // Dynamic Land Approval Badge (RERA Registered, Government Approved, TCP Approved, NOC Zone Approved)
+  const approvalBadgeText = (() => {
+    if (plot.approvalType && plot.approvalType !== 'None') {
+      return plot.approvalType;
+    }
+    const docs = Array.isArray(plot.documentsVerified) ? plot.documentsVerified : [];
+    const tags = Array.isArray(plot.tags) ? plot.tags : [];
+    const combined = [...docs, ...tags];
+
+    if (combined.some(d => /tcp/i.test(d))) return 'TCP Approved';
+    if (combined.some(d => /government/i.test(d))) return 'Government Approved';
+    if (combined.some(d => /noc/i.test(d))) return 'NOC Zone Approved';
+    if (combined.some(d => /rera/i.test(d)) || plot.reraApproved || plot.reraNumber) return 'RERA Registered';
+    return 'Government Approved';
+  })();
+
   return (
     <div className="group relative overflow-hidden flex flex-col rounded-[2rem] bg-gradient-to-br from-[#E11D48] via-[#D0103A] to-[#A00B2B] p-4 text-white shadow-xl shadow-rose-950/25 border border-rose-400/40 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-rose-600/40">
       {/* Continuous Shine Beam Animation across the entire card (Post Property style) */}
@@ -142,11 +158,11 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
             </span>
           </div>
 
-          {/* Top-Right: RERA Registered Pill Badge */}
+          {/* Top-Right: Land Approval Pill Badge (RERA Registered, Government Approved, TCP Approved, NOC Zone Approved) */}
           <div className="absolute right-3 top-3 z-10">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-emerald-700 shadow-md backdrop-blur-md border border-emerald-100">
               <CheckCircle2 size={13} className="text-emerald-600" />
-              RERA Registered
+              {approvalBadgeText}
             </span>
           </div>
         </div>

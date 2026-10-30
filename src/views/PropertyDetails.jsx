@@ -371,7 +371,10 @@ const PropertyDetails = () => {
   }, [parsedDetails.extractedLoc, property?.location]);
 
   const verifiedDocsList = useMemo(() => {
-    const customDocs = property?.documentsVerified?.filter(Boolean) || [];
+    const customDocs = [...(property?.documentsVerified?.filter(Boolean) || [])];
+    if (property?.approvalType && property.approvalType !== 'None' && !customDocs.includes(property.approvalType)) {
+      customDocs.unshift(property.approvalType);
+    }
     if (customDocs.length > 0) {
       return customDocs.map(d => {
         let title = d;
@@ -379,6 +382,15 @@ const PropertyDetails = () => {
         if (/rera/i.test(d)) {
           title = 'RERA Registered';
           subtitle = property?.reraNumber || 'Govt RERA Verified';
+        } else if (/government/i.test(d)) {
+          title = 'Government Approved';
+          subtitle = 'Govt Authority Approved';
+        } else if (/^tcp|\btcp approved/i.test(d)) {
+          title = 'TCP Approved';
+          subtitle = 'Town & Country Planning Approved';
+        } else if (/noc/i.test(d)) {
+          title = 'NOC Zone Approved';
+          subtitle = 'NOC Cleared Zone';
         } else if (/clu/i.test(d)) {
           title = 'CLU Approved';
           subtitle = 'Land conversion approved';

@@ -1004,6 +1004,9 @@ const AdminPanel = () => {
                               <p className="font-extrabold text-text">{property.title}</p>
                               <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
                                 <span className="text-xs font-semibold text-muted">{property.type || 'Property'}</span>
+                                <span className="rounded bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">
+                                  {property.approvalType || (property.reraApproved ? 'RERA Registered' : 'Government Approved')}
+                                </span>
                                 {property.isDeveloperListing && (
                                   <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-extrabold text-primary">
                                     Builder: {property.builderName || 'Project'}

@@ -100,6 +100,38 @@ const DEFAULT_AMENITIES = [
 
 const VERIFICATION_OPTIONS = [
   {
+    id: 'RERA Registered',
+    title: 'RERA Registered',
+    pill: 'RERA Verified',
+    pillType: 'green',
+    desc: 'Agar project ko RERA registration required hai aur valid registration hai, tabhi badge lagayein.',
+    icon: CheckCircle2
+  },
+  {
+    id: 'Government Approved',
+    title: 'Government Approved',
+    pill: 'Govt Approved',
+    pillType: 'green',
+    desc: 'Direct state government ya development authority approved land project.',
+    icon: ShieldCheck
+  },
+  {
+    id: 'TCP Approved',
+    title: 'TCP Approved',
+    pill: 'TCP / DTCP',
+    pillType: 'green',
+    desc: 'Town & Country Planning (TCP) layout approved property.',
+    icon: FileCheck2
+  },
+  {
+    id: 'NOC Zone Approved',
+    title: 'NOC Zone Approved',
+    pill: 'Clear Zone',
+    pillType: 'green',
+    desc: 'Clear title & non-encumbrance NOC approved land zone.',
+    icon: BadgeCheck
+  },
+  {
     id: 'Verified Land Documents',
     title: 'Verified Land Documents',
     pill: 'Documents verified',
@@ -174,6 +206,7 @@ const PostProperty = () => {
     propertyType: 'plot',
     listingType: 'buy',
     roi: '',
+    approvalType: 'RERA Registered',
     reraApproved: true,
     documentsVerified: [],
     isDeveloperListing: searchParams.get('type') === 'builder',
@@ -429,6 +462,7 @@ const PostProperty = () => {
             propertyType: prop.propertyType || 'plot',
             listingType: prop.listingType || 'buy',
             roi: prop.roi || '',
+            approvalType: prop.approvalType || ((prop.documentsVerified || []).find(d => /tcp approved|government approved|noc zone approved|rera registered/i.test(d)) || (prop.reraApproved || prop.reraNumber ? 'RERA Registered' : 'Government Approved')),
             reraApproved: prop.reraApproved !== false,
             documentsVerified: (() => {
               const d = [...(prop.documentsVerified || [])];
@@ -772,7 +806,9 @@ const PostProperty = () => {
           videos,
           videoUrl,
           amenities: allAmenities,
-          documentsVerified: form.documentsVerified || [],
+          approvalType: form.approvalType || 'RERA Registered',
+          documentsVerified: Array.from(new Set([...(form.documentsVerified || []), ...(form.approvalType ? [form.approvalType] : [])])),
+          reraApproved: form.approvalType === 'RERA Registered' ? Boolean(form.reraApproved) : false,
           reraApproved: form.propertyType === 'farmland' ? false : form.reraApproved,
           isDeveloperListing: form.isDeveloperListing,
           builderName: form.builderName?.trim() || '',
@@ -886,6 +922,110 @@ const PostProperty = () => {
               <p className="mt-1 text-xs text-muted">
                 Applicable badges select karein taaki buyer ko verified approvals dikhein.
               </p>
+            </div>
+
+            {/* Primary Land Approval Type (Badge on Project Cards) */}
+            <div className="mb-6 rounded-2xl border-2 border-emerald-500/30 bg-emerald-50/20 p-4 sm:p-5">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div>
+                  <h4 className="text-sm sm:text-base font-extrabold text-gray-900 flex items-center gap-2">
+                    <CheckCircle2 size={18} className="text-emerald-600" />
+                    Land Approval Type (Displayed on Card Top Badge)
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-0.5">
+                    Select which approval badge should appear on the property card and listing:
+                  </p>
+                </div>
+                <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100/80 border border-emerald-200 px-2.5 py-0.5 rounded-full shrink-0">
+                  Card Badge
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {[
+                  {
+                    id: 'RERA Registered',
+                    title: 'RERA Registered',
+                    desc: 'Project has valid RERA registration certificate',
+                    icon: CheckCircle2
+                  },
+                  {
+                    id: 'Government Approved',
+                    title: 'Government Approved',
+                    desc: 'Direct Government / State Authority approved land',
+                    icon: ShieldCheck
+                  },
+                  {
+                    id: 'TCP Approved',
+                    title: 'TCP Approved',
+                    desc: 'Town & Country Planning / DTCP layout approved',
+                    icon: FileCheck2
+                  },
+                  {
+                    id: 'NOC Zone Approved',
+                    title: 'NOC Zone Approved',
+                    desc: 'Clear NOC zone with verified non-encumbrance',
+                    icon: BadgeCheck
+                  }
+                ].map((item) => {
+                  const isSelected = form.approvalType === item.id;
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        updateField('approvalType', item.id);
+                        if (item.id === 'RERA Registered') {
+                          updateField('reraApproved', true);
+                        }
+                      }}
+                      className={`cursor-pointer rounded-xl border-2 p-3 transition-all flex items-start gap-3 ${
+                        isSelected
+                          ? 'border-emerald-600 bg-white shadow-md ring-2 ring-emerald-500/20'
+                          : 'border-gray-200 bg-white/70 hover:border-gray-300 hover:bg-white'
+                      }`}
+                    >
+                      <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                        isSelected ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        <Icon size={18} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <p className={`text-sm font-black ${isSelected ? 'text-emerald-900' : 'text-gray-900'}`}>
+                            {item.title}
+                          </p>
+                          <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${
+                            isSelected ? 'border-emerald-600 bg-emerald-600' : 'border-gray-300'
+                          }`}>
+                            {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-white"></span>}
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-gray-500 leading-tight mt-0.5">
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Expandable RERA Number input if RERA Registered is selected */}
+              {form.approvalType === 'RERA Registered' && (
+                <div className="mt-3.5 pt-3 border-t border-emerald-200/60">
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-gray-800">
+                    <FileText size={14} className="text-emerald-600" />
+                    RERA Registration Number (Optional / If available)
+                  </label>
+                  <input
+                    type="text"
+                    value={form.reraNumber}
+                    onChange={(e) => updateField('reraNumber', e.target.value)}
+                    placeholder="e.g. HRERA-PKL-JJR-123-2024 / UPRERAPRJ12345"
+                    className="mt-1 w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2 text-xs font-medium text-gray-900 focus:border-emerald-600 focus:outline-none"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="space-y-3">
