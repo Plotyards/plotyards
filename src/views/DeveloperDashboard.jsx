@@ -185,7 +185,7 @@ const DeveloperDashboard = () => {
                   <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
                   <h3 className="text-2xl font-black text-white mb-6 tracking-wide">QUICK ACTIONS.</h3>
                   <div className="flex flex-wrap gap-4 relative z-10">
-                    <Link href="/post-property" className="bg-white text-black font-black uppercase tracking-wider px-8 py-4 rounded-xl flex items-center gap-2 hover:bg-gray-200 transition-colors">
+                    <Link href="/post-property?type=builder" className="bg-white text-black font-black uppercase tracking-wider px-8 py-4 rounded-xl flex items-center gap-2 hover:bg-gray-200 transition-colors">
                       <Plus size={20} /> Launch New Project
                     </Link>
                     <button onClick={() => setActiveTab('services')} className="bg-transparent border-2 border-[#d4af37] text-[#d4af37] font-black uppercase tracking-wider px-8 py-4 rounded-xl flex items-center gap-2 hover:bg-[#d4af37]/10 transition-colors">
@@ -228,7 +228,7 @@ const DeveloperDashboard = () => {
               <div className="space-y-6">
                  <div className="flex items-center justify-between mb-8">
                     <h2 className="text-4xl font-black uppercase text-white">Your Projects</h2>
-                    <Link href="/post-property" className="rounded-xl bg-[#d4af37] px-6 py-3 text-sm font-black text-black uppercase tracking-wider">Launch Project</Link>
+                    <Link href="/post-property?type=builder" className="rounded-xl bg-[#d4af37] px-6 py-3 text-sm font-black text-black uppercase tracking-wider">Launch Project</Link>
                   </div>
                   {properties.map((property) => (
                     <div key={property.id} className="rounded-[2rem] border border-white/10 bg-[#111] p-6 transition-all duration-300 hover:border-[#d4af37]/40 hover:shadow-[0_0_30px_rgba(212,175,55,0.1)]">

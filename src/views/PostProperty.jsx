@@ -5,7 +5,7 @@ import {
   Building2, CheckCircle2, ExternalLink, FileDown, FileText, Layers, Loader2,
   Mail, MapPin, MessageCircle, Phone, Play, ShieldCheck, Sparkles, Trash2,
   Upload, Video, Plus, Route, Train, Plane, Hospital, GraduationCap,
-  ShoppingBag, Car, Trees, Eye, RefreshCw, X,
+  ShoppingBag, Car, Trees, Eye, RefreshCw, X, Users,
   FileCheck2, GitFork, ScrollText, BadgeCheck, Check
 } from 'lucide-react';
 import Link from 'next/link';
@@ -736,11 +736,14 @@ const PostProperty = () => {
         throw new Error('Please choose the state and city for this property.');
       }
 
-      const newUploadedImages = await uploadImages();
-      const retainedExistingImages = imagePreviews
-        .filter((img) => img.isExisting)
-        .map((img) => ({ url: img.url, alt: img.name || form.title }));
-      const images = [...retainedExistingImages, ...newUploadedImages];
+      // Builders only have video (no images upload)
+      const newUploadedImages = form.isDeveloperListing ? [] : await uploadImages();
+      const retainedExistingImages = form.isDeveloperListing
+        ? []
+        : imagePreviews
+            .filter((img) => img.isExisting)
+            .map((img) => ({ url: img.url, alt: img.name || form.title }));
+      let images = [...retainedExistingImages, ...newUploadedImages];
 
       const newUploadedVideos = await uploadVideos();
       const retainedExistingVideos = videoPreviews
@@ -748,6 +751,22 @@ const PostProperty = () => {
         .map((vid) => ({ url: vid.url, title: vid.name || form.title }));
       const videos = [...retainedExistingVideos, ...newUploadedVideos];
       const videoUrl = videos[0]?.url || (videoUrlInput.trim() ? videoUrlInput.trim() : '');
+
+      // Validation: If builder, video is mandatory
+      if (form.isDeveloperListing && videos.length === 0 && !videoUrl) {
+        throw new Error('Builder project ke liye video anivarya hai. Kripya project walkthrough video upload karein ya YouTube video link paste karein.');
+      }
+
+      // If builder project has YouTube video, auto-extract thumbnail for card cover
+      if (form.isDeveloperListing && images.length === 0 && videoUrl) {
+        const ytMatch = videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
+        if (ytMatch) {
+          images.push({
+            url: `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`,
+            alt: form.title || 'Builder Project Video'
+          });
+        }
+      }
 
       const allSizesList = (customPlotSizes.length > 0)
         ? customPlotSizes
@@ -881,6 +900,49 @@ const PostProperty = () => {
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 grid gap-5">
           {error && <p className="rounded-xl bg-rose-50 p-3 text-sm font-bold text-primary">{error}</p>}
           {status && <p className="rounded-xl bg-green-50 p-3 text-sm font-bold text-green-700">{status}</p>}
+
+          {/* Listing Category Selector: Realtor vs Builder */}
+          <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-3.5">
+            <div className="flex items-center justify-between mb-2.5 px-1">
+              <label className="text-xs font-black uppercase tracking-wider text-muted">
+                Listing Category
+              </label>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${form.isDeveloperListing ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
+                {form.isDeveloperListing ? 'Builder Project (Video Only)' : 'Realtor Listing (Images Option)'}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => updateField('isDeveloperListing', false)}
+                className={`flex items-center justify-center gap-2 rounded-xl py-3 px-3 text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
+                  !form.isDeveloperListing
+                    ? 'bg-white text-gray-950 shadow-sm border border-gray-300 ring-2 ring-emerald-500/20'
+                    : 'text-muted hover:text-text bg-transparent border border-transparent'
+                }`}
+              >
+                <Users size={16} className={!form.isDeveloperListing ? 'text-emerald-600' : ''} />
+                <span>Realtor (Images Option)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => updateField('isDeveloperListing', true)}
+                className={`flex items-center justify-center gap-2 rounded-xl py-3 px-3 text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
+                  form.isDeveloperListing
+                    ? 'bg-primary text-white shadow-md ring-2 ring-rose-500/20'
+                    : 'text-muted hover:text-text bg-transparent border border-transparent'
+                }`}
+              >
+                <Video size={16} />
+                <span>Builder (Only Video)</span>
+              </button>
+            </div>
+            <p className="mt-2 px-1 text-[11px] font-medium text-muted">
+              {form.isDeveloperListing 
+                ? 'Builder projects exclusively video walkthrough ke sath showcase hote hain. Images option realtors ke liye reserved hai.'
+                : 'Realtors ke liye images upload karne ka option uplabdh hai.'}
+            </p>
+          </div>
 
           <div>
             <label className="block text-sm font-bold text-text mb-1">Listing title</label>
@@ -1535,55 +1597,72 @@ const PostProperty = () => {
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-bold text-text mb-1">Property photos</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageFiles}
-              className="w-full text-sm text-text file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-primary file:font-semibold"
-            />
-            {uploadConfig.provider === 'cloudinary' && uploadConfig.uploadPreset && uploadConfig.cloudName ? (
-              <p className="mt-2 text-sm text-muted">Photos will be uploaded securely and shown on your listing.</p>
-            ) : (
-              <p className="mt-2 text-sm text-rose-600">{uploadConfig.message || 'Photo upload is not ready yet. Please check upload settings.'}</p>
-            )}
-            {imagePreviews.length ? (
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                {imagePreviews.map((preview, index) => (
-                  <div key={preview.url} className="relative overflow-hidden rounded-2xl border border-border bg-surface group">
-                    <img src={preview.url} alt={preview.name} className="h-32 w-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute top-2 right-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/85 transition-colors animate-fade-in"
-                      title="Remove image"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
+          {/* Property Photos (Only for Realtors) */}
+          {!form.isDeveloperListing ? (
+            <div>
+              <label className="block text-sm font-bold text-text mb-1">Property photos (Realtor Images)</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageFiles}
+                className="w-full text-sm text-text file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-primary file:font-semibold"
+              />
+              {uploadConfig.provider === 'cloudinary' && uploadConfig.uploadPreset && uploadConfig.cloudName ? (
+                <p className="mt-2 text-sm text-muted">Photos will be uploaded securely and shown on your listing.</p>
+              ) : (
+                <p className="mt-2 text-sm text-rose-600">{uploadConfig.message || 'Photo upload is not ready yet. Please check upload settings.'}</p>
+              )}
+              {imagePreviews.length ? (
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={preview.url} className="relative overflow-hidden rounded-2xl border border-border bg-surface group">
+                      <img src={preview.url} alt={preview.name} className="h-32 w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/85 transition-colors animate-fade-in"
+                        title="Remove image"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              <p className="mt-2 text-sm text-muted">Upload clear photos. Front road, layout, entrance, and plot view work best.</p>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-4 flex items-start gap-3">
+              <div className="p-2 rounded-xl bg-rose-100 text-primary shrink-0">
+                <Video size={18} />
               </div>
-            ) : null}
-            <p className="mt-2 text-sm text-muted">Upload clear photos. Front road, layout, entrance, and plot view work best.</p>
-          </div>
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-rose-950">Builder Project: Video Only</h4>
+                <p className="text-xs text-rose-800 font-medium mt-0.5">
+                  Images ka option Realtors ke liye reserved hai. Builder projects me exclusively video walkthrough show hota hai. Kripya niche video file upload karein ya YouTube video link paste karein.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Property Video Upload */}
-          <div className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4 sm:p-5">
+          <div className={`rounded-2xl border p-4 sm:p-5 ${form.isDeveloperListing ? 'border-primary/40 bg-rose-50/20' : 'border-gray-200 bg-gray-50/70'}`}>
             <div className="flex items-center justify-between gap-2 mb-2">
               <label className="flex items-center gap-2 text-sm font-bold text-text">
                 <Video size={18} className="text-primary" />
-                Property Video / Walkthrough (Photos ke saath video)
+                {form.isDeveloperListing ? 'Builder Project Video / Walkthrough (Required)' : 'Property Video / Walkthrough (Optional)'}
               </label>
-              <span className="text-xs font-semibold text-muted bg-white px-2.5 py-0.5 rounded-full border border-gray-200">
-                Optional
+              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${form.isDeveloperListing ? 'bg-primary text-white border-primary' : 'text-muted bg-white border-gray-200'}`}>
+                {form.isDeveloperListing ? 'Required for Builder' : 'Optional'}
               </span>
             </div>
             <p className="text-xs text-muted mb-3">
-              Upload a layout walkthrough video (MP4, WebM, MOV up to 100MB) OR paste a YouTube link.
+              {form.isDeveloperListing
+                ? 'Upload project layout walkthrough video (MP4, WebM up to 100MB) OR paste a YouTube link. Ye video Developer Libraries card aur project page par show hoga.'
+                : 'Upload a layout walkthrough video (MP4, WebM, MOV up to 100MB) OR paste a YouTube link.'}
             </p>
 
             <div className="grid gap-3 sm:grid-cols-2">

@@ -33,7 +33,14 @@ export const propertyTypeToApiValue = normalizePropertyType;
 
 export const adaptProperty = (property) => {
   if (!property) return null;
-  const image = property.image || property.images?.[0]?.url || 'https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=1032&auto=format&fit=crop';
+  const rawVideos = Array.isArray(property.videos) 
+    ? property.videos 
+    : (property.videoUrl ? [{ url: property.videoUrl, title: 'Video Tour' }] : (property.video ? [{ url: property.video, title: 'Video Tour' }] : []));
+  const videos = rawVideos.map(v => typeof v === 'string' ? { url: v, title: 'Video Tour' } : v).filter(v => Boolean(v?.url));
+  const videoUrl = property.videoUrl || videos[0]?.url || property.video || '';
+  const ytMatch = videoUrl?.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
+  const videoThumbnail = ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : '';
+  const image = property.image || property.images?.[0]?.url || videoThumbnail || 'https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=1032&auto=format&fit=crop';
   const city = property.city || property.location?.city || '';
   const locality = property.locality || property.location?.locality || '';
   const sizeValue = property.sizeValue ?? property.size?.value ?? 0;

@@ -1114,7 +1114,7 @@ const AdminPanel = () => {
                   <div>
                     <h2 className="text-2xl font-extrabold text-text flex items-center gap-2">
                       <Sparkles size={24} className="text-primary" />
-                      Builder Projects Spotlight
+                      Developer Libraries
                     </h2>
                     <p className="mt-1 text-sm font-medium text-muted">
                       Post and manage builder & developer projects from your end with full images, about builder info, and direct contact details.

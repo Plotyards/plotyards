@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Building2, MapPin, CheckCircle2, MessageCircle, ArrowUpRight, ArrowRight } from 'lucide-react';
+import { Building2, MapPin, CheckCircle2, MessageCircle, ArrowUpRight, ArrowRight, Play } from 'lucide-react';
 import { formatPhoneForLink } from '../utils/phoneUtils';
 
 export const BuilderLogo = ({ builderName = '', logoUrl = '', className = "h-14 w-14" }) => {
@@ -110,7 +110,12 @@ export const BuilderLogo = ({ builderName = '', logoUrl = '', className = "h-14 
 };
 
 export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) {
-  const imageUrl = plot.image || plot.images?.[0]?.url || 'https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=1032&auto=format&fit=crop';
+  const firstVideo = Array.isArray(plot.videos) && plot.videos.length > 0
+    ? (typeof plot.videos[0] === 'string' ? plot.videos[0] : plot.videos[0]?.url)
+    : (plot.videoUrl || plot.video || '');
+  const ytMatch = firstVideo?.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
+  const ytThumbnail = ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : '';
+  const imageUrl = plot.image || plot.images?.[0]?.url || ytThumbnail || 'https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=1032&auto=format&fit=crop';
   const builderName = plot.builderName || (plot.isDeveloperListing ? (plot.broker?.brokerProfile?.companyName || plot.broker?.name) : '') || 'Reputed Developer';
   const linkId = plot.id || plot._id;
   const waNumber = formatPhoneForLink(plot.broker?.whatsapp || plot.broker?.phone || defaultWhatsapp);
@@ -172,12 +177,32 @@ export default function BuilderCard({ plot, defaultWhatsapp = '918287697756' }) 
       <div className="relative w-full h-48 sm:h-52 md:h-52 shrink-0">
         {/* Rounded Image Frame (overflow-hidden prevents image corners from spilling out) */}
         <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black/30 shadow-md">
-          <img
-            src={imageUrl}
-            alt={plot.title}
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-          />
+          {firstVideo && !firstVideo.includes('youtube') && !firstVideo.includes('youtu.be') && !plot.images?.length && !plot.image ? (
+            <video
+              src={firstVideo}
+              muted
+              autoPlay
+              loop
+              playsInline
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          ) : (
+            <img
+              src={imageUrl}
+              alt={plot.title}
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          )}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+
+          {/* Video Tour Badge if video exists */}
+          {firstVideo && (
+            <div className="absolute bottom-3 left-3 z-10 pointer-events-none">
+              <span className="inline-flex items-center gap-1 rounded-full bg-black/75 px-2.5 py-1 text-[11px] font-bold text-white shadow-md backdrop-blur-md border border-white/20">
+                <Play size={10} className="fill-white text-white" /> Video Tour
+              </span>
+            </div>
+          )}
 
           {/* Top-Left: India Flag Pill Badge */}
           <div className="absolute left-3 top-3 z-10">
