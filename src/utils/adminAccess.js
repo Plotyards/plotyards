@@ -16,11 +16,10 @@ export const revokeAdminEntry = () => {
   }
 };
 
-export const hasAdminEntry = () => (
-  typeof window !== 'undefined' && window.sessionStorage.getItem(ADMIN_ENTRY_KEY) === 'search'
-);
+// Accessible on any device as long as login credentials match
+export const hasAdminEntry = () => true;
 
 export const openAdminEntry = (navigate) => {
   grantAdminEntry();
-  navigate.push('/plotadmin');
+  navigate.push('/admin');
 };

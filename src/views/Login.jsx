@@ -30,7 +30,7 @@ const Login = () => {
     try {
       const user = await login(form);
       if (user?.role === 'admin') {
-        navigate.push('/plotadmin');
+        navigate.push('/admin');
       } else {
         navigate.push('/dashboard');
       }

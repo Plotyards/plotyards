@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
-import { Menu, User, Search, X, UserCheck } from 'lucide-react';
+import { Menu, User, Search, X, UserCheck, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/auth';
 import VerifyDocumentModal from './VerifyDocumentModal';
 import { isAdminSearchQuery, openAdminEntry } from '../utils/adminAccess';
@@ -195,7 +195,12 @@ const Navbar = () => {
                 </div>
                 
                 <div className="p-2">
-                  {user && (
+                  {user && user.role === 'admin' && (
+                    <Link onClick={closeMenu} href="/admin" className="block px-4 py-2.5 text-sm font-bold text-primary hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-2">
+                      <ShieldCheck size={16} /> Admin Panel
+                    </Link>
+                  )}
+                  {user && user.role !== 'admin' && (
                     <Link onClick={closeMenu} href="/dashboard" className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
                       Dashboard
                     </Link>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Building2, Home, Loader2, PlusSquare, Search, User, UserCheck, X } from 'lucide-react';
+import { Building2, Home, Loader2, PlusSquare, Search, User, UserCheck, X, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/auth';
 import VerifyDocumentModal from './VerifyDocumentModal';
 function CalendarClockIcon({ size = 26, className = "" }) {
@@ -77,7 +77,13 @@ const MobileBottomNav = () => {
     try {
       const user = await login(loginForm);
       closeAuth();
-      navigate.push(user.role === 'broker' ? '/dashboard?tab=subscription' : '/');
+      if (user.role === 'admin') {
+        navigate.push('/admin');
+      } else if (user.role === 'broker') {
+        navigate.push('/dashboard?tab=subscription');
+      } else {
+        navigate.push('/');
+      }
     } catch (error) {
       setAuthError(error.message || 'Unable to sign in. Please try again.');
     } finally {
@@ -196,9 +202,15 @@ const MobileBottomNav = () => {
                   <p className="text-lg font-extrabold text-text">{user.name}</p>
                   <p className="mt-1 text-sm font-bold capitalize text-muted">{user.role === 'user' ? 'Buyer' : user.role}</p>
                   <div className="mt-4 grid grid-cols-2 gap-2">
-                    <Link href="/dashboard" onClick={closeAuth} className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-extrabold text-white">
-                      Dashboard
-                    </Link>
+                    {user.role === 'admin' ? (
+                      <Link href="/admin" onClick={closeAuth} className="rounded-xl bg-gradient-to-r from-primary to-rose-600 px-4 py-3 text-center text-sm font-extrabold text-white shadow-md flex items-center justify-center gap-1.5">
+                        <ShieldCheck size={16} /> Admin Panel
+                      </Link>
+                    ) : (
+                      <Link href="/dashboard" onClick={closeAuth} className="rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-extrabold text-white">
+                        Dashboard
+                      </Link>
+                    )}
                     <button
                       type="button"
                       onClick={() => {

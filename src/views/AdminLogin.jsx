@@ -16,24 +16,15 @@ const AdminLogin = () => {
   const pathname = usePathname();
   const navigate = useRouter();
   const searchParams = useSearchParams();
-  const entryFromSearch = (typeof window !== 'undefined' && window.history.state?.plotadmin === true)
-    || searchParams.get('entry') === ADMIN_SEARCH_PHRASE;
-
   useEffect(() => {
     grantAdminEntry();
-
-    if (entryFromSearch) {
-      if (searchParams.toString()) {
-        navigate.replace('/plotadmin');
-      }
-    }
-  }, [entryFromSearch, searchParams, navigate]);
+  }, []);
 
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if (user?.role === 'admin' && pathname !== '/admin') {
       navigate.replace('/admin');
     }
-  }, [navigate, user]);
+  }, [navigate, user, pathname]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();

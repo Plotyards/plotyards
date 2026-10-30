@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../context/auth';
+import AdminLogin from './AdminLogin';
 import {
   Activity, BarChart3, Building2, CheckCircle2, ChevronLeft, ChevronRight,
   FileText, Image, Inbox, Megaphone, Plus, Search, ShieldCheck, Sparkles,
   Star, Trash2, Upload, Users, XCircle, Download, MapPin, Route, Train,
   Plane, Hospital, GraduationCap, ShoppingBag, Car, Trees, ArrowUp, ArrowDown,
-  X, Check, AlertCircle, Eye, ExternalLink, RefreshCw
+  X, Check, AlertCircle, Eye, ExternalLink, RefreshCw, Loader2
 } from 'lucide-react';
 import { DEFAULT_TOP_CITIES } from '../data/topCities';
 import { apiRequest } from '../lib/api';
@@ -151,6 +154,8 @@ const PaginationControls = ({ page, pageCount, pageSize, totalItems, onPageChang
 };
 
 const AdminPanel = () => {
+  const { user, loading: authLoading, logout } = useAuth();
+  const router = useRouter();
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [featureProperties, setFeatureProperties] = useState([]);
@@ -202,16 +207,10 @@ const AdminPanel = () => {
   };
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        await loadAdminData();
-      } catch {
-        // Keep the panel usable if an admin widget is temporarily unavailable.
-      }
-    };
-
-    load();
-  }, []);
+    if (user?.role === 'admin') {
+      loadAdminData().catch(() => {});
+    }
+  }, [user]);
 
   useEffect(() => {
     const refreshLiveStats = async () => {
@@ -741,6 +740,21 @@ const AdminPanel = () => {
     (p) => Array.isArray(p.keyLandmarks) && p.keyLandmarks.length > 0
   ).length;
 
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-surface pt-20">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 size={32} className="animate-spin text-primary" />
+          <p className="text-sm font-bold text-muted">Checking administrator access...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'admin') {
+    return <AdminLogin />;
+  }
+
   return (
     <div className="min-h-screen bg-surface pt-32 pb-12">
       <div className="container mx-auto max-w-[1400px] px-6 lg:px-12">
@@ -752,21 +766,36 @@ const AdminPanel = () => {
             <h1 className="mt-3 text-3xl font-extrabold text-text">Admin Control Panel</h1>
             <p className="mt-2 text-sm font-medium text-muted">Manage associate partner approvals, homepage cities, announcements, and platform activity.</p>
           </div>
-          <div className="rounded-2xl border border-black/10 bg-white px-5 py-4 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-wide text-muted">Live buyers now</p>
-            <p className="mt-1 text-2xl font-extrabold text-secondary">{liveUsersDisplay}</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="rounded-2xl border border-black/10 bg-white px-4 py-2.5 shadow-sm">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-muted">Live buyers</p>
+              <p className="mt-0.5 text-xl font-extrabold text-secondary">{liveUsersDisplay}</p>
+            </div>
+            <a
+              href="/"
+              className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-xs font-extrabold text-text hover:bg-gray-50 shadow-sm transition-colors"
+            >
+              Visit Website
+            </a>
+            <button
+              type="button"
+              onClick={() => { logout(); router.push('/'); }}
+              className="rounded-xl bg-gray-100 hover:bg-rose-50 hover:text-primary px-4 py-2.5 text-xs font-extrabold text-gray-700 transition-colors cursor-pointer"
+            >
+              Logout
+            </button>
           </div>
         </div>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
-          <aside className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm h-fit">
+          <aside className="rounded-2xl border border-black/10 bg-white p-3 shadow-sm h-fit flex lg:flex-col overflow-x-auto gap-1.5 no-scrollbar">
             {navItems.map(([tab, Icon, label]) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`w-full rounded-xl px-4 py-3 text-left text-sm font-bold capitalize ${activeTab === tab ? 'bg-gradient-to-r from-primary to-rose-600 text-white shadow-sm' : 'text-muted hover:bg-surface'}`}
+                className={`whitespace-nowrap flex-shrink-0 lg:w-full rounded-xl px-4 py-3 text-left text-xs sm:text-sm font-bold capitalize ${activeTab === tab ? 'bg-gradient-to-r from-primary to-rose-600 text-white shadow-sm' : 'text-muted hover:bg-surface'}`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
                   <Icon size={16} />
                   {label}
                 </div>

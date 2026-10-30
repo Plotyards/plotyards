@@ -19,11 +19,6 @@ const ProtectedRoute = ({ children, roles = [], loginPath = '/login', requireAdm
     if (loading) return;
 
     if (!user) {
-      if (requireAdminEntry && !hasAdminEntry()) {
-        router.replace('/not-found');
-        return;
-      }
-
       const target = loginPath.includes('?')
         ? `${loginPath}&from=${encodeURIComponent(pathname || '/')}`
         : `${loginPath}?from=${encodeURIComponent(pathname || '/')}`;
