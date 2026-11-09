@@ -7,146 +7,7 @@ import { apiRequest } from '../lib/api';
 import { adaptProperties } from '../utils/propertyAdapter';
 import BuilderCard from '../components/BuilderCard';
 
-export const defaultBuilderProjects = [
-  {
-    id: 'builder-dlf-privana',
-    title: 'DLF Privana West',
-    subtitle: 'Luxury Plotted Residences',
-    builderName: 'DLF Limited',
-    location: 'Sector 76–77, Gurugram, Haryana',
-    city: 'Gurugram',
-    locality: 'Sector 76-77',
-    price: 'Rs. 4.10 Cr',
-    priceValue: 41000000,
-    size: '350 Sq. Yrd',
-    sizeValue: 350,
-    handover: 'Q4 2028',
-    rate: 'Rs. 1,17,000 / Sq. Yrd',
-    type: 'Luxury Residential',
-    approved: true,
-    featured: true,
-    isDeveloperListing: true,
-    isDemo: false,
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1170&auto=format&fit=crop',
-    tags: ['RERA Registered', 'Ultra Luxury', 'Aravalli Facing'],
-    aboutBuilder: 'DLF has over 75 years of real estate excellence and development track record across India.'
-  },
-  {
-    id: 'builder-godrej-riverine',
-    title: 'Godrej Riverine',
-    subtitle: 'Premium Residences & Plots',
-    builderName: 'Godrej Properties',
-    location: 'Sector 44, Noida, Uttar Pradesh',
-    city: 'Noida',
-    locality: 'Sector 44',
-    price: 'Rs. 7.25 Cr',
-    priceValue: 72500000,
-    size: '420 Sq. Yrd',
-    sizeValue: 420,
-    handover: 'Q2 2029',
-    rate: 'Rs. 1,72,000 / Sq. Yrd',
-    type: 'Premium Residential',
-    approved: true,
-    featured: true,
-    isDeveloperListing: true,
-    isDemo: false,
-    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1170&auto=format&fit=crop',
-    tags: ['Golf Course Facing', 'Resort Style', 'RERA Approved'],
-    aboutBuilder: 'Godrej Properties brings the philosophy of innovation, sustainability, and excellence to real estate.'
-  },
-  {
-    id: 'builder-lodha-bellagio',
-    title: 'Lodha Bellagio',
-    subtitle: 'Lakefront Plotted Estates',
-    builderName: 'Lodha Group',
-    location: 'Powai, Mumbai, Maharashtra',
-    city: 'Mumbai',
-    locality: 'Powai',
-    price: 'Rs. 5.80 Cr',
-    priceValue: 58000000,
-    size: '300 Sq. Yrd',
-    sizeValue: 300,
-    handover: 'Q3 2028',
-    rate: 'Rs. 1,93,333 / Sq. Yrd',
-    type: 'Lakefront Luxury',
-    approved: true,
-    featured: true,
-    isDeveloperListing: true,
-    isDemo: false,
-    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1170&auto=format&fit=crop',
-    tags: ['Lakefront Living', 'Private Deck', 'Ready Registry'],
-    aboutBuilder: 'Lodha is India’s premier real estate developer renowned for world-class developments.'
-  },
-  {
-    id: 'builder-dlf-meadows',
-    title: 'DLF Gardencity Plotted Township',
-    subtitle: 'Master Planned Plotted Sector',
-    builderName: 'DLF Homes',
-    location: 'Sector 91-92, Gurugram, Haryana',
-    city: 'Gurugram',
-    locality: 'Sector 91',
-    price: 'Rs. 1.85 Cr',
-    priceValue: 18500000,
-    size: '250 Sq. Yrd',
-    sizeValue: 250,
-    handover: 'Ready Possession',
-    rate: 'Rs. 74,000 / Sq. Yrd',
-    type: 'Residential',
-    approved: true,
-    featured: true,
-    isDeveloperListing: true,
-    isDemo: false,
-    image: 'https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=1170&auto=format&fit=crop',
-    tags: ['Gated Township', 'Clubhouse Access', 'Ready Possession'],
-    aboutBuilder: 'DLF has over 75 years of real estate excellence and development track record across India.'
-  },
-  {
-    id: 'builder-godrej-retreat',
-    title: 'Godrej Retreat Orchard Plots',
-    subtitle: 'Resort Style Plotted Living',
-    builderName: 'Godrej Properties',
-    location: 'Sector 83, Faridabad, Haryana',
-    city: 'Faridabad',
-    locality: 'Sector 83',
-    price: 'Rs. 95.00 L',
-    priceValue: 9500000,
-    size: '180 Sq. Yrd',
-    sizeValue: 180,
-    handover: 'Ready Registry',
-    rate: 'Rs. 52,777 / Sq. Yrd',
-    type: 'Residential',
-    approved: true,
-    featured: true,
-    isDeveloperListing: true,
-    isDemo: false,
-    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1170&auto=format&fit=crop',
-    tags: ['Resort Living', 'RERA Approved', 'Direct Registry'],
-    aboutBuilder: 'Godrej Properties brings the philosophy of innovation, sustainability, and excellence to real estate.'
-  },
-  {
-    id: 'builder-bptp-district',
-    title: 'BPTP The District Premium Plotted Sector',
-    subtitle: 'Gated Township Infrastructure',
-    builderName: 'BPTP Builders',
-    location: 'Sector 81, Greater Faridabad, Haryana',
-    city: 'Faridabad',
-    locality: 'Sector 81',
-    price: 'Rs. 1.20 Cr',
-    priceValue: 12000000,
-    size: '204 Sq. Yrd',
-    sizeValue: 204,
-    handover: 'Immediate Registry',
-    rate: 'Rs. 58,823 / Sq. Yrd',
-    type: 'Residential',
-    approved: true,
-    featured: true,
-    isDeveloperListing: true,
-    isDemo: false,
-    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1175&auto=format&fit=crop',
-    tags: ['Gated Security', 'Wide Roads', 'Bank Loan Ready'],
-    aboutBuilder: 'BPTP has established itself as one of the key developers in NCR with master-planned townships.'
-  }
-];
+export const defaultBuilderProjects = [];
 
 export default function Builder() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -162,7 +23,7 @@ export default function Builder() {
       .then((data) => {
         if (isMounted && data && Array.isArray(data.properties)) {
           const adapted = adaptProperties(data.properties);
-          const devProps = adapted.filter((p) => p.isDeveloperListing);
+          const devProps = adapted.filter((p) => p.isDeveloperListing && !p.isDemo);
           setLiveProperties(devProps);
         }
       })
@@ -176,15 +37,9 @@ export default function Builder() {
     };
   }, []);
 
-  // Merge live developer properties with curated defaults
+  // Live developer projects only - demo projects are excluded
   const allProjects = useMemo(() => {
-    const combined = [...liveProperties];
-    defaultBuilderProjects.forEach((def) => {
-      if (!combined.some((item) => (item.id || item._id) === def.id)) {
-        combined.push(def);
-      }
-    });
-    return combined;
+    return liveProperties.filter((item) => !item.isDemo);
   }, [liveProperties]);
 
   // Extract unique cities
@@ -266,37 +121,57 @@ export default function Builder() {
         {/* Results Count */}
         <div className="mt-4 flex items-center justify-between px-1">
           <p className="text-xs font-bold text-gray-500">
-            Showing <span className="text-gray-950 font-black">{filteredProjects.length}</span> premium builder projects
+            {loading ? (
+              'Loading builder projects...'
+            ) : (
+              <>
+                Showing <span className="text-gray-950 font-black">{filteredProjects.length}</span> premium builder projects
+              </>
+            )}
           </p>
         </div>
 
-        {/* Builder Projects Grid */}
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-          {filteredProjects.map((plot) => (
-            <div key={plot.id || plot._id || plot.title} className="flex flex-col h-full">
-              <BuilderCard
-                plot={plot}
-                defaultWhatsapp={defaultWhatsapp}
-              />
-            </div>
-          ))}
-        </div>
+        {/* Builder Projects Grid / Skeleton */}
+        {loading ? (
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-96 rounded-[2rem] bg-gray-100 animate-pulse border border-gray-200/60" />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+            {filteredProjects.map((plot) => (
+              <div key={plot.id || plot._id || plot.title} className="flex flex-col h-full">
+                <BuilderCard
+                  plot={plot}
+                  defaultWhatsapp={defaultWhatsapp}
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Empty State */}
-        {filteredProjects.length === 0 && (
+        {!loading && filteredProjects.length === 0 && (
           <div className="mt-12 text-center py-16 bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
             <Building2 size={48} className="mx-auto text-gray-300" />
             <h3 className="mt-4 text-lg font-bold text-gray-900">No builder projects found</h3>
-            <p className="mt-1 text-sm text-gray-500">Try adjusting your search query or city filter.</p>
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setSelectedCity('All');
-              }}
-              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-sm shadow-primary/20 hover:bg-rose-700 cursor-pointer"
-            >
-              Reset Filters
-            </button>
+            <p className="mt-1 text-sm text-gray-500">
+              {searchQuery || selectedCity !== 'All'
+                ? 'Try adjusting your search query or city filter.'
+                : 'Currently no active builder projects are listed. Check back soon!'}
+            </p>
+            {(searchQuery || selectedCity !== 'All') && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedCity('All');
+                }}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-sm shadow-primary/20 hover:bg-rose-700 cursor-pointer"
+              >
+                Reset Filters
+              </button>
+            )}
           </div>
         )}
       </div>
