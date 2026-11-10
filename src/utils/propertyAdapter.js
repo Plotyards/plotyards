@@ -59,11 +59,6 @@ export const adaptProperty = (property) => {
     ? property.images.length 
     : (property.image ? 1 : 0);
 
-  const rawVideos = Array.isArray(property.videos) 
-    ? property.videos 
-    : (property.videoUrl ? [{ url: property.videoUrl, title: 'Video Tour' }] : (property.video ? [{ url: property.video, title: 'Video Tour' }] : []));
-  const videos = rawVideos.map(v => typeof v === 'string' ? { url: v, title: 'Video Tour' } : v).filter(v => Boolean(v?.url));
-  const videoUrl = property.videoUrl || videos[0]?.url || property.video || '';
   const videoCount = videos.length;
 
   // Adapt availableSizes & plotSizes
