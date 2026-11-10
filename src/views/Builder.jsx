@@ -68,7 +68,7 @@ export default function Builder() {
   }, [allProjects, selectedCity, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-surface pb-28 md:pb-16 pt-3 md:pt-6">
+    <div className="min-h-screen bg-surface pb-28 md:pb-16 pt-24 md:pt-32">
       {/* Top Banner with Red & White Theme */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12">
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white via-rose-50/40 to-white text-gray-900 p-6 sm:p-10 border border-rose-100 shadow-[0_10px_35px_rgba(225,29,72,0.06)]">
