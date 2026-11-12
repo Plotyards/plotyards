@@ -539,19 +539,33 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <nav className="flex flex-col gap-2">
+              <nav className="flex flex-col gap-1.5">
                 {navItems.map(([tab, Icon, label]) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-colors text-left ${activeTab === tab ? 'bg-primary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'}`}
+                    className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl font-medium transition-all text-left ${
+                      activeTab === tab ? 'bg-primary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'
+                    }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon size={18} /> {label}
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Icon size={18} className="shrink-0" />
+                      <span className="whitespace-nowrap font-bold text-[13px] tracking-tight">{label}</span>
                     </div>
                     {tab === 'liveLeads' && (
-                      <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${activeTab === tab ? 'bg-white/20 text-white' : 'bg-rose-50 text-amber-600 border border-amber-300'}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${activeTab === tab ? 'bg-white' : 'bg-amber-500'}`} /> PREMIUM
+                      <span
+                        className={`shrink-0 ml-auto inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black tracking-wider uppercase ${
+                          activeTab === tab
+                            ? 'bg-white/25 text-white'
+                            : 'bg-rose-50 text-rose-600 border border-rose-200 shadow-xs'
+                        }`}
+                      >
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            activeTab === tab ? 'bg-white' : 'bg-rose-600'
+                          } animate-pulse`}
+                        />
+                        LIVE
                       </span>
                     )}
                   </button>

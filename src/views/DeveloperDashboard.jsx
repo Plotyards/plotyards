@@ -157,11 +157,11 @@ const DeveloperDashboard = () => {
                   <button key={tab} onClick={() => setActiveTab(tab)} className={`group flex items-center justify-between px-6 py-4 rounded-2xl font-bold transition-all text-left ${activeTab === tab ? 'bg-gradient-to-r from-[#d4af37]/20 to-transparent border-l-4 border-[#d4af37] text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
                     <div className="flex items-center gap-4">
                       <Icon size={22} className={activeTab === tab ? 'text-[#ffdf00]' : 'text-gray-500 group-hover:text-gray-300'} /> 
-                      <span className="tracking-wide">{label}</span>
+                      <span className="whitespace-nowrap tracking-wide">{label}</span>
                     </div>
                     {tab === 'liveLeads' && (
                       <span className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase bg-[#d4af37]/20 text-[#ffdf00] border border-[#d4af37]/40 animate-pulse">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#ffdf00]" /> PREMIUM
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#ffdf00] animate-pulse" /> LIVE
                       </span>
                     )}
                   </button>
