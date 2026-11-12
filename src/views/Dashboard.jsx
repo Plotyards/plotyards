@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { BarChart3, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle, Plus, Minus, Settings, User, FileSpreadsheet, ChevronDown } from 'lucide-react';
+import { BarChart3, Flame, CheckCircle2, Clock, Compass, CreditCard, FileText, Heart, Home as HomeIcon, Inbox, Mail, MapPin, MessageCircle, Phone, ShieldCheck, TrendingUp, Users, Video, XCircle, Plus, Minus, Settings, User, FileSpreadsheet, ChevronDown } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 import { adaptProperty, adaptProperties } from '../utils/propertyAdapter';
@@ -14,6 +14,7 @@ import DeveloperDashboard from './DeveloperDashboard';
 import DeleteAccountModal from '../components/DeleteAccountModal';
 import SubscriptionModal from '../components/SubscriptionModal';
 import EditProfileSection from '../components/EditProfileSection';
+import LiveLeadsSection from '../components/LiveLeadsSection';
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 const RAZORPAY_CHECKOUT_URL = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -491,6 +492,7 @@ const Dashboard = () => {
             ['overview', BarChart3, 'Overview'],
             ['profile', User, 'Edit Profile'],
             ['leads', Inbox, 'Leads'],
+            ['liveLeads', Flame, 'Live Leads'],
             ['listings', HomeIcon, 'My Listings'],
             ['blogs', FileText, 'Blogs'],
             ['subscription', CreditCard, 'Subscription'],
@@ -498,12 +500,14 @@ const Dashboard = () => {
           ]
         : [
             ['profile', User, 'Edit Profile'],
+            ['liveLeads', Flame, 'Live Leads'],
             ['subscription', CreditCard, 'Subscription'],
             ['settings', Settings, 'Account Settings']
           ])
     : [
         ['overview', Users, 'Overview'],
         ['profile', User, 'Edit Profile'],
+        ['liveLeads', Flame, 'Live Leads'],
         ['history', Clock, 'History'],
         ['settings', Settings, 'Account Settings']
       ];
@@ -537,8 +541,19 @@ const Dashboard = () => {
 
               <nav className="flex flex-col gap-2">
                 {navItems.map(([tab, Icon, label]) => (
-                  <button key={tab} onClick={() => setActiveTab(tab)} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors text-left ${activeTab === tab ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-50'}`}>
-                    <Icon size={18} /> {label}
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-colors text-left ${activeTab === tab ? 'bg-primary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon size={18} /> {label}
+                    </div>
+                    {tab === 'liveLeads' && (
+                      <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${activeTab === tab ? 'bg-white/20 text-white' : 'bg-rose-50 text-rose-600 border border-rose-200 animate-pulse'}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${activeTab === tab ? 'bg-white' : 'bg-rose-600'}`} /> LIVE
+                      </span>
+                    )}
                   </button>
                 ))}
               </nav>
@@ -872,6 +887,8 @@ const Dashboard = () => {
                   title="Spotlight"
                   description="Premium accounts can publish buyer guides and property investment articles on Plotyards."
                 />
+              ) : activeTab === 'liveLeads' ? (
+                <LiveLeadsSection user={user} refreshMe={refreshMe} />
               ) : activeTab === 'leads' ? (
                 <div className="space-y-5">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1144,6 +1161,8 @@ const Dashboard = () => {
                 <div className="rounded-[2rem] border border-border/80 bg-white p-6 shadow-lg shadow-gray-200/70 ring-1 ring-black/5">
                   {loadingUserData ? (
                     <p className="text-sm font-bold text-muted">Loading your dashboard...</p>
+                  ) : activeTab === 'liveLeads' ? (
+                    <LiveLeadsSection user={user} refreshMe={refreshMe} />
                   ) : activeTab === 'history' ? (
                     <div className="space-y-5">
                       <h2 className="text-2xl font-extrabold text-text">Recently Viewed</h2>

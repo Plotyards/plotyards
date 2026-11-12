@@ -3,16 +3,17 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BarChart3, Clock, Compass, CreditCard, FileText, Home as HomeIcon, Inbox, MapPin, MessageCircle, Phone, Sparkles, TrendingUp, Users, Video, Plus, ShieldCheck, Mail, CheckCircle2, Settings, FileSpreadsheet, ChevronDown } from 'lucide-react';
+import { BarChart3, Flame, Clock, Compass, CreditCard, FileText, Home as HomeIcon, Inbox, MapPin, MessageCircle, Phone, Sparkles, TrendingUp, Users, Video, Plus, ShieldCheck, Mail, CheckCircle2, Settings, FileSpreadsheet, ChevronDown } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../context/auth';
 import { adaptProperties, adaptProperty } from '../utils/propertyAdapter';
 import { formatPhoneForDisplay, formatPhoneForLink } from '../utils/phoneUtils';
 import DeleteAccountModal from '../components/DeleteAccountModal';
+import LiveLeadsSection from '../components/LiveLeadsSection';
 
 const DeveloperDashboard = () => {
   const navigate = useRouter();
-  const { user } = useAuth();
+  const { user, refreshMe } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [properties, setProperties] = useState([]);
   const [inquiries, setInquiries] = useState([]);
@@ -119,6 +120,7 @@ const DeveloperDashboard = () => {
   const navItems = [
     ['overview', BarChart3, 'Overview'],
     ['leads', Inbox, 'Buyer Leads'],
+    ['liveLeads', Flame, 'Live Leads'],
     ['listings', HomeIcon, 'Project Listings'],
     ['services', Sparkles, 'Premium Services'],
     ['subscription', CreditCard, 'Subscription'],
@@ -152,9 +154,16 @@ const DeveloperDashboard = () => {
 
               <nav className="flex flex-col gap-3">
                 {navItems.map(([tab, Icon, label]) => (
-                  <button key={tab} onClick={() => setActiveTab(tab)} className={`group flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all text-left ${activeTab === tab ? 'bg-gradient-to-r from-[#d4af37]/20 to-transparent border-l-4 border-[#d4af37] text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
-                    <Icon size={22} className={activeTab === tab ? 'text-[#ffdf00]' : 'text-gray-500 group-hover:text-gray-300'} /> 
-                    <span className="tracking-wide">{label}</span>
+                  <button key={tab} onClick={() => setActiveTab(tab)} className={`group flex items-center justify-between px-6 py-4 rounded-2xl font-bold transition-all text-left ${activeTab === tab ? 'bg-gradient-to-r from-[#d4af37]/20 to-transparent border-l-4 border-[#d4af37] text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
+                    <div className="flex items-center gap-4">
+                      <Icon size={22} className={activeTab === tab ? 'text-[#ffdf00]' : 'text-gray-500 group-hover:text-gray-300'} /> 
+                      <span className="tracking-wide">{label}</span>
+                    </div>
+                    {tab === 'liveLeads' && (
+                      <span className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase bg-[#d4af37]/20 text-[#ffdf00] border border-[#d4af37]/40 animate-pulse">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#ffdf00]" /> LIVE
+                      </span>
+                    )}
                   </button>
                 ))}
               </nav>
@@ -251,6 +260,10 @@ const DeveloperDashboard = () => {
                   ))}
                   {!properties.length && <p className="text-[#d4af37] font-bold">No projects launched yet.</p>}
               </div>
+            )}
+
+            {activeTab === 'liveLeads' && (
+              <LiveLeadsSection user={user} refreshMe={refreshMe} isDark={true} />
             )}
 
             {activeTab === 'leads' && (

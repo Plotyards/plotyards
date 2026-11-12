@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/auth';
 import AdminLogin from './AdminLogin';
 import {
-  Activity, BarChart3, Building2, CheckCircle2, ChevronLeft, ChevronRight,
+  Activity, BarChart3, Radio, Building2, CheckCircle2, ChevronLeft, ChevronRight,
   FileText, Image, Inbox, Megaphone, Plus, Search, ShieldCheck, Sparkles,
   Star, Trash2, Upload, Users, XCircle, Download, MapPin, Route, Train,
   Plane, Hospital, GraduationCap, ShoppingBag, Car, Trees, ArrowUp, ArrowDown,
@@ -14,6 +14,7 @@ import {
 import { DEFAULT_TOP_CITIES } from '../data/topCities';
 import { apiRequest } from '../lib/api';
 import BlogManager from '../components/BlogManager';
+import AdminLiveLeadsManager from '../components/AdminLiveLeadsManager';
 import { formatPhoneForDisplay } from '../utils/phoneUtils';
 import { buildPhoneticIndex, searchPropertiesPhonetic } from '../utils/phoneticSearch';
 
@@ -639,6 +640,7 @@ const AdminPanel = () => {
   const navItems = [
     ['stats', BarChart3, 'Analytics'],
     ['manageBrokers', Users, 'Manage Associate Partners'],
+    ['liveLeads', Radio, 'Live Leads (Share)'],
     ['properties', Building2, 'Manage Properties'],
     ['builderProjects', Sparkles, 'Builder Projects'],
     ['keyLandmarks', MapPin, 'Key Landmarks & Site Plan'],
@@ -1008,6 +1010,8 @@ const AdminPanel = () => {
                   />
                 </div>
               </div>
+            ) : activeTab === 'liveLeads' ? (
+              <AdminLiveLeadsManager />
             ) : activeTab === 'properties' ? (
               <div className="grid gap-5">
                 <div>
