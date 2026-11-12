@@ -463,28 +463,10 @@ const Dashboard = () => {
       icon: CreditCard,
       isPremium: true,
       isPopular: true
-    },
-    {
-      id: 'paid',
-      name: 'Growth Plan',
-      price: '₹25,000',
-      period: 'Month',
-      accent: 'border-purple-500 bg-purple-50/30 ring-2 ring-purple-500/20',
-      cta: 'Upgrade Now',
-      highlights: [
-        'Unlimited Property Listings',
-        '10 UGC Advertisement Videos',
-        'Professional Shoot & Editing',
-        'Script & Content Planning',
-        'Brand & Social Media Promotion',
-        'Premium Lead Access & Priority'
-      ],
-      icon: TrendingUp,
-      isPremium: true
     }
   ];
 
-  const subscriptionPlans = allSubscriptionPlans.filter(p => p.id !== 'free');
+  const subscriptionPlans = allSubscriptionPlans.filter(p => p.id === 'book_my_realtor');
 
   const navItems = isBroker
     ? (brokerApproved
@@ -616,37 +598,7 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* Growth Plan Convincing Upsell Banner for Realtors */}
-                  {user?.brokerProfile?.subscriptionPlan !== 'paid' && (
-                    <div className="rounded-3xl border border-purple-200 bg-gradient-to-r from-purple-950 via-indigo-900 to-purple-900 p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                      <div className="space-y-2 max-w-2xl">
-                        <div className="flex items-center gap-2">
-                          <span className="bg-amber-400 text-purple-950 font-black text-[10px] uppercase px-3 py-1 rounded-full tracking-wider">
-                            🔥 Recommended Agency Upgrade
-                          </span>
-                          {user?.brokerProfile?.bookMyRealtorMember && (
-                            <span className="bg-blue-500/30 text-blue-200 border border-blue-400/30 font-bold text-xs px-3 py-1 rounded-full">
-                              Verified Realtor Directory Active
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
-                          Scale Your Business with Growth Plan (₹25,000 / Month)
-                        </h3>
-                        <p className="text-purple-200 text-xs sm:text-sm font-medium leading-relaxed">
-                          Unlock <strong className="text-white">Unlimited Property Listings</strong>, <strong className="text-white">10 Professional UGC Video Ads</strong>, HD Video Shoot & Scripting, Social Media Brand Promotion, and Dedicated Marketing Support.
-                        </p>
-                      </div>
 
-                      <button
-                        onClick={() => createSubscription('paid')}
-                        disabled={subscriptionUpdating === 'paid'}
-                        className="shrink-0 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-purple-950 font-black text-sm px-6 py-4 rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 whitespace-nowrap self-start md:self-auto"
-                      >
-                        {subscriptionUpdating === 'paid' ? 'Processing...' : 'Upgrade to Growth Plan (₹25,000) →'}
-                      </button>
-                    </div>
-                  )}
 
                   <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
                     <div className="rounded-[2rem] border-4 border-white/60 bg-[#f0f4f8] p-6 shadow-[inset_6px_6px_12px_rgba(0,0,0,0.06),inset_-6px_-6px_12px_rgba(255,255,255,1),8px_8px_20px_rgba(0,0,0,0.06),-8px_-8px_20px_rgba(255,255,255,1)]">
@@ -656,18 +608,14 @@ const Dashboard = () => {
                           <p className="text-2xl font-extrabold text-gray-800">
                             {subscriptionLoading
                               ? 'Loading...'
-                              : user?.brokerProfile?.subscriptionPlan === 'paid'
-                                ? 'Growth Plan (₹25,000/Mo)'
-                                : user?.brokerProfile?.bookMyRealtorMember
-                                  ? 'Book My Realtor (₹699 Lifetime)'
-                                  : 'Free Plan (2 Listings)'}
+                              : user?.brokerProfile?.bookMyRealtorMember
+                                ? 'Book My Realtor (₹699 Lifetime)'
+                                : 'Free Plan (2 Listings)'}
                           </p>
                           <p className="text-sm font-semibold text-gray-500 mt-1">
-                            {user?.brokerProfile?.subscriptionPlan === 'paid'
-                              ? 'Unlimited Listings • 10 UGC Videos • Priority Leads'
-                              : user?.brokerProfile?.bookMyRealtorMember
-                                ? 'Directory Profile Active • 2 Property Listings Quota (Upgrade for Unlimited)'
-                                : 'Starter Access (2 Active Property Listings Limit)'}
+                            {user?.brokerProfile?.bookMyRealtorMember
+                              ? 'Directory Profile Active • Verified Badge • Unlimited Listings'
+                              : 'Starter Access (2 Active Property Listings Limit)'}
                           </p>
                         </div>
                         <span className={`inline-flex w-fit rounded-full px-4 py-1.5 text-xs font-extrabold uppercase shadow-sm ${
@@ -752,7 +700,7 @@ const Dashboard = () => {
                         </div>
                       </div>
                     )}
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full max-w-5xl mx-auto">
+                  <div className="flex justify-center w-full max-w-lg mx-auto">
                     {subscriptionPlans.map((plan) => {
                       const Icon = plan.icon;
                       const isThisBookMyRealtorActive = plan.id === 'book_my_realtor' && Boolean(user?.brokerProfile?.bookMyRealtorMember);
@@ -1091,11 +1039,6 @@ const Dashboard = () => {
                               🔵 Book My Realtor – ₹699 Lifetime Directory Member
                             </span>
                           )}
-                          {user?.brokerProfile?.subscriptionPlan === 'paid' && (
-                            <span className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-800 border border-purple-200 text-xs font-black px-3.5 py-1.5 rounded-xl shadow-xs">
-                              🟣 Growth Plan – ₹25,000 / Month Agency Pack
-                            </span>
-                          )}
                           {!user?.brokerProfile?.bookMyRealtorMember && user?.brokerProfile?.subscriptionPlan !== 'paid' && (
                             <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-black px-3.5 py-1.5 rounded-xl shadow-xs">
                               🟢 Free Starter Plan (2 Property Listings Quota)
@@ -1108,7 +1051,7 @@ const Dashboard = () => {
                             ? 'Unlimited Property Listings • 10 UGC Video Ads • Priority Buyer Leads'
                             : user?.brokerProfile?.bookMyRealtorMember
                               ? 'Verified Directory Profile • Area-Wise Search Visibility • Direct Call & WhatsApp Enquiries'
-                              : 'Upgrade to Growth Plan (₹25,000/mo) for Unlimited Listings & UGC Ads'}
+                              : 'Upgrade to Book My Realtor (₹699 Lifetime) for Verified Badge & Unlimited Listings'}
                         </p>
                       </div>
                     </div>

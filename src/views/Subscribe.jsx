@@ -79,28 +79,6 @@ const Subscribe = () => {
       buttonText: 'Join Now',
       isPopular: true,
       isBookMyRealtor: true
-    },
-    {
-      id: 'paid',
-      name: 'Growth Plan',
-      price: '₹25,000',
-      period: 'Month',
-      highlights: [
-        'Unlimited Property Listings',
-        '10 UGC Advertisement Videos',
-        'Professional Shoot & Editing',
-        'Script Writing',
-        'Content Planning',
-        'Brand Promotion',
-        'Social Media Promotion',
-        'Premium Lead Access',
-        'Priority Listing',
-        'Dedicated Marketing Support'
-      ],
-      description: 'Plotyards works as your complete marketing partner to generate buyer leads and visibility.',
-      buttonText: 'Upgrade Now',
-      isPremium: true,
-      isPopular: false
     }
   ];
   // Replaced above
@@ -278,11 +256,6 @@ const Subscribe = () => {
                     {isBookMyRealtorActive && (
                       <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-blue-200">
                         🔵 Book My Realtor (Lifetime)
-                      </span>
-                    )}
-                    {isGrowthPlanActive && (
-                      <span className="inline-flex items-center gap-1 bg-purple-50 text-purple-700 text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-purple-200">
-                        🟣 Growth Plan (₹25k/Mo)
                       </span>
                     )}
                     {!isBookMyRealtorActive && !isGrowthPlanActive && (

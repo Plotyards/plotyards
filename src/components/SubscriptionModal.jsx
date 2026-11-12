@@ -137,7 +137,7 @@ export default function SubscriptionModal({ isOpen, onClose, onSuccess, user }) 
             <ShieldCheck size={15} /> Realtor Memberships & Plans
           </span>
           <h2 className="text-2xl sm:text-4xl font-extrabold mt-3 tracking-tight text-text">
-            Choose Your Growth Plan<span className="text-primary">.</span>
+            Choose Your Membership Plan<span className="text-primary">.</span>
           </h2>
           <p className="text-gray-500 font-medium text-sm sm:text-base mt-2">
             Grow your real estate business with Plotyards marketing, leads, and area-wise buyer discovery.
@@ -257,53 +257,7 @@ export default function SubscriptionModal({ isOpen, onClose, onSuccess, user }) 
             </button>
           </div>
 
-          {/* Option 3: Growth Plan */}
-          <div className="bg-surface border border-gray-200 rounded-[2rem] p-6 flex flex-col justify-between hover:shadow-md transition-all">
-            <div>
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-extrabold text-text">Growth Plan</h3>
-                  <p className="text-gray-500 text-xs font-semibold mt-1">Full Agency Marketing</p>
-                </div>
-                <div className="text-right">
-                  <span className="text-2xl font-black text-primary">₹25,000</span>
-                  <span className="text-gray-400 text-xs block font-bold">/ Month</span>
-                </div>
-              </div>
 
-              <ul className="space-y-2 text-xs text-text font-medium mb-6">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 size={15} className="text-primary flex-shrink-0" /> <strong>Unlimited Property Listings</strong>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 size={15} className="text-primary flex-shrink-0" /> <strong>10 UGC Ad Videos</strong>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 size={15} className="text-primary flex-shrink-0" /> Professional Shoot & Editing
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 size={15} className="text-primary flex-shrink-0" /> Script Writing & Content Planning
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 size={15} className="text-primary flex-shrink-0" /> Brand & Social Media Promotion
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 size={15} className="text-primary flex-shrink-0" /> Premium Lead Access & Priority Listing
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 size={15} className="text-primary flex-shrink-0" /> Dedicated Marketing Support
-                </li>
-              </ul>
-            </div>
-
-            <button
-              onClick={() => handleSelectPlan('paid')}
-              disabled={loadingPlan === 'paid'}
-              className="w-full py-3.5 rounded-xl font-extrabold bg-primary hover:bg-rose-600 text-white transition-colors shadow-sm disabled:opacity-50 text-sm"
-            >
-              {loadingPlan === 'paid' ? 'Processing...' : 'Upgrade Now'}
-            </button>
-          </div>
 
         </div>
 
