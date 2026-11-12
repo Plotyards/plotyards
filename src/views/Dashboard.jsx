@@ -515,8 +515,8 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen pt-28 pb-12 bg-surface font-sans">
       <div className="container mx-auto px-6 lg:px-12 max-w-[1400px]">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          <aside className="lg:col-span-1">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-8">
+          <aside className="w-full">
             <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 sticky top-32">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-white text-xl font-bold overflow-hidden border border-gray-200 shadow-sm">
@@ -544,20 +544,20 @@ const Dashboard = () => {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl font-medium transition-all text-left ${
+                    className={`w-full flex items-center justify-between gap-3 px-3.5 py-3 rounded-xl font-medium transition-all text-left ${
                       activeTab === tab ? 'bg-primary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <Icon size={18} className="shrink-0" />
-                      <span className="whitespace-nowrap font-bold text-[13px] tracking-tight">{label}</span>
+                      <span className="whitespace-nowrap font-bold text-sm tracking-tight">{label}</span>
                     </div>
                     {tab === 'liveLeads' && (
                       <span
-                        className={`shrink-0 ml-auto inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black tracking-wider uppercase ${
+                        className={`shrink-0 ml-4 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-black tracking-wider uppercase ${
                           activeTab === tab
-                            ? 'bg-white/25 text-white'
-                            : 'bg-rose-50 text-rose-600 border border-rose-200 shadow-xs'
+                            ? 'bg-white/20 text-white'
+                            : 'bg-rose-50 text-rose-600 border border-rose-200'
                         }`}
                       >
                         <span
@@ -574,7 +574,7 @@ const Dashboard = () => {
             </div>
           </aside>
 
-          <main className="lg:col-span-4">
+          <main className="min-w-0">
             {isBroker ? (
               (activeTab === 'profile' || activeTab === 'settings') ? (
                 <div className="space-y-8">
