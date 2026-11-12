@@ -640,7 +640,7 @@ const AdminPanel = () => {
   const navItems = [
     ['stats', BarChart3, 'Analytics'],
     ['manageBrokers', Users, 'Manage Associate Partners'],
-    ['liveLeads', Radio, 'Live Leads (Share)'],
+    ['liveLeads', Radio, 'Premium Leads (Share)'],
     ['properties', Building2, 'Manage Properties'],
     ['builderProjects', Sparkles, 'Builder Projects'],
     ['keyLandmarks', MapPin, 'Key Landmarks & Site Plan'],

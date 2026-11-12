@@ -492,7 +492,7 @@ const Dashboard = () => {
             ['overview', BarChart3, 'Overview'],
             ['profile', User, 'Edit Profile'],
             ['leads', Inbox, 'Leads'],
-            ['liveLeads', Flame, 'Live Leads'],
+            ['liveLeads', Flame, 'Premium Leads'],
             ['listings', HomeIcon, 'My Listings'],
             ['blogs', FileText, 'Blogs'],
             ['subscription', CreditCard, 'Subscription'],
@@ -500,14 +500,14 @@ const Dashboard = () => {
           ]
         : [
             ['profile', User, 'Edit Profile'],
-            ['liveLeads', Flame, 'Live Leads'],
+            ['liveLeads', Flame, 'Premium Leads'],
             ['subscription', CreditCard, 'Subscription'],
             ['settings', Settings, 'Account Settings']
           ])
     : [
         ['overview', Users, 'Overview'],
         ['profile', User, 'Edit Profile'],
-        ['liveLeads', Flame, 'Live Leads'],
+        ['liveLeads', Flame, 'Premium Leads'],
         ['history', Clock, 'History'],
         ['settings', Settings, 'Account Settings']
       ];
@@ -550,8 +550,8 @@ const Dashboard = () => {
                       <Icon size={18} /> {label}
                     </div>
                     {tab === 'liveLeads' && (
-                      <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${activeTab === tab ? 'bg-white/20 text-white' : 'bg-rose-50 text-rose-600 border border-rose-200 animate-pulse'}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${activeTab === tab ? 'bg-white' : 'bg-rose-600'}`} /> LIVE
+                      <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${activeTab === tab ? 'bg-white/20 text-white' : 'bg-rose-50 text-amber-600 border border-amber-300'}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${activeTab === tab ? 'bg-white' : 'bg-amber-500'}`} /> PREMIUM
                       </span>
                     )}
                   </button>

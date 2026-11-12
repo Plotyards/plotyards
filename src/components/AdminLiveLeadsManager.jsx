@@ -107,7 +107,7 @@ export default function AdminLiveLeadsManager() {
         setLeads(res.leads);
       }
     } catch (err) {
-      console.error('Failed to fetch admin live leads:', err);
+      console.error('Failed to fetch admin premium leads:', err);
       showToast(err.message || 'Failed to load leads', 'error');
     } finally {
       setLoading(false);
@@ -166,7 +166,7 @@ export default function AdminLiveLeadsManager() {
           method: 'POST',
           body: formData
         });
-        showToast(res.message || 'Live Lead published successfully!');
+        showToast(res.message || 'Premium Lead published successfully!');
       }
 
       setIsAddModalOpen(false);
@@ -255,11 +255,11 @@ export default function AdminLiveLeadsManager() {
           <div className="flex items-center gap-2">
             <span className="flex h-2.5 w-2.5 rounded-full bg-rose-600 animate-ping" />
             <span className="text-xs font-black uppercase tracking-wider text-rose-600">
-              Live Buyer Feed Control
+              Premium Buyer Feed Control
             </span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mt-1">
-            Share & Manage Live Leads
+            Share & Manage Premium Leads
           </h2>
           <p className="text-xs sm:text-sm text-gray-500 font-medium mt-1">
             Publish high-intent buyer inquiries here. Associate partners and developers unlock them for ₹99 (3 leads).
@@ -271,14 +271,14 @@ export default function AdminLiveLeadsManager() {
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-rose-600 hover:from-rose-600 hover:to-primary px-5 py-3 text-xs sm:text-sm font-black text-white shadow-lg shadow-rose-900/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
         >
           <Plus size={18} />
-          <span>Post Live Lead</span>
+          <span>Post Premium Lead</span>
         </button>
       </div>
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <p className="text-xs uppercase font-extrabold text-gray-400">Total Live Leads</p>
+          <p className="text-xs uppercase font-extrabold text-gray-400">Total Premium Leads</p>
           <p className="text-3xl font-black text-gray-900 mt-1">{stats.total}</p>
         </div>
 
@@ -340,8 +340,8 @@ export default function AdminLiveLeadsManager() {
       ) : filteredLeads.length === 0 ? (
         <div className="p-12 text-center border border-dashed rounded-2xl bg-white space-y-2">
           <Radio size={28} className="mx-auto text-gray-400 animate-pulse" />
-          <p className="text-sm font-bold text-gray-700">No live leads found</p>
-          <p className="text-xs text-gray-400">Click "Post Live Lead" to publish your first live buyer inquiry.</p>
+          <p className="text-sm font-bold text-gray-700">No premium leads found</p>
+          <p className="text-xs text-gray-400">Click "Post Premium Lead" to publish your first live buyer inquiry.</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
@@ -502,7 +502,7 @@ export default function AdminLiveLeadsManager() {
               </div>
               <div>
                 <h3 className="text-xl font-black">
-                  {editingLead ? 'Edit Live Lead' : 'Publish New Live Lead'}
+                  {editingLead ? 'Edit Premium Lead' : 'Publish New Premium Lead'}
                 </h3>
                 <p className="text-xs text-gray-500 font-medium">
                   Share direct plot buyer requirement for associate partners & developers to unlock.
@@ -707,7 +707,7 @@ export default function AdminLiveLeadsManager() {
                   disabled={submitting}
                   className="rounded-xl bg-gradient-to-r from-primary to-rose-600 px-6 py-2.5 text-xs font-black text-white shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer disabled:opacity-50"
                 >
-                  {submitting ? 'Saving...' : editingLead ? 'Update Lead' : 'Publish Live Lead'}
+                  {submitting ? 'Saving...' : editingLead ? 'Update Lead' : 'Publish Premium Lead'}
                 </button>
               </div>
             </form>
@@ -778,9 +778,9 @@ export default function AdminLiveLeadsManager() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 text-rose-600">
               <Trash2 size={24} />
             </div>
-            <h3 className="text-lg font-black text-gray-900">Delete Live Lead?</h3>
+            <h3 className="text-lg font-black text-gray-900">Delete Premium Lead?</h3>
             <p className="text-xs text-gray-500 font-medium">
-              This lead will be removed permanently from the Live Leads feed.
+              This lead will be removed permanently from the Premium Leads feed.
             </p>
             <div className="grid grid-cols-2 gap-3 pt-2">
               <button

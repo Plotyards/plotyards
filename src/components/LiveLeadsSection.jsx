@@ -86,8 +86,8 @@ export default function LiveLeadsSection({ user, refreshMe, isDark = false }) {
         setUserCredits(data.userCredits);
       }
     } catch (err) {
-      console.error('Failed to fetch live leads:', err);
-      showToast(err.message || 'Failed to load live leads', 'error');
+      console.error('Failed to fetch premium leads:', err);
+      showToast(err.message || 'Failed to load premium leads', 'error');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -231,7 +231,7 @@ export default function LiveLeadsSection({ user, refreshMe, isDark = false }) {
         amount: payment.amount,
         currency: payment.currency,
         name: 'Plotyards',
-        description: '⚡ 3 Live Leads Unlock Pack (₹99 Special)',
+        description: '⚡ 3 Premium Leads Unlock Pack (₹99 Special)',
         order_id: payment.order.id,
         prefill: {
           name: user?.name || '',
@@ -357,7 +357,7 @@ export default function LiveLeadsSection({ user, refreshMe, isDark = false }) {
               <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/20 px-3 py-1 text-xs font-black uppercase tracking-wider text-rose-300 border border-rose-500/30">
                 <span className="h-2 w-2 rounded-full bg-rose-500 animate-ping" />
                 <span className="h-2 w-2 rounded-full bg-rose-500 -ml-3.5" />
-                Live Buyer Feed
+                Premium Buyer Feed
               </span>
               <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-200 backdrop-blur-sm">
                 Direct Buyer Inquiries
@@ -365,7 +365,7 @@ export default function LiveLeadsSection({ user, refreshMe, isDark = false }) {
             </div>
 
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white leading-tight">
-              Exclusive Live Leads for Plot Realtors
+              Exclusive Premium Leads for Plot Realtors
             </h1>
 
             <p className="text-sm sm:text-base text-gray-300 font-medium">
@@ -549,7 +549,7 @@ export default function LiveLeadsSection({ user, refreshMe, isDark = false }) {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-50 text-primary dark:bg-white/5">
             <Radio size={28} className="animate-pulse" />
           </div>
-          <h3 className="text-lg font-black text-gray-800 dark:text-white">No Live Leads Matched</h3>
+          <h3 className="text-lg font-black text-gray-800 dark:text-white">No Premium Leads Matched</h3>
           <p className="text-xs text-gray-500 max-w-sm mx-auto font-medium">
             Try adjusting your search criteria or city filters to see more genuine plot buyers.
           </p>
@@ -924,7 +924,7 @@ export default function LiveLeadsSection({ user, refreshMe, isDark = false }) {
                 67% OFF
               </span>
 
-              <p className="text-xs uppercase font-extrabold text-gray-500">Live Leads Starter Pack</p>
+              <p className="text-xs uppercase font-extrabold text-gray-500">Premium Leads Starter Pack</p>
               <div className="flex items-baseline justify-center gap-2 mt-1">
                 <span className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white">
                   ₹99
@@ -935,7 +935,7 @@ export default function LiveLeadsSection({ user, refreshMe, isDark = false }) {
                 </span>
               </div>
               <p className="text-xs text-gray-600 dark:text-gray-300 font-bold mt-2">
-                ⚡ Includes 3 Verified Live Lead Unlocks
+                ⚡ Includes 3 Verified Premium Lead Unlocks
               </p>
             </div>
 

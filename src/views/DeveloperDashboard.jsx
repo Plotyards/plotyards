@@ -120,7 +120,7 @@ const DeveloperDashboard = () => {
   const navItems = [
     ['overview', BarChart3, 'Overview'],
     ['leads', Inbox, 'Buyer Leads'],
-    ['liveLeads', Flame, 'Live Leads'],
+    ['liveLeads', Flame, 'Premium Leads'],
     ['listings', HomeIcon, 'Project Listings'],
     ['services', Sparkles, 'Premium Services'],
     ['subscription', CreditCard, 'Subscription'],
@@ -161,7 +161,7 @@ const DeveloperDashboard = () => {
                     </div>
                     {tab === 'liveLeads' && (
                       <span className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase bg-[#d4af37]/20 text-[#ffdf00] border border-[#d4af37]/40 animate-pulse">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#ffdf00]" /> LIVE
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#ffdf00]" /> PREMIUM
                       </span>
                     )}
                   </button>
